@@ -1,0 +1,11 @@
+# hook 로직은 hooks/에 스크립트로 두고, 여기에는 등록만 한다
+repos:
+  - repo: local
+    hooks:
+      # pyproject.toml만 고치고 uv lock을 안 돌린 커밋을 막는다
+      - id: uv-lock-check
+        name: uv.lock이 pyproject.toml과 일치하는지 확인
+        entry: python hooks/uv_lock_check.py
+        language: python
+        files: ^(pyproject\.toml|uv\.lock)$
+        pass_filenames: false
