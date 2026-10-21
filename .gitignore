@@ -8,5 +8,18 @@ __pycache__/
 # OS
 .DS_Store
 
-# raw Data: 용량이 큰 raw 이미지 데이터는 버전관리하지 않는다.
-data/raw/
+# raw Data: 용량이 큰 raw 이미지 데이터는 버전관리하지 않는다. 폴더만 .gitkeep으로 유지한다.
+data/raw/*
+!data/raw/.gitkeep
+
+# 가공 데이터와 학습 결과: 각자 scripts/로 다시 만든다.
+data/processed/*
+!data/processed/.gitkeep
+runs/
+wandb/
+
+# 모델 가중치: git 대신 W&B Artifact나 공유 드라이브로 공유한다.
+*.pt
+
+# API 키 같은 비밀 값 (2차 마일스톤)
+.env

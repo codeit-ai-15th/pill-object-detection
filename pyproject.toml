@@ -28,3 +28,11 @@ torchvision = [{ index = "pytorch-cu130", marker = "sys_platform == 'linux' or s
 name = "pytorch-cu130"
 url = "https://download.pytorch.org/whl/cu130"
 explicit = true
+
+[build-system]
+requires = ["uv_build>=0.12.6,<0.13.0"]
+build-backend = "uv_build"
+
+# 프로젝트 이름은 pill-object-detection, import 이름은 pill_detection
+[tool.uv.build-backend]
+module-name = "pill_detection"
