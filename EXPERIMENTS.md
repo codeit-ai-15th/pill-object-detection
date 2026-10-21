@@ -3,7 +3,7 @@
 >
 > 규칙을 바꾸고 싶으면 `docs/` 브랜치에서 이 문서를 고쳐 PR을 올리고 팀원 동의를 받습니다.
 
-## 규칙 1. 실험 1개 = YAML 1개 = `exp/` 브랜치 1개 = W&B run 1개
+## 규칙 1. 실험 1개 = YAML 1개 & `exp/` 브랜치 1개 & W&B run 1개
 학습 코드는 고치지 않고, `configs/exp/`에 YAML 파일을 추가하는 것으로 실험합니다. **YAML 파일 이름이 곧 실험 이름**이고, 결과 폴더(`runs/<실험 이름>/`)와 W&B run 이름도 이 이름을 따릅니다.
 
 ### 실험 순서
@@ -20,7 +20,7 @@
     uv run python scripts/train.py configs/exp/yolov8s_640_mosaic.yaml
     ```
 4. YAML을 `exp:` 타입으로 커밋합니다. 예) `exp: yolov8s img640 mosaic=1.0`
-5. PR 설명에 W&B run 링크와 주요 지표(mAP)를 적습니다.
+5. PR Description에 W&B run 링크와 주요 지표(mAP)를 적습니다.
 
 ### YAML 예시
 ```yaml
@@ -64,7 +64,7 @@ YOLO는 클래스를 0부터 N-1까지의 index로 다루지만, 원본 데이�
 ## 규칙 3. `predict()` 반환 형식은 팀 합의 사항
 데모(`demo/app.py`)와 제출(`scripts/make_submission.py`)은 `src/pill_detection/predict.py`의 `predict()`만 써서 검출합니다. 같은 함수를 쓰므로 데모 결과와 제출 결과가 항상 같습니다.
 
-> 아래 형식은 초안입니다. 첫 회의에서 확정합니다.
+> 아래 형식은 초안입니다. EDA 후 회의에서 확정합니다. 
 
 ```python
 predict(image, weights=None) -> list[dict]

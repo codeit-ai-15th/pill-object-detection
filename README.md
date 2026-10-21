@@ -4,7 +4,7 @@
 이 프로젝트는 경구약제 이미지 인식 기능을 이용해 사용자가 알약 사진을 올리면 그 알약이 무슨 알약인 지 검출해주는 서비스입니다. 
 
 - 1차 마일스톤: 알약 이미지를 입력하면 약 이름을 검출해주는 기능
-- (선택)2차 마일스톤: 알약 정보를 입력하면 [식의약 데이터 포털 공공API](https://data.mfds.go.kr/OPCAA01F01/search?page=1&limit=10&totalCnt=65&sort=openYmd&sortOrder=true&openApiPage=1&openApiLimit=50&openApiTotalCnt=50&openApiSort=openYmd&openApiSortOrder=true&openApiPage2=1&openApiLimit2=10&openApiTotalCnt2=0&openApiSort2=openYmd&openApiSortOrder2=true&fileDataPage=1&fileDataLimit=10&fileDataTotalCnt=15&fileDataSort=openYmd&fileDataSortOrder=true&fileDataPage2=1&fileDataLimit2=10&fileDataTotalCnt2=0&fileDataSort2=openYmd&fileDataSortOrder2=true&dataSetPage=1&dataSetLimit=10&dataSetTotalCnt=0&dataSetSort=openYmd&dataSetSortOrder=true&selectedTab=tab2&taskDivsCd=3&taskDivsDtlCd=7&allChk=&srchSrvcKorNm=&srchSrvcExplain=&srchDeptInstt=&srchInstt=00000&srchInstt=10000&srchInstt=20000&srchInstt=30000&srchInstt=40000&srchInstt=50000&srchInstt=60000&srchInstt=80000&srchInstt=A1000&srchInstt=A2000&srchInstt=A3000&srchInstt=A4000&srchInstt=A5000&srchInstt=A6000&srchInstt=A7000&srchSrvcSeCd=&srchSrvcTypeCd=)를 통해 복용 가이드를 제공해주는 기능
+- (선택)2차 마일스톤: 알약 정보를 입력하면 [식의약 데이터 포털 공공API](https://www.data.go.kr/data/15095677/openapi.do)를 통해 복용 가이드를 제공해주는 기능
 
 > TODO 데모 영상
 
@@ -45,7 +45,8 @@ pill-object-detection/
 
 - 모든 명령은 레포 루트에서 실행합니다.
 - `src/pill_detection/`은 `uv sync` 때 패키지로 설치됩니다. 노트북에서도 `from pill_detection.data.classes import ...`처럼 바로 불러오고, `sys.path`를 고치지 않습니다.
-- `notebooks/`의 파일 이름은 `<번호>-<이니셜>-<설명>.ipynb`로 짓습니다. 예) `01-rk-class-distribution.ipynb`. 다른 팀원도 쓸 코드는 `src/pill_detection/`으로 옮깁니다.
+- `notebooks/`의 파일 이름은 `<번호>-<이니셜>-<설명>.ipynb`로 짓습니다. 예) `01-rk-class-distribution.ipynb`. 
+    - 다른 팀원들과 공용으로 쓸 코드는 `src/pill_detection/`으로 옮깁니다.
 - 실험 방법과 공용 코드 규칙은 [EXPERIMENTS.md](EXPERIMENTS.md), git·PR·커밋 절차는 [CONTRIBUTING.md](CONTRIBUTING.md)를 따릅니다.
 
 ## 🧑‍💻 How to use
