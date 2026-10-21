@@ -11,6 +11,8 @@
 ## 📊 DataSet Overview
 본 프로젝트는 [AI Hub에서 제공하는 공개 데이터셋](https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=576)을 활용했습니다. 
 
+> TODO EDA 후 데이터 개요 시각화 자료 첨부
+
 ## 📂 Project Structure
 학습은 [Ultralytics](https://docs.ultralytics.com/)를 엔진으로 쓰고, 폴더 규칙은 [Cookiecutter Data Science](https://cookiecutter-data-science.drivendata.org/)에서 필요한 것만 가져왔습니다.
 
