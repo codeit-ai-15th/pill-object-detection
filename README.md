@@ -12,7 +12,41 @@
 본 프로젝트는 [AI Hub에서 제공하는 공개 데이터셋](https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=576)을 활용했습니다. 
 
 ## 📂 Project Structure
-> TODO
+학습은 [Ultralytics](https://docs.ultralytics.com/)를 엔진으로 쓰고, 폴더 규칙은 [Cookiecutter Data Science](https://cookiecutter-data-science.drivendata.org/)에서 필요한 것만 가져왔습니다.
+
+```text
+pill-object-detection/
+├── configs/
+│   ├── data.yaml              # Ultralytics 데이터셋 정의. prepare_data.py가 classes.py로 생성
+│   └── exp/                   # 실험 1개 = YAML 1개 (예: yolov8s_640.yaml)
+├── data/                      # 폴더만 git으로 관리하고 내용은 추적하지 않음
+│   ├── raw/                   # 원본 데이터. 내려받은 그대로 두고 수정하지 않음
+│   └── processed/             # YOLO 포맷으로 변환한 결과
+├── notebooks/                 # 개인 탐색용 노트북
+├── src/pill_detection/        # 공용 코드 패키지 (노트북·스크립트·데모 어디서든 import)
+│   ├── data/
+│   │   ├── convert.py         # 원본 어노테이션 → YOLO 포맷
+│   │   └── classes.py         # YOLO index ↔ category_id ↔ 약 이름 (유일한 정의처)
+│   ├── predict.py             # 이미지 → 검출 결과. 데모와 제출이 함께 사용
+│   └── utils.py               # bbox 변환, 시각화
+├── scripts/                   # 실행용 스크립트. 로직은 src/에 두고 짧게 유지
+│   ├── prepare_data.py        # data/raw → data/processed, configs/data.yaml 생성
+│   ├── train.py               # 실험 YAML 하나로 학습
+│   └── make_submission.py     # 제출 파일 생성 (Kaggle 제출이 있다면)
+├── demo/
+│   └── app.py                 # Streamlit 데모 페이지. predict.py만 import
+├── runs/                      # 학습 결과. 학습할 때 자동 생성되며 git에서 제외
+├── hooks/                     # pre-commit hook 스크립트
+├── EXPERIMENTS.md             # 실험 규칙
+└── CONTRIBUTING.md            # git·PR·커밋 협업 규칙
+```
+
+> 지금은 폴더 뼈대만 있습니다. 위의 `.py`, `.yaml` 파일은 담당자가 작업하면서 만들어 갑니다.
+
+- 모든 명령은 레포 루트에서 실행합니다.
+- `src/pill_detection/`은 `uv sync` 때 패키지로 설치됩니다. 노트북에서도 `from pill_detection.data.classes import ...`처럼 바로 불러오고, `sys.path`를 고치지 않습니다.
+- `notebooks/`의 파일 이름은 `<번호>-<이니셜>-<설명>.ipynb`로 짓습니다. 예) `01-rk-class-distribution.ipynb`. 다른 팀원도 쓸 코드는 `src/pill_detection/`으로 옮깁니다.
+- 실험 방법과 공용 코드 규칙은 [EXPERIMENTS.md](EXPERIMENTS.md), git·PR·커밋 절차는 [CONTRIBUTING.md](CONTRIBUTING.md)를 따릅니다.
 
 ## 🧑‍💻 How to use
 이 프로젝트의 환경은 uv로 관리됩니다. 
@@ -56,7 +90,7 @@
         git add pyproject.toml uv.lock
         git commit --no-edit                                    # 작업 브랜치에 머지 커밋 생성
         ```
-    4. 스크립트는 `uv run python src/train.py`처럼 실행합니다. 가상환경을 따로 켤 필요가 없습니다.
+    4. 스크립트는 `uv run python scripts/train.py configs/exp/yolov8s_640.yaml`처럼 실행합니다. 가상환경을 따로 켤 필요가 없습니다.
     5. `pyproject.toml`이나 `uv.lock`을 커밋하면 pre-commit hook이 `uv lock --check`로 두 파일이 일치하는지 검사합니다. 실패하면 터미널에 원인과 해결 명령이 출력되니 그대로 따라 하면 됩니다. `--no-verify`로 우회하지 마세요.
     6. pre-commit hook을 추가할 때는 스크립트를 `hooks/`에 만들고 `.pre-commit-config.yaml`에 등록합니다.
 
