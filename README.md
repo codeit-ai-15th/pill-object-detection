@@ -20,11 +20,15 @@
 pill-object-detection/
 ├── configs/
 │   ├── data.yaml              # Ultralytics 데이터셋 정의. prepare_data.py가 classes.py로 생성
+│   ├── data_fixes.yaml        # 원본 라벨을 고칠 목록 (원본 파일은 수정하지 않음)
+│   ├── splits/                # train/val 분할 파일. 한 번 만들면 모두 같은 파일을 씀
+│   ├── smoke.yaml             # 파이프라인 동작 확인용 1 epoch 설정 (실험 아님)
 │   └── exp/                   # 실험 1개 = YAML 1개 (예: yolov8s_640.yaml)
 ├── data/                      # 폴더만 git으로 관리하고 내용은 추적하지 않음
 │   ├── raw/                   # 원본 데이터. 내려받은 그대로 두고 수정하지 않음
 │   └── processed/             # YOLO 포맷으로 변환한 결과
 ├── notebooks/                 # 개인 탐색용 노트북
+│   └── 00-train-colab-kaggle.ipynb  # Colab·Kaggle 공용 학습 노트북 (하나만 두고 복사하지 않음)
 ├── src/pill_detection/        # 공용 코드 패키지 (노트북·스크립트·데모 어디서든 import)
 │   ├── data/
 │   │   ├── convert.py         # 원본 어노테이션 → YOLO 포맷
@@ -37,13 +41,15 @@ pill-object-detection/
 │   └── make_submission.py     # 제출 파일 생성 (Kaggle 제출이 있다면)
 ├── demo/
 │   └── app.py                 # Streamlit 데모 페이지. predict.py만 import
+├── tests/                     # bbox 변환·클래스 매핑 검사 (uv run pytest)
 ├── runs/                      # 학습 결과. 학습할 때 자동 생성되며 git에서 제외
+├── submissions/               # 제출 CSV. make_submission.py가 만들며 git에서 제외
 ├── hooks/                     # pre-commit hook 스크립트
 ├── EXPERIMENTS.md             # 실험 규칙
 └── CONTRIBUTING.md            # git·PR·커밋 협업 규칙
 ```
 
-> 지금은 폴더 뼈대만 있습니다. 위의 `.py`, `.yaml` 파일은 담당자가 작업하면서 만들어 갑니다.
+> `demo/app.py`는 아직 없습니다. 나머지 파일은 공용 뼈대로 만들어 두었습니다.
 
 - 모든 명령은 레포 루트에서 실행합니다.
 - `src/pill_detection/`은 `uv sync` 때 패키지로 설치됩니다. 노트북에서도 `from pill_detection.data.classes import ...`처럼 바로 불러오고, `sys.path`를 고치지 않습니다.
@@ -96,6 +102,26 @@ pill-object-detection/
     4. 스크립트는 `uv run python scripts/train.py configs/exp/yolov8s_640.yaml`처럼 실행합니다. 가상환경을 따로 켤 필요가 없습니다.
     5. `pyproject.toml`이나 `uv.lock`을 커밋하면 pre-commit hook이 `uv lock --check`로 두 파일이 일치하는지 검사합니다. 실패하면 터미널에 원인과 해결 명령이 출력되니 그대로 따라 하면 됩니다. `--no-verify`로 우회하지 마세요.
     6. pre-commit hook을 추가할 때는 스크립트를 `hooks/`에 만들고 `.pre-commit-config.yaml`에 등록합니다.
+
+6. 데이터 준비와 학습 (로컬)
+    ```bash
+    cp .env.example .env        # 최초 1회. .env에 WANDB_API_KEY를 채움 (.env는 git에 올라가지 않음)
+    uv run python scripts/prepare_data.py                                   # data/raw → data/processed
+    WANDB_MODE=offline uv run python scripts/train.py configs/smoke.yaml    # 동작 확인 (W&B에 올리지 않음)
+    uv run python scripts/train.py configs/exp/yolov8s_640.yaml             # 실험
+    uv run python scripts/make_submission.py --weights runs/yolov8s_640/weights/best.pt
+    ```
+    GPU 학습은 Colab·Kaggle에서 `notebooks/00-train-colab-kaggle.ipynb`로 합니다. 노트북 맨 위 안내를 따릅니다.
+
+7. API 키 위치
+    레포가 공개되어 있으므로 키는 코드, YAML, 노트북 셀, 셀 출력 어디에도 쓰지 않습니다. `train.py`는 환경 변수 `WANDB_API_KEY`만 읽습니다.
+
+    | 실행 방식 | W&B 키를 두는 곳 |
+    | -- | -- |
+    | 로컬 터미널 | 레포 루트 `.env` |
+    | 브라우저 Colab | 🔑 보안 비밀 `WANDB_API_KEY` (노트북 액세스 켜기) |
+    | VS Code + Colab 확장 | 보안 비밀을 읽지 못함. 노트북 키 셀의 입력창에 붙여 넣기 |
+    | 브라우저 Kaggle, VS Code + Kaggle Jupyter Server | Add-ons → Secrets `WANDB_API_KEY` (노트북에 attach) |
 
 ## 🧠 Model Architecture 
 > TODO 최종 선정 모델 아키텍처 다이어그램

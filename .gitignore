@@ -21,5 +21,8 @@ wandb/
 # 모델 가중치: git 대신 W&B Artifact나 공유 드라이브로 공유한다.
 *.pt
 
-# API 키 같은 비밀 값 (2차 마일스톤)
+# 제출 파일: make_submission.py로 다시 만든다.
+submissions/
+
+# API 키 같은 비밀 값 (W&B 키, 2차 마일스톤 공공데이터 키)
 .env
