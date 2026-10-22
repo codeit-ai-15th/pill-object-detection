@@ -9,3 +9,10 @@ repos:
         language: python
         files: ^(pyproject\.toml|uv\.lock)$
         pass_filenames: false
+
+      # 노트북 출력을 지우는 nbstripout git 필터가 이 저장소에 설정되어 있지 않으면 설정한다
+      - id: nbstripout-setup
+        name: 노트북 출력 제거 필터(nbstripout) 설정 확인
+        entry: python hooks/nbstripout_setup.py
+        language: python
+        files: \.ipynb$
