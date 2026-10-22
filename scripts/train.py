@@ -25,7 +25,7 @@ RESERVED_KEYS = ("project", "name", "save_dir")  # 실험 이름은 파일 이�
 NO_WANDB_KEY = """\
 [오류] W&B API 키를 찾지 못했습니다. 아래 중 하나로 키를 넣은 뒤 다시 실행하세요.
   로컬: 레포 루트 .env 파일에 WANDB_API_KEY=<키> 한 줄 추가 (.env는 git에 올라가지 않음)
-  Colab/Kaggle: 공용 노트북의 키 셀을 먼저 실행
+  Colab/Kaggle: 공용 노트북을 Run All (설정 셀이 Drive의 .env나 Kaggle Secrets에서 키를 넣음)
   W&B에 올리지 않고 동작만 확인: WANDB_MODE=offline 을 앞에 붙여 실행
 키는 https://wandb.ai/authorize 에서 확인할 수 있습니다."""
 
