@@ -1,7 +1,70 @@
-# 실험 규칙
+# 🧪 실험 규칙
 > 이 문서는 **실험을 어떻게 돌리고 기록하는지, 공용 코드를 어떻게 맞춰 쓰는지** 정합니다. git·PR·커밋 절차는 [CONTRIBUTING.md](CONTRIBUTING.md)를 따릅니다.
 >
 > 규칙을 바꾸고 싶으면 `docs/` 브랜치에서 이 문서를 고쳐 PR을 올리고 팀원 동의를 받습니다.
+
+# 📊 데이터 세팅 및 학습
+## 1. 데이터 준비
+1. **로컬**
+    1. 아래 위치에 원본 데이터가 준비되도록 합니다.  
+        ```text
+        data/                      
+           └── raw/                
+                ├── train_images/
+                ├── train_annotations/
+                └── test_images/
+        ```
+
+2. **Drive에 준비**
+    1. `train_images`, `train_annotations`, `test_images`를 `raw.zip`으로 묶어서 본인 개인 드라이브 특정 위치에 업로드합니다. 
+
+## 2. 환경변수 준비
+1. **.env 파일 생성**
+    ```bash
+    cp .env.example .env        # 최초 1회. 
+    ``` 
+2. **.env 값 채우기**
+    - WandB 값, raw.zip이 위치한 구글드라이브 폴더 등 설정정보를 저장합니다.
+
+3. **개인 Drive에 올리기**
+    - `.env`를 내 드라이브에 `MyDrive/.secret/pill-object-detection.env` 이름으로 업로드하세요.
+
+4. **로컬 `.env`를 고치면 Drive의 파일도 다시 올려야 합니다.**
+
+- **참고**
+    | 실험 환경 | `.env` 값을 두는 곳 |
+    | -- | -- |
+    | 로컬 터미널, 로컬 노트북 | 레포 루트 `.env` |
+    | 브라우저 Colab, VS Code + Colab 확장 | `.env`를 내 드라이브 `MyDrive/.secret/pill-object-detection.env` 이름으로 업로드. 공유 폴더에 두지 않기 |
+    | 브라우저 Kaggle, VS Code + Kaggle Jupyter Server | Add-ons → Secrets에 같은 이름으로 `WANDB_API_KEY`, `WANDB_ENTITY` 추가 (노트북에 attach) |
+
+## 2. 로컬 GPU로 학습할 때
+
+1. **데이터 전처리**
+    ```bash
+    uv run python scripts/prepare_data.py                                   # data/raw → data/processed
+    ```
+2. **스모크 테스트**
+    ```bash
+    WANDB_MODE=offline uv run python scripts/train.py configs/smoke.yaml    # 동작 확인 (W&B에 올리지 않음)
+    ```
+3. **본 실험**
+    ```bash
+    uv run python scripts/train.py configs/exp/yolov8s_640.yaml             # 실험
+    ```
+4. **제출 파일 생성**
+    ```bash
+    uv run python scripts/make_submission.py --weights runs/yolov8s_640/weights/best.pt
+    ```
+
+## 3. Colab/Kaggle GPU로 학습할 때
+1. 원격 세션이 읽을 수 있는 곳에 `.env` 값을 둡니다. Colab, Kaggle에서는 로컬 파일시스템에 접근할 수 없어 로컬 `.env`를 읽을 수 없습니다.
+    - **Colab**: `.env`를 내 드라이브에 `MyDrive/.secret/pill-object-detection.env` 이름으로 업로드하세요. 꼭 이 안에 있는 값들이 채워져있도록 하세요.
+    - **Kaggle**: Kaggle은 구글드라이브를 읽을 수 없습니다. Add-ons → Secrets에 `.env`와 같은 이름으로 `WANDB_API_KEY`, `WANDB_ENTITY`를 추가하고 노트북에 attach하세요. 원본 데이터는 Add Input으로 팀 데이터셋을 붙이므로 `DRIVE_RAW`는 필요 없습니다.
+
+2. Colab·Kaggle에서 학습할 때는 원격 세션에 환경변수 설정과 데이터 준비를 해야하기 때문에 공통 실험용 노트북인 `notebooks/00-train-colab-kaggle.ipynb`를 사용합니다. 노트북 맨 위 안내 마크다운 셀을 읽어주세요. 
+
+
 
 ## 규칙 1. 실험 1개 = YAML 1개 & `exp/` 브랜치 1개 & W&B run 1개
 학습 코드는 고치지 않고, `configs/exp/`에 YAML 파일을 추가하는 것으로 실험합니다. **YAML 파일 이름이 곧 실험 이름**이고, 결과 폴더(`runs/<실험 이름>/`)와 W&B run 이름도 이 이름을 따릅니다.

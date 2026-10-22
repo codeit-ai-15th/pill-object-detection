@@ -55,12 +55,15 @@ pill-object-detection/
 - `src/pill_detection/`은 `uv sync` 때 패키지로 설치됩니다. 노트북에서도 `from pill_detection.data.classes import ...`처럼 바로 불러오고, `sys.path`를 고치지 않습니다.
 - `notebooks/`의 파일 이름은 `<번호>-<이니셜>-<설명>.ipynb`로 짓습니다. 예) `01-rk-class-distribution.ipynb`. 
     - 다른 팀원들과 공용으로 쓸 코드는 `src/pill_detection/`으로 옮깁니다.
+    - 노트북은 **코드와 마크다운만 커밋되고 셀 출력은 자동으로 빠집니다**(nbstripout). 단, 내 화면의 출력은 그대로 로컬 디스크에 남고, 출력의 버전관리만 되지 않는 겁니다. 따라서 팀원들의 노트북 출력 결과는 각자 Run All로 확인해야 합니다.
+    - 출력은 버전관리가 되지 않기 때문에 버전 관리가 필요한 내용은 마크다운 셀에 글로 적어 두세요. 출력을 꼭 남길 셀에만 `keep_output` 태그를 붙입니다. 예) VS Code: 셀의 `…` 메뉴 → Add Cell Tag
+    - 레포가 공개되어 있으므로 알약 사진처럼 원본 데이터가 보이는 셀에는 `keep_output`을 붙이지 마세요.
 - 실험 방법과 공용 코드 규칙은 [EXPERIMENTS.md](EXPERIMENTS.md), git·PR·커밋 절차는 [CONTRIBUTING.md](CONTRIBUTING.md)를 따릅니다.
 
-## 🧑‍💻 How to use
+## 🧑‍💻 Dependencies
 이 프로젝트의 환경은 uv로 관리됩니다. 
 
-1. uv 설치(최초 1회)
+1. **uv 설치(최초 1회)**
     - macOS / Linux
         ```bash
         curl -LsSf https://astral.sh/uv/install.sh | sh          # macOS / Linux
@@ -70,26 +73,26 @@ pill-object-detection/
         powershell ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
         ```
 
-2. uv 설치 확인
+2. **uv 설치 확인**
     ```bash
     uv --version
     ```
 
-3. 레포를 받은 뒤 환경 생성
+3. **레포를 받은 뒤 환경 생성**
     ```bash
     git pull origin main
     rm -rf .venv        # 기존 .venv(예: 3.14)가 있다면 삭제
     uv sync             # Python 3.12가 없으면 uv가 자동으로 받아서 설치함  
-    uv run pre-commit install   # 최초 1회: 커밋 전 uv.lock 검사 hook 설치
+    uv run pre-commit install   # 최초 1회: 커밋 전 검사 hook 설치 (uv.lock 검사, nbstripout 설정)
     ```
 
-4. 의존성 추가 시
+4. **의존성 추가 시**
     ```bash
     uv add <패키지>
     ```
     | **NOTE**: `pip install`로 설치하지 않습니다. `uv.lock`에 기록되지 않아 다른 팀원 간 환경에 drfit 발생함. 
 
-5. 팀 규칙
+5. **NOTE**
     1. `pyproject.toml`과 `uv.lock`은 항상 같이 커밋합니다.
     2. main을 pull한 뒤에는 uv sync를 실행합니다. 다른 팀원이 추가한 패키지가 반영됩니다.
     3. uv.lock에서 머지 충돌이 나면 직접 고치지 마세요. pyproject.toml에 충돌이 있으면 먼저 해결하고, 작업 브랜치에 그대로 있는 상태에서 아래 순서로 lock 파일을 다시 만듭니다. 충돌 표시가 남은 uv.lock으로는 `uv lock`이 실패하므로 main 버전으로 먼저 덮어씁니다.
@@ -102,26 +105,9 @@ pill-object-detection/
     4. 스크립트는 `uv run python scripts/train.py configs/exp/yolov8s_640.yaml`처럼 실행합니다. 가상환경을 따로 켤 필요가 없습니다.
     5. `pyproject.toml`이나 `uv.lock`을 커밋하면 pre-commit hook이 `uv lock --check`로 두 파일이 일치하는지 검사합니다. 실패하면 터미널에 원인과 해결 명령이 출력되니 그대로 따라 하면 됩니다. `--no-verify`로 우회하지 마세요.
     6. pre-commit hook을 추가할 때는 스크립트를 `hooks/`에 만들고 `.pre-commit-config.yaml`에 등록합니다.
-
-6. 데이터 준비와 학습 (로컬)
-    ```bash
-    cp .env.example .env        # 최초 1회. .env에 WANDB_API_KEY를 채움 (.env는 git에 올라가지 않음)
-    uv run python scripts/prepare_data.py                                   # data/raw → data/processed
-    WANDB_MODE=offline uv run python scripts/train.py configs/smoke.yaml    # 동작 확인 (W&B에 올리지 않음)
-    uv run python scripts/train.py configs/exp/yolov8s_640.yaml             # 실험
-    uv run python scripts/make_submission.py --weights runs/yolov8s_640/weights/best.pt
-    ```
-    GPU 학습은 Colab·Kaggle에서 `notebooks/00-train-colab-kaggle.ipynb`로 합니다. 노트북 맨 위 안내를 따릅니다.
-
-7. API 키 위치
-    레포가 공개되어 있으므로 키는 코드, YAML, 노트북 셀, 셀 출력 어디에도 쓰지 않습니다. `train.py`는 환경 변수 `WANDB_API_KEY`만 읽습니다.
-
-    | 실행 방식 | W&B 키를 두는 곳 |
-    | -- | -- |
-    | 로컬 터미널 | 레포 루트 `.env` |
-    | 브라우저 Colab | 🔑 보안 비밀 `WANDB_API_KEY` (노트북 액세스 켜기) |
-    | VS Code + Colab 확장 | 보안 비밀을 읽지 못함. 노트북 키 셀의 입력창에 붙여 넣기 |
-    | 브라우저 Kaggle, VS Code + Kaggle Jupyter Server | Add-ons → Secrets `WANDB_API_KEY` (노트북에 attach) |
+    7. 노트북을 처음 커밋하면 pre-commit hook이 이 저장소에 출력 제거 필터(nbstripout)를 설정합니다. 따로 할 일은 없습니다.
+        - 노트북을 `git add`하거나 `git status`를 실행할 때 `external filter` 오류가 나면 `uv sync`를 실행합니다. `.venv`를 지우고 다시 만들지 않은 경우에 납니다.
+        - Colab의 "GitHub에 사본 저장"으로 커밋하지 않습니다. 필터를 거치지 않아 출력이 그대로 올라갑니다.
 
 ## 🧠 Model Architecture 
 > TODO 최종 선정 모델 아키텍처 다이어그램
