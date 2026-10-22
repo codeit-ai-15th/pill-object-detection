@@ -1,0 +1,8 @@
+# 파이프라인이 끝까지 도는지만 확인하는 설정. 실험이 아니므로 configs/exp/ 밖에 둔다.
+# 새 환경(Colab/Kaggle 첫 세션 등)에서 처음 한 번 돌려 보고, W&B에 run이 생기는지 확인한 뒤 지워도 된다.
+model: yolov8n.pt
+data: configs/data.yaml
+imgsz: 320
+epochs: 1
+batch: 8
+seed: 42
