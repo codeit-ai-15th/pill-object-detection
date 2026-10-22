@@ -1,0 +1,12 @@
+# 원본 라벨을 고치는 목록. 원본 파일은 건드리지 않고 prepare_data.py가 이 목록을 반영한다.
+# 이 파일이 바뀌면 data_version이 바뀌고, train.py가 W&B에 함께 기록한다.
+# 무엇을 고칠지는 EDA 후 회의에서 정한다. prepare_data.py가 출력하는 점검 리포트를 참고한다.
+
+# 학습에서 뺄 이미지 파일 이름. 예) - K-003351-013900-021325_0_2_0_2_70_000_200.png
+exclude_images: []
+
+# 지울 라벨의 annotation_id (원본 JSON의 annotations[].id). 예) - 1664
+drop_annotations: []
+
+# bbox 좌표를 고칠 라벨. annotation_id: [x, y, w, h] (좌상단 기준, 원본 픽셀). 예) 1664: [600, 867, 260, 230]
+fix_bboxes: {}
