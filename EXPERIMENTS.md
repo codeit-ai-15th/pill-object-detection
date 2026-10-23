@@ -108,6 +108,7 @@ Ultralytics 8.4 소스 기준으로 확인한 내용입니다.
 - RT-DETR 가중치(`rtdetr-l.pt`)도 `YOLO()`가 알아서 RT-DETR 모델로 바꿔 줍니다. 모델 종류별로 분기할 필요가 없습니다.
 - Ultralytics는 `project` 값을 W&B project 이름으로 씁니다. `project="pill-object-detection"`으로 고정하고, 결과 폴더는 `save_dir=runs/<YAML 파일 이름>`으로 따로 지정합니다.
 - W&B 로깅은 `ultralytics.settings.update({"wandb": True})`로 켭니다. 이 설정은 그 컴퓨터의 Ultralytics 설정 파일에 저장됩니다.
+- Ultralytics는 best.pt를 mAP50-95(`fitness`) 기준으로 고릅니다. `train.py`가 Ultralytics의 `DetMetrics`를 바꿔 기준을 대회 지표 mAP75-95로 바꾸고, 같은 값을 `metrics/mAP75-95(B)`로 results.csv와 W&B에 기록합니다. 조기 종료(`patience`)도 이 값을 따릅니다.
 
 ## 규칙 2. 클래스 매핑은 `src/pill_detection/data/classes.py` 한 곳에서만 정의
 YOLO는 클래스를 0부터 N-1까지의 index로 다루지만, 원본 데이터와 제출 파일은 category_id를 씁니다. 둘이 섞이면 학습 지표는 멀쩡한데 제출 점수만 0에 가깝게 나오는 사고가 납니다.

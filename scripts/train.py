@@ -4,6 +4,7 @@
     WANDB_MODE=offline uv run python scripts/train.py configs/smoke.yaml   # W&B에 올리지 않고 동작만 확인
 
 YAML 파일 이름이 실험 이름이다. 결과는 runs/<실험 이름>/, W&B run 이름도 같다.
+best.pt는 대회 지표 mAP75-95가 가장 높은 epoch의 가중치다.
 W&B 키는 환경 변수 WANDB_API_KEY로 받는다. 로컬에서는 레포 루트의 .env에 적어 두면 여기서 읽는다.
 """
 
@@ -18,9 +19,11 @@ import torch
 import yaml
 from dotenv import load_dotenv
 from ultralytics import YOLO, settings
+from ultralytics.utils.metrics import DetMetrics
 
 WANDB_PROJECT = "pill-object-detection"
 RESERVED_KEYS = ("project", "name", "save_dir")  # 실험 이름은 파일 이름으로 정한다
+COMPETITION_METRIC = "metrics/mAP75-95(B)"
 
 NO_WANDB_KEY = """\
 [오류] W&B API 키를 찾지 못했습니다. 아래 중 하나로 키를 넣은 뒤 다시 실행하세요.
@@ -65,8 +68,25 @@ def git_commit():
     return f"{sha}-dirty" if dirty else sha
 
 
+def map75_95(metrics):
+    """대회 지표 mAP@[0.75:0.95]. box.all_ap는 (클래스 수, IoU 0.50~0.95의 10단계) 배열이라 뒤쪽 5칸이 0.75~0.95"""
+    all_ap = metrics.box.all_ap
+    return float(all_ap[:, 5:].mean()) if len(all_ap) else 0.0
+
+
+def use_competition_metric():
+    """Ultralytics 검증 결과에 대회 지표를 넣고, best.pt를 고르는 기준(fitness)을 mAP50-95에서 대회 지표로 바꾼다.
+
+    검증 결과에 들어가므로 epoch마다 results.csv와 W&B에 기록되고, 마지막 best.pt 재평가 값도 W&B summary에 남는다.
+    fitness가 바뀌므로 best.pt 저장과 조기 종료(patience)도 대회 지표를 따른다. RT-DETR도 같은 DetMetrics를 쓴다.
+    """
+    base_results = DetMetrics.results_dict.fget  # 안에서 self.fitness를 읽으므로 "fitness" 값도 대회 지표가 된다
+    DetMetrics.fitness = property(map75_95)
+    DetMetrics.results_dict = property(lambda self: {**base_results(self), COMPETITION_METRIC: map75_95(self)})
+
+
 def add_callbacks(model, run_info):
-    """Ultralytics W&B 로깅에 우리 정보를 더한다. model.add_callback으로 넣은 콜백은 W&B 콜백보다 먼저 실행된다."""
+    """W&B run에 우리 정보를 더하고, 콘솔에 대회 지표를 보여 준다."""
 
     def log_run_info(trainer):
         import wandb
@@ -74,16 +94,18 @@ def add_callbacks(model, run_info):
         if wandb.run is not None:
             wandb.run.config.update(run_info, allow_val_change=True)
 
-    def add_competition_metric(trainer):
-        # 대회 지표 mAP@[0.75:0.95]. all_ap는 (클래스 수, IoU 0.50~0.95의 10단계) 배열이라 뒤쪽 5칸이 0.75~0.95
-        # trainer.metrics에 넣어 두면 바로 다음에 실행되는 W&B 콜백이 epoch별 그래프로 올린다.
-        # 마지막에는 best.pt로 다시 평가한 값이 한 번 더 올라가므로 W&B summary에는 best.pt 기준 값이 남는다.
-        all_ap = trainer.validator.metrics.box.all_ap
-        if len(all_ap):
-            trainer.metrics["metrics/mAP75-95(B)"] = float(all_ap[:, 5:].mean())
+    def print_competition_metric(trainer):
+        # Ultralytics 검증 표에는 이 열이 없어서 따로 출력한다
+        value = trainer.metrics.get(COMPETITION_METRIC)
+        if value is None:
+            return
+        if trainer.validator.training:  # epoch마다 하는 검증
+            print(f"[대회 지표] mAP75-95 {value:.4f} | 지금까지 최고 {trainer.best_fitness:.4f} (best.pt)")
+        else:  # 학습이 끝난 뒤 best.pt를 다시 불러와 평가. 계산 방식이 조금 달라 위 최고값과 소수점 끝자리가 다를 수 있다
+            print(f"[대회 지표] best.pt 최종 평가 mAP75-95 {value:.4f}")
 
     model.add_callback("on_train_start", log_run_info)
-    model.add_callback("on_fit_epoch_end", add_competition_metric)
+    model.add_callback("on_fit_epoch_end", print_competition_metric)
 
 
 def main():
@@ -110,6 +132,7 @@ def main():
         print(NO_WANDB_KEY)
         return 1
     settings.update({"wandb": True})  # Colab/Kaggle은 세션마다 설정이 초기화되므로 매번 켠다
+    use_competition_metric()
 
     run_info = {
         "data_version": yaml.safe_load(data_yaml.read_text(encoding="utf-8")).get("data_version", "unknown"),
