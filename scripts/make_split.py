@@ -21,6 +21,11 @@ from pill_detection.data.classes import NUM_CLASSES
 
 
 def parse_args():
+    """명령줄 옵션을 읽는다.
+
+    Returns:
+        argparse.Namespace: raw_dir, fixes, val_ratio, seed.
+    """
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--raw-dir", default="data/raw", help="train_images, train_annotations가 있는 폴더")
     parser.add_argument("--fixes", default="configs/data_fixes.yaml")
@@ -30,6 +35,12 @@ def parse_args():
 
 
 def print_summary(split, coco):
+    """새로 만든 split의 train/val 이미지 수, val 조합 수, val 클래스 수를 출력한다.
+
+    Args:
+        split (dict): make_group_split()이 만든 split.
+        coco (dict): apply_fixes()를 거친 COCO 형식 dict.
+    """
     cats_by_name = {im["file_name"]: set() for im in coco["images"]}
     image_names = {im["id"]: im["file_name"] for im in coco["images"]}
     for ann in coco["annotations"]:
@@ -41,6 +52,11 @@ def print_summary(split, coco):
 
 
 def main():
+    """조합 단위 split을 새로 만들어 다음 번호의 파일로 저장한다.
+
+    Returns:
+        int: 종료 코드. 0 저장함, 1 원본 폴더가 없거나 기존 split과 같아서 저장하지 않았을 때.
+    """
     args = parse_args()
     raw_dir = Path(args.raw_dir)
     if not (raw_dir / "train_annotations").is_dir() or not (raw_dir / "train_images").is_dir():

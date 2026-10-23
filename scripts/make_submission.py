@@ -18,6 +18,11 @@ COLUMNS = ["annotation_id", "image_id", "category_id", "bbox_x", "bbox_y", "bbox
 
 
 def parse_args():
+    """명령줄 옵션을 읽는다.
+
+    Returns:
+        argparse.Namespace: weights, test_dir, out, conf.
+    """
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--weights", required=True, help="예) runs/<실험 이름>/weights/best.pt")
     parser.add_argument("--test-dir", default="data/raw/test_images")
@@ -27,6 +32,11 @@ def parse_args():
 
 
 def main():
+    """test 이미지를 모두 검출해 대회 제출 CSV로 저장한다.
+
+    Returns:
+        int: 종료 코드. 0 성공, 1 가중치 파일이나 test 이미지가 없을 때.
+    """
     args = parse_args()
     weights = Path(args.weights)
     if not weights.exists():

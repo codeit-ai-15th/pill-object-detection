@@ -34,12 +34,22 @@ NO_WANDB_KEY = """\
 
 
 def parse_args():
+    """명령줄 옵션을 읽는다.
+
+    Returns:
+        argparse.Namespace: exp_yaml.
+    """
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("exp_yaml", help="configs/exp/<실험 이름>.yaml")
     return parser.parse_args()
 
 
 def has_wandb_key():
+    """W&B에 기록할 수 있는지 확인한다.
+
+    Returns:
+        bool: WANDB_MODE가 offline이나 disabled이거나, WANDB_API_KEY가 있거나, 예전에 wandb login을 했으면 True.
+    """
     if os.environ.get("WANDB_MODE") in ("offline", "disabled") or os.environ.get("WANDB_API_KEY"):
         return True
     try:  # 예전에 wandb login을 해 둔 컴퓨터
@@ -49,6 +59,11 @@ def has_wandb_key():
 
 
 def run_env():
+    """학습을 돌리는 환경을 알아낸다. W&B run_info에 기록한다.
+
+    Returns:
+        str: "colab", "kaggle", "local" 중 하나.
+    """
     if "COLAB_RELEASE_TAG" in os.environ or "COLAB_GPU" in os.environ:
         return "colab"
     if "KAGGLE_KERNEL_RUN_TYPE" in os.environ:
@@ -57,7 +72,11 @@ def run_env():
 
 
 def git_commit():
-    """지금 코드의 커밋. 커밋하지 않은 수정이 있으면 -dirty를 붙인다."""
+    """지금 코드의 커밋을 알아낸다. 커밋하지 않은 수정이 있으면 -dirty를 붙인다.
+
+    Returns:
+        str: 짧은 커밋 해시. 예) 1513250, 1513250-dirty. git을 쓸 수 없으면 "unknown".
+    """
     try:
         sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
                              capture_output=True, text=True, check=True).stdout.strip()
@@ -69,7 +88,16 @@ def git_commit():
 
 
 def map75_95(metrics):
-    """대회 지표 mAP@[0.75:0.95]. box.all_ap는 (클래스 수, IoU 0.50~0.95의 10단계) 배열이라 뒤쪽 5칸이 0.75~0.95"""
+    """대회 지표 mAP@[0.75:0.95]를 계산한다.
+
+    box.all_ap는 (클래스 수, IoU 0.50~0.95의 10단계) 배열이라 뒤쪽 5칸이 0.75~0.95다.
+
+    Args:
+        metrics (ultralytics.utils.metrics.DetMetrics): Ultralytics 검증 결과.
+
+    Returns:
+        float: mAP75-95. 검증한 클래스가 없으면 0.0.
+    """
     all_ap = metrics.box.all_ap
     return float(all_ap[:, 5:].mean()) if len(all_ap) else 0.0
 
@@ -86,15 +114,30 @@ def use_competition_metric():
 
 
 def add_callbacks(model, run_info):
-    """W&B run에 우리 정보를 더하고, 콘솔에 대회 지표를 보여 준다."""
+    """W&B run에 우리 정보를 더하고, 콘솔에 대회 지표를 보여 준다.
+
+    Args:
+        model (ultralytics.YOLO): 콜백을 붙일 모델.
+        run_info (dict): W&B run config에 더할 정보. data_version, git_commit, run_env, gpu, torch.
+    """
 
     def log_run_info(trainer):
+        """학습을 시작할 때 W&B run config에 run_info를 더한다.
+
+        Args:
+            trainer (ultralytics.engine.trainer.BaseTrainer): Ultralytics trainer.
+        """
         import wandb
 
         if wandb.run is not None:
             wandb.run.config.update(run_info, allow_val_change=True)
 
     def print_competition_metric(trainer):
+        """검증이 끝날 때마다 콘솔에 대회 지표를 출력한다.
+
+        Args:
+            trainer (ultralytics.engine.trainer.BaseTrainer): Ultralytics trainer. metrics에 대회 지표가 들어 있다.
+        """
         # Ultralytics 검증 표에는 이 열이 없어서 따로 출력한다
         value = trainer.metrics.get(COMPETITION_METRIC)
         if value is None:
@@ -109,6 +152,11 @@ def add_callbacks(model, run_info):
 
 
 def main():
+    """실험 YAML 하나로 학습한다. 결과는 runs/<실험 이름>/에 저장된다.
+
+    Returns:
+        int: 종료 코드. 0 학습을 마침, 1 YAML이나 data.yaml, W&B 키 문제로 시작하지 못했을 때.
+    """
     args = parse_args()
     exp_path = Path(args.exp_yaml)
     cfg = yaml.safe_load(exp_path.read_text(encoding="utf-8")) or {}

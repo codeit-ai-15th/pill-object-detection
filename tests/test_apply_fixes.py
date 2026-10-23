@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from pill_detection.data.convert import FIX_KEYS, apply_fixes
+from pill_detection.data.convert import FIX_KEYS, apply_fixes, inspect
 
 IMG_W, IMG_H = 976, 1280  # 이 데이터셋의 이미지 크기
 DATA_FIXES = Path(__file__).parents[1] / "configs" / "data_fixes.yaml"
@@ -85,6 +85,14 @@ def test_add_annotation():
     fixed, _ = apply_fixes(make_coco(), {"add_annotations": [new]})
     # 원본에서 가장 큰 annotation_id(20) 다음 번호를 받는다
     assert fixed["annotations"][-1] == {"id": 21, "image_id": 2, "category_id": 16548, "bbox": [500, 500, 200, 200]}
+
+
+def test_added_annotation_clears_missing_label():
+    # prepare_data.py의 점검 리포트는 반영 후 결과를 inspect한다. 고친 라벨 누락은 리포트에서 사라져야 한다
+    assert [item["file_name"] for item in inspect(make_coco())["missing_labels"]] == [B]
+    new = {"file_name": B, "category_id": 16548, "bbox": [500, 500, 200, 200]}
+    fixed, _ = apply_fixes(make_coco(), {"add_annotations": [new]})
+    assert inspect(fixed)["missing_labels"] == []
 
 
 @pytest.mark.parametrize("new, exclude, message", [

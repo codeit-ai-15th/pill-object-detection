@@ -18,7 +18,15 @@ from pill_detection.utils import clip_xywh, xywh_to_yolo
 
 
 def load_raw_annotations(raw_dir):
-    """train_annotations 아래 JSON을 모두 읽어 COCO 형식 dict 하나로 합친다."""
+    """train_annotations 아래 JSON을 모두 읽어 COCO 형식 dict 하나로 합친다.
+
+    Args:
+        raw_dir (str | Path): train_annotations/ 폴더가 있는 원본 폴더. 예) data/raw
+
+    Returns:
+        dict: 모듈 docstring 구조의 COCO 형식 dict. images는 파일 이름 순, annotations는 annotation_id 순,
+            categories는 category_id 순이다.
+    """
     images, annotations, categories = {}, [], {}
     for path in sorted((Path(raw_dir) / "train_annotations").rglob("*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -36,16 +44,38 @@ def load_raw_annotations(raw_dir):
 
 
 def combo_of(file_name):
-    """이미지 이름에서 알약 조합을 꺼낸다. 'K-003351-016232-033880_0_2_..png' → 'K-003351-016232-033880'"""
+    """이미지 이름에서 알약 조합을 꺼낸다.
+
+    Args:
+        file_name (str): 이미지 파일 이름. 예) 'K-003351-016232-033880_0_2_..png'
+
+    Returns:
+        str: 알약 조합. 예) 'K-003351-016232-033880'
+    """
     return file_name.split("_")[0]
 
 
 def _pill_codes(file_name):
-    """이미지 이름에 적힌 알약 코드 = 사진에 있어야 하는 category_id. 'K-003351-016232_..png' → {3351, 16232}"""
+    """이미지 이름에 적힌 알약 코드를 꺼낸다. 사진에 있어야 하는 category_id와 같다.
+
+    Args:
+        file_name (str): 이미지 파일 이름. 예) 'K-003351-016232_..png'
+
+    Returns:
+        set[int]: 알약 코드. 예) {3351, 16232}
+    """
     return {int(code) for code in combo_of(file_name).split("-")[1:]}
 
 
 def _annotations_by_image(coco):
+    """라벨을 이미지별로 묶는다.
+
+    Args:
+        coco (dict): COCO 형식 dict.
+
+    Returns:
+        defaultdict[int, list[dict]]: image_id → 그 이미지의 라벨 목록. 라벨이 없는 이미지는 빈 목록.
+    """
     grouped = defaultdict(list)
     for ann in coco["annotations"]:
         grouped[ann["image_id"]].append(ann)
@@ -55,9 +85,18 @@ def _annotations_by_image(coco):
 def inspect(coco):
     """학습 전에 알아야 할 라벨 문제를 찾는다. 고칠지는 사람이 정해서 configs/data_fixes.yaml에 적는다.
 
-    - missing_labels: 이미지 이름에는 있는 알약 코드인데 라벨이 없다 (사진 속 알약이 배경으로 학습됨)
-    - same_box: 같은 이미지에서 bbox 좌표가 완전히 같은 라벨이 2개 이상 있다
-    - out_of_image: bbox가 이미지 밖으로 나간다 (apply_fixes가 잘라낸다)
+    원본에도, apply_fixes() 결과에도 쓴다. prepare_data.py는 둘 다 검사해 고친 뒤 남은 문제를 보여 준다.
+
+    Args:
+        coco (dict): COCO 형식 dict.
+
+    Returns:
+        dict[str, list[dict]]: 문제 종류별 목록.
+            - missing_labels: 이미지 이름에는 있는 알약 코드인데 라벨이 없다 (사진 속 알약이 배경으로 학습됨).
+              항목은 {file_name, category_ids}.
+            - same_box: 같은 이미지에서 bbox 좌표가 완전히 같은 라벨이 2개 이상 있다.
+            - out_of_image: bbox가 이미지 밖으로 나간다 (apply_fixes가 잘라낸다).
+            same_box와 out_of_image의 항목은 {file_name, annotation_id, category_id, bbox}.
     """
     anns_by_image = _annotations_by_image(coco)
     issues = {"missing_labels": [], "same_box": [], "out_of_image": []}
@@ -84,7 +123,17 @@ ADD_ANNOTATION_KEYS = {"file_name", "category_id", "bbox"}  # add_annotations �
 
 
 def _check_added_annotations(added, coco, excluded):
-    """add_annotations 항목을 검사한다. 잘못 적은 라벨이 오류 없이 학습에 들어가는 일을 막는다."""
+    """add_annotations 항목을 검사한다. 잘못 적은 라벨이 오류 없이 학습에 들어가는 일을 막는다.
+
+    Args:
+        added (list[dict]): data_fixes.yaml의 add_annotations 목록.
+        coco (dict): 고치기 전의 COCO 형식 dict.
+        excluded (set[str]): exclude_images로 뺄 이미지 파일 이름.
+
+    Raises:
+        ValueError: 키가 틀렸거나, 원본에 없거나 뺀 이미지이거나, 이미지 이름에 없는 알약 코드이거나,
+            bbox가 숫자 4개가 아니거나, bbox가 이미지 밖에 있을 때.
+    """
     images = {im["file_name"]: im for im in coco["images"]}
     for i, item in enumerate(added, start=1):
         where = f"data_fixes.yaml add_annotations의 {i}번째 항목 {item}"
@@ -108,10 +157,20 @@ def apply_fixes(coco, fixes):
 
     잘라낸 뒤 너비나 높이가 1픽셀 이하인 bbox는 버린다. 이런 라벨이 하나라도 있으면
     Ultralytics가 그 이미지 전체를 손상된 것으로 보고 학습에서 빼기 때문이다.
-    새 dict와 버린 annotation_id 목록을 돌려준다.
 
     add_annotations로 넣은 라벨의 annotation_id는 원본에서 가장 큰 번호 다음부터 적힌 순서대로 붙인다.
     FIX_KEYS에 없는 키는 오류로 막는다. 그냥 두면 아무것도 고쳐지지 않는데 data_version만 바뀐다.
+
+    Args:
+        coco (dict): 원본 COCO 형식 dict. 바꾸지 않는다.
+        fixes (dict): data_fixes.yaml을 읽은 dict. 키는 FIX_KEYS 중에서 쓴다.
+
+    Returns:
+        tuple[dict, list[int]]: 고친 새 COCO 형식 dict와, 잘라내니 크기가 없어져 버린 annotation_id 목록.
+
+    Raises:
+        ValueError: 모르는 키가 있거나, 원본에 없는 이미지 이름·annotation_id를 적었거나,
+            add_annotations 항목이 잘못됐을 때.
     """
     unknown_keys = sorted(set(fixes) - set(FIX_KEYS))
     if unknown_keys:
@@ -160,6 +219,14 @@ def make_group_split(coco, val_ratio=0.2, seed=42):
 
     같은 조합은 카메라 각도만 다른 거의 같은 사진이라, 이미지 단위로 나누면 val 점수가 부풀려진다.
     val로 보낼 조합을 무작위로 고르되, 어떤 클래스든 train에 최소 1개는 남긴다.
+
+    Args:
+        coco (dict): COCO 형식 dict. 보통 apply_fixes()를 거친 것.
+        val_ratio (float): val로 보낼 이미지 비율의 목표값. 조합 단위로 옮기므로 정확히 맞지는 않는다.
+        seed (int): 조합을 섞는 난수 seed. 같으면 같은 split이 나온다.
+
+    Returns:
+        dict: split 파일 내용. {seed, val_ratio, train: [파일 이름], val: [파일 이름]}
     """
     image_cats = defaultdict(Counter)
     for ann in coco["annotations"]:
@@ -199,7 +266,14 @@ SPLITS_DIR = Path("configs/splits")  # split_v1.json, split_v2.json, ... 한 번
 
 
 def split_versions(splits_dir=SPLITS_DIR):
-    """split_v<번호>.json 파일을 번호 순서로 돌려준다. 숫자로 정렬하므로 v10이 v9 뒤에 온다."""
+    """split_v<번호>.json 파일을 번호 순서로 돌려준다. 숫자로 정렬하므로 v10이 v9 뒤에 온다.
+
+    Args:
+        splits_dir (str | Path): split 파일이 있는 폴더.
+
+    Returns:
+        list[Path]: 번호 순서의 split 파일 경로. split_v2_old.json처럼 형식이 다른 이름은 뺀다.
+    """
     found = []
     for path in Path(splits_dir).glob("split_v*.json"):
         number = path.stem.removeprefix("split_v")
@@ -209,20 +283,41 @@ def split_versions(splits_dir=SPLITS_DIR):
 
 
 def latest_split(splits_dir=SPLITS_DIR):
-    """번호가 가장 큰 split 파일. 하나도 없으면 None"""
+    """번호가 가장 큰 split 파일을 찾는다.
+
+    Args:
+        splits_dir (str | Path): split 파일이 있는 폴더.
+
+    Returns:
+        Path | None: 번호가 가장 큰 split 파일. 하나도 없으면 None.
+    """
     versions = split_versions(splits_dir)
     return versions[-1] if versions else None
 
 
 def next_split_path(splits_dir=SPLITS_DIR):
-    """새 split을 저장할 다음 번호의 경로. 하나도 없으면 split_v1.json"""
+    """새 split을 저장할 다음 번호의 경로를 정한다.
+
+    Args:
+        splits_dir (str | Path): split 파일이 있는 폴더.
+
+    Returns:
+        Path: 번호가 가장 큰 파일 다음 번호의 경로. 하나도 없으면 split_v1.json.
+    """
     latest = latest_split(splits_dir)
     number = int(latest.stem.removeprefix("split_v")) + 1 if latest else 1
     return Path(splits_dir) / f"split_v{number}.json"
 
 
 def check_split(split):
-    """split이 조합 단위로 나뉘었는지 검사한다. 손으로 고친 파일도 여기서 잡는다."""
+    """split이 조합 단위로 나뉘었는지 검사한다. 손으로 고친 파일도 여기서 잡는다.
+
+    Args:
+        split (dict): split 파일 내용. train, val에 이미지 파일 이름 목록이 있다.
+
+    Raises:
+        ValueError: 같은 이미지가 train과 val에 모두 있거나, 같은 조합이 train과 val로 나뉘었을 때.
+    """
     both = sorted(set(split["train"]) & set(split["val"]))
     if both:
         raise ValueError(f"split 파일에 train과 val에 모두 있는 이미지가 있습니다: {both[:5]}")
@@ -233,7 +328,12 @@ def check_split(split):
 
 
 def _link_or_copy(src, dst):
-    """같은 디스크면 하드링크(공간·시간 절약), 아니면 복사한다."""
+    """같은 디스크면 하드링크(공간·시간 절약), 아니면 복사한다.
+
+    Args:
+        src (Path): 원본 파일 경로.
+        dst (Path): 만들 파일 경로.
+    """
     try:
         os.link(src, dst)
     except OSError:
@@ -241,7 +341,19 @@ def _link_or_copy(src, dst):
 
 
 def write_yolo_dataset(coco, split, raw_dir, out_dir):
-    """out_dir/{images,labels}/{train,val}에 이미지와 YOLO 라벨을 쓰고, subset별 이미지 수를 돌려준다."""
+    """out_dir/{images,labels}/{train,val}에 이미지와 YOLO 라벨을 쓴다.
+
+    이전 실행 결과가 섞이지 않게 out_dir/images, out_dir/labels를 먼저 지운다.
+
+    Args:
+        coco (dict): apply_fixes()를 거친 COCO 형식 dict.
+        split (dict): split 파일 내용. coco에 없는 이미지(exclude_images로 뺀 것)는 건너뛴다.
+        raw_dir (str | Path): train_images/ 폴더가 있는 원본 폴더.
+        out_dir (str | Path): 결과를 쓸 폴더. 예) data/processed
+
+    Returns:
+        dict[str, int]: subset별로 쓴 이미지 수. {"train": 186, "val": 46}
+    """
     out_dir = Path(out_dir)
     for sub in ("images", "labels"):
         shutil.rmtree(out_dir / sub, ignore_errors=True)  # 이전 실행 결과가 섞이지 않게 비운다

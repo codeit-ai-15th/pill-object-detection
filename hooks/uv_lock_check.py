@@ -21,6 +21,11 @@ git commit --no-verify로 우회하지 마세요. main의 uv.lock이 어긋나�
 
 
 def staged_files():
+    """이번 커밋에 스테이징된 파일을 알아낸다.
+
+    Returns:
+        set[str]: 스테이징된 파일 경로. 레포 루트 기준.
+    """
     result = subprocess.run(
         ["git", "diff", "--cached", "--name-only"],
         capture_output=True, text=True, check=True,
@@ -29,6 +34,15 @@ def staged_files():
 
 
 def explain_cause(has_pyproject, has_lock):
+    """uv.lock이 어긋난 원인을 설명하는 문장을 만든다.
+
+    Args:
+        has_pyproject (bool): pyproject.toml이 이번 커밋에 있는지.
+        has_lock (bool): uv.lock이 이번 커밋에 있는지.
+
+    Returns:
+        str: 원인 설명.
+    """
     if has_pyproject and not has_lock:
         return ("pyproject.toml은 바뀌었는데 uv.lock이 이번 커밋에 없습니다.\n"
                 "  uv lock을 실행하지 않았거나, 실행한 뒤 uv.lock을 git add하지 않았습니다.")
@@ -43,6 +57,11 @@ def explain_cause(has_pyproject, has_lock):
 
 
 def main():
+    """uv lock --check로 검사하고, 어긋나 있으면 원인과 해결 명령을 출력한다.
+
+    Returns:
+        int: 종료 코드. 0이면 커밋을 진행하고, 1이면 커밋을 막는다.
+    """
     if shutil.which("uv") is None:
         print("[오류] uv 명령을 찾을 수 없습니다.\n"
               "  README의 'uv 설치' 단계를 따라 uv를 설치하세요.\n"

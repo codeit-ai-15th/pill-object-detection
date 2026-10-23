@@ -70,20 +70,48 @@ _CATEGORY_TO_YOLO = {category_id: idx for idx, (category_id, _) in enumerate(CLA
 
 
 def yolo_to_category(idx):
-    """YOLO index → category_id. 제출 파일과 predict() 결과에 쓴다."""
+    """YOLO index → category_id. 제출 파일과 predict() 결과에 쓴다.
+
+    Args:
+        idx (int): YOLO index. CLASSES 목록에서의 순서.
+
+    Returns:
+        int: 원본 데이터의 category_id.
+    """
     return CLASSES[idx][0]
 
 
 def yolo_to_name(idx):
-    """YOLO index → 약 이름. 데모에 쓴다."""
+    """YOLO index → 약 이름. 데모에 쓴다.
+
+    Args:
+        idx (int): YOLO index. CLASSES 목록에서의 순서.
+
+    Returns:
+        str: 약 이름.
+    """
     return CLASSES[idx][1]
 
 
 def category_to_yolo(category_id):
-    """category_id → YOLO index. 라벨 변환(convert.py)에 쓴다."""
+    """category_id → YOLO index. 라벨 변환(convert.py)에 쓴다.
+
+    Args:
+        category_id (int): 원본 데이터의 category_id.
+
+    Returns:
+        int: YOLO index.
+
+    Raises:
+        KeyError: CLASSES에 없는 category_id일 때.
+    """
     return _CATEGORY_TO_YOLO[category_id]
 
 
 def yolo_names():
-    """configs/data.yaml의 names 항목. {YOLO index: 약 이름}"""
+    """configs/data.yaml의 names 항목을 만든다.
+
+    Returns:
+        dict[int, str]: {YOLO index: 약 이름}
+    """
     return {idx: name for idx, (_, name) in enumerate(CLASSES)}

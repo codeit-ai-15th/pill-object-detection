@@ -17,6 +17,11 @@ INSTALL_FAILED = """\
 
 
 def filter_configured():
+    """이 저장소의 .git/config에 nbstripout 필터가 설정돼 있는지 확인한다.
+
+    Returns:
+        bool: filter.nbstripout.clean 값이 있으면 True.
+    """
     result = subprocess.run(
         ["git", "config", "--get", "filter.nbstripout.clean"],
         capture_output=True, text=True,
@@ -25,6 +30,14 @@ def filter_configured():
 
 
 def main(notebooks):
+    """필터가 없으면 설정하고, 스테이징된 노트북을 다시 스테이징해 이번 커밋부터 출력이 빠지게 한다.
+
+    Args:
+        notebooks (list[str]): pre-commit이 넘겨 주는 스테이징된 노트북 경로.
+
+    Returns:
+        int: 종료 코드. 0이면 커밋을 진행하고, 1이면 커밋을 막는다.
+    """
     if filter_configured():
         return 0
 
