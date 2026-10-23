@@ -12,13 +12,14 @@ from pill_detection.data.convert import FIX_KEYS, apply_fixes
 
 IMG_W, IMG_H = 976, 1280  # 이 데이터셋의 이미지 크기
 DATA_FIXES = Path(__file__).parents[1] / "configs" / "data_fixes.yaml"
+A, B = "K-001900-003351_0.png", "K-003351-016548_0.png"  # B는 16548 라벨이 빠진 이미지
 
 
 def make_coco():
     """이미지 2장, 라벨 3개짜리 작은 원본"""
     return {
-        "images": [{"id": 1, "file_name": "a.png", "width": IMG_W, "height": IMG_H},
-                   {"id": 2, "file_name": "b.png", "width": IMG_W, "height": IMG_H}],
+        "images": [{"id": 1, "file_name": A, "width": IMG_W, "height": IMG_H},
+                   {"id": 2, "file_name": B, "width": IMG_W, "height": IMG_H}],
         "annotations": [{"id": 10, "image_id": 1, "category_id": 3351, "bbox": [100, 100, 200, 200]},
                         {"id": 11, "image_id": 1, "category_id": 1900, "bbox": [400, 400, 200, 200]},
                         {"id": 20, "image_id": 2, "category_id": 3351, "bbox": [100, 100, 200, 200]}],
@@ -36,7 +37,7 @@ def test_data_fixes_yaml_uses_known_keys():
     assert set(fixes) <= set(FIX_KEYS)
 
 
-@pytest.mark.parametrize("key", ["exclude_image", "add_annotations"])  # 오타, 처리 코드가 아직 없는 키
+@pytest.mark.parametrize("key", ["exclude_image", "fix_categories"])  # 오타, 처리 코드가 아직 없는 키
 def test_unknown_key_raises(key):
     with pytest.raises(ValueError, match=key):
         apply_fixes(make_coco(), {key: []})
@@ -47,7 +48,8 @@ def test_unknown_value_raises():
         apply_fixes(make_coco(), {"exclude_images": ["no_such.png"]})
 
 
-@pytest.mark.parametrize("fixes", [{}, {"exclude_images": [], "drop_annotations": [], "fix_bboxes": {}},
+@pytest.mark.parametrize("fixes", [{}, {"exclude_images": [], "drop_annotations": [], "fix_bboxes": {},
+                                        "add_annotations": []},
                                    {"exclude_images": None}])  # 빈 파일, 지금 파일, 값을 비워 둔 키
 def test_empty_fixes_change_nothing(fixes):
     fixed, empty = apply_fixes(make_coco(), fixes)
@@ -55,8 +57,8 @@ def test_empty_fixes_change_nothing(fixes):
 
 
 def test_exclude_image_removes_its_labels():
-    fixed, _ = apply_fixes(make_coco(), {"exclude_images": ["b.png"]})
-    assert [im["file_name"] for im in fixed["images"]] == ["a.png"]
+    fixed, _ = apply_fixes(make_coco(), {"exclude_images": [B]})
+    assert [im["file_name"] for im in fixed["images"]] == [A]
     assert ann_ids(fixed) == [10, 11]
 
 
@@ -76,3 +78,23 @@ def test_bbox_outside_image_is_dropped():
     coco["annotations"][1]["bbox"] = [6567, 625, 311, 315]
     fixed, empty = apply_fixes(coco, {})
     assert ann_ids(fixed) == [10, 20] and empty == [11]
+
+
+def test_add_annotation():
+    new = {"file_name": B, "category_id": 16548, "bbox": [500, 500, 200, 200]}
+    fixed, _ = apply_fixes(make_coco(), {"add_annotations": [new]})
+    # 원본에서 가장 큰 annotation_id(20) 다음 번호를 받는다
+    assert fixed["annotations"][-1] == {"id": 21, "image_id": 2, "category_id": 16548, "bbox": [500, 500, 200, 200]}
+
+
+@pytest.mark.parametrize("new, exclude, message", [
+    ({"file_name": B, "category": 16548, "bbox": [500, 500, 200, 200]}, [], "세 키"),             # 키 오타
+    ({"file_name": "no_such.png", "category_id": 16548, "bbox": [500, 500, 200, 200]}, [], "원본에 없거나"),
+    ({"file_name": B, "category_id": 16548, "bbox": [500, 500, 200, 200]}, [B], "원본에 없거나"),  # 뺀 이미지
+    ({"file_name": B, "category_id": 1900, "bbox": [500, 500, 200, 200]}, [], "이미지 이름에 없는"),
+    ({"file_name": B, "category_id": 16548, "bbox": [500, 500, 200]}, [], "숫자 4개"),
+    ({"file_name": B, "category_id": 16548, "bbox": [6567, 625, 311, 315]}, [], "이미지\\(976x1280\\) 밖"),
+])
+def test_bad_added_annotation_raises(new, exclude, message):
+    with pytest.raises(ValueError, match=message):
+        apply_fixes(make_coco(), {"exclude_images": exclude, "add_annotations": [new]})

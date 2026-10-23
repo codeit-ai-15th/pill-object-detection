@@ -10,3 +10,7 @@ drop_annotations: []
 
 # bbox 좌표를 고칠 라벨. annotation_id: [x, y, w, h] (좌상단 기준, 원본 픽셀). 예) 1664: [600, 867, 260, 230]
 fix_bboxes: {}
+
+# 사진에 있는데 라벨이 없는 알약에 새로 넣을 라벨. category_id는 이미지 파일 이름에 있는 알약 코드여야 한다.
+# 예) - {file_name: K-003351-013900-021325_0_2_0_2_70_000_200.png, category_id: 3351, bbox: [600, 867, 260, 230]}
+add_annotations: []

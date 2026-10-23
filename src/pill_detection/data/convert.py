@@ -40,6 +40,11 @@ def combo_of(file_name):
     return file_name.split("_")[0]
 
 
+def _pill_codes(file_name):
+    """이미지 이름에 적힌 알약 코드 = 사진에 있어야 하는 category_id. 'K-003351-016232_..png' → {3351, 16232}"""
+    return {int(code) for code in combo_of(file_name).split("-")[1:]}
+
+
 def _annotations_by_image(coco):
     grouped = defaultdict(list)
     for ann in coco["annotations"]:
@@ -58,8 +63,7 @@ def inspect(coco):
     issues = {"missing_labels": [], "same_box": [], "out_of_image": []}
     for image in coco["images"]:
         anns = anns_by_image[image["id"]]
-        expected = {int(code) for code in combo_of(image["file_name"]).split("-")[1:]}
-        missing = sorted(expected - {a["category_id"] for a in anns})
+        missing = sorted(_pill_codes(image["file_name"]) - {a["category_id"] for a in anns})
         if missing:
             issues["missing_labels"].append({"file_name": image["file_name"], "category_ids": missing})
 
@@ -75,7 +79,28 @@ def inspect(coco):
     return issues
 
 
-FIX_KEYS = ("exclude_images", "drop_annotations", "fix_bboxes")  # data_fixes.yaml에 쓸 수 있는 키
+FIX_KEYS = ("exclude_images", "drop_annotations", "fix_bboxes", "add_annotations")  # data_fixes.yaml에 쓸 수 있는 키
+ADD_ANNOTATION_KEYS = {"file_name", "category_id", "bbox"}  # add_annotations 항목 하나에 쓰는 키
+
+
+def _check_added_annotations(added, coco, excluded):
+    """add_annotations 항목을 검사한다. 잘못 적은 라벨이 오류 없이 학습에 들어가는 일을 막는다."""
+    images = {im["file_name"]: im for im in coco["images"]}
+    for i, item in enumerate(added, start=1):
+        where = f"data_fixes.yaml add_annotations의 {i}번째 항목 {item}"
+        if not isinstance(item, dict) or set(item) != ADD_ANNOTATION_KEYS:
+            raise ValueError(f"{where}: file_name, category_id, bbox 세 키를 적습니다.")
+        image = images.get(item["file_name"])
+        if image is None or item["file_name"] in excluded:
+            raise ValueError(f"{where}: 원본에 없거나 exclude_images로 뺀 이미지입니다.")
+        if item["category_id"] not in _pill_codes(item["file_name"]):
+            raise ValueError(f"{where}: 이미지 이름에 없는 알약 코드입니다. category_id를 확인하세요.")
+        bbox = item["bbox"]
+        if not (isinstance(bbox, list) and len(bbox) == 4 and all(isinstance(v, (int, float)) for v in bbox)):
+            raise ValueError(f"{where}: bbox는 [x, y, w, h] 숫자 4개입니다.")
+        _, _, w, h = clip_xywh(bbox, image["width"], image["height"])
+        if w <= 1 or h <= 1:
+            raise ValueError(f"{where}: bbox가 이미지({image['width']}x{image['height']}) 밖에 있습니다.")
 
 
 def apply_fixes(coco, fixes):
@@ -85,6 +110,7 @@ def apply_fixes(coco, fixes):
     Ultralytics가 그 이미지 전체를 손상된 것으로 보고 학습에서 빼기 때문이다.
     새 dict와 버린 annotation_id 목록을 돌려준다.
 
+    add_annotations로 넣은 라벨의 annotation_id는 원본에서 가장 큰 번호 다음부터 적힌 순서대로 붙인다.
     FIX_KEYS에 없는 키는 오류로 막는다. 그냥 두면 아무것도 고쳐지지 않는데 data_version만 바뀐다.
     """
     unknown_keys = sorted(set(fixes) - set(FIX_KEYS))
@@ -95,6 +121,7 @@ def apply_fixes(coco, fixes):
     excluded = set(fixes.get("exclude_images") or [])
     dropped = set(fixes.get("drop_annotations") or [])
     new_bboxes = fixes.get("fix_bboxes") or {}
+    added = fixes.get("add_annotations") or []
 
     # 오타로 아무것도 안 고쳐지는 일을 막는다
     ann_ids = {a["id"] for a in coco["annotations"]}
@@ -105,6 +132,7 @@ def apply_fixes(coco, fixes):
     }
     if any(unknown.values()):
         raise ValueError(f"data_fixes.yaml에 원본에 없는 값이 있습니다: {unknown}")
+    _check_added_annotations(added, coco, excluded)
 
     images = [im for im in coco["images"] if im["file_name"] not in excluded]
     sizes = {im["id"]: (im["width"], im["height"]) for im in images}
@@ -117,6 +145,13 @@ def apply_fixes(coco, fixes):
             empty.append(a["id"])
             continue
         annotations.append({**a, "bbox": bbox})
+
+    image_ids = {im["file_name"]: im["id"] for im in images}
+    next_id = max(ann_ids, default=0) + 1  # 원본 annotation_id와 겹치지 않게 한다
+    for i, item in enumerate(added):
+        image_id = image_ids[item["file_name"]]
+        annotations.append({"id": next_id + i, "image_id": image_id, "category_id": item["category_id"],
+                            "bbox": clip_xywh(item["bbox"], *sizes[image_id])})
     return {**coco, "images": images, "annotations": annotations}, empty
 
 
