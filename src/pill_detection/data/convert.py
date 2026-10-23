@@ -75,13 +75,23 @@ def inspect(coco):
     return issues
 
 
+FIX_KEYS = ("exclude_images", "drop_annotations", "fix_bboxes")  # data_fixes.yaml에 쓸 수 있는 키
+
+
 def apply_fixes(coco, fixes):
     """data_fixes.yaml의 목록을 반영하고 이미지 밖으로 나간 bbox를 잘라낸다.
 
     잘라낸 뒤 너비나 높이가 1픽셀 이하인 bbox는 버린다. 이런 라벨이 하나라도 있으면
     Ultralytics가 그 이미지 전체를 손상된 것으로 보고 학습에서 빼기 때문이다.
     새 dict와 버린 annotation_id 목록을 돌려준다.
+
+    FIX_KEYS에 없는 키는 오류로 막는다. 그냥 두면 아무것도 고쳐지지 않는데 data_version만 바뀐다.
     """
+    unknown_keys = sorted(set(fixes) - set(FIX_KEYS))
+    if unknown_keys:
+        raise ValueError(f"data_fixes.yaml에 모르는 키가 있습니다: {unknown_keys}  쓸 수 있는 키: {list(FIX_KEYS)}\n"
+                         "  오타가 아니라 새 종류의 수정이라면 convert.apply_fixes()에 처리 코드를 먼저 추가하세요.")
+
     excluded = set(fixes.get("exclude_images") or [])
     dropped = set(fixes.get("drop_annotations") or [])
     new_bboxes = fixes.get("fix_bboxes") or {}
