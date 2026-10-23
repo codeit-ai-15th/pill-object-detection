@@ -1,5 +1,5 @@
 # 파이프라인이 끝까지 도는지만 확인하는 설정. 실험이 아니므로 configs/exp/ 밖에 둔다.
-# 새 환경(Colab/Kaggle 첫 세션 등)에서 처음 한 번 돌려 보고, W&B에 run이 생기는지 확인한 뒤 지워도 된다.
+# 공용 노트북이 본 실험 전에 매번 W&B에 올리지 않고(WANDB_MODE=offline) 돌린다. 노트북이 쓰므로 지우지 않는다.
 model: yolov8n.pt
 data: configs/data.yaml
 imgsz: 320
