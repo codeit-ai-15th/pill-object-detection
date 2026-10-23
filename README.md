@@ -53,10 +53,12 @@ pill-object-detection/
 > `demo/app.py`는 아직 없습니다. 나머지 파일은 공용 뼈대로 만들어 두었습니다.
 
 - 모든 명령은 레포 루트에서 실행합니다.
-- `src/pill_detection/`은 `uv sync` 때 패키지로 설치됩니다. 노트북에서도 `from pill_detection.data.classes import ...`처럼 바로 불러오고, `sys.path`를 고치지 않습니다.
-- `notebooks/`의 파일 이름은 `<번호>-<이니셜>-<설명>.ipynb`로 짓습니다. 예) `01-rk-class-distribution.ipynb`. 
+- `src/pill_detection/`은 `uv sync` 때 패키지로 설치됩니다. 
+    - 노트북에서도 `from pill_detection.data.classes import ...`처럼 바로 불러올 수 있습니다. 
+    - `sys.path`를 고치지 마세요.
+- `notebooks/`의 파일 이름은 `<번호>-<이름>-<설명>.ipynb`로 짓습니다. 예) `01-rk-class-distribution.ipynb`. 
     - 다른 팀원들과 공용으로 쓸 코드는 `src/pill_detection/`으로 옮깁니다.
-    - 노트북은 **코드와 마크다운만 커밋되고 셀 출력은 자동으로 빠집니다**(nbstripout). 단, 내 화면의 출력은 그대로 로컬 디스크에 남고, 출력의 버전관리만 되지 않는 겁니다. 따라서 팀원들의 노트북 출력 결과는 각자 Run All로 확인해야 합니다.
+    - 노트북은 **코드와 마크다운만 커밋되고 셀 출력은 자동으로 빠집니다**(nbstripout). 단, 내 화면의 출력은 그대로 로컬 디스크에 남고, 출력만 버전관리 되지 않는 겁니다. 따라서 팀원들의 노트북 출력 결과는 각자 Run All로 확인해야 합니다.
     - 출력은 버전관리가 되지 않기 때문에 버전 관리가 필요한 내용은 마크다운 셀에 글로 적어 두세요. 출력을 꼭 남길 셀에만 `keep_output` 태그를 붙입니다. 예) VS Code: 셀의 `…` 메뉴 → Add Cell Tag
     - 레포가 공개되어 있으므로 알약 사진처럼 원본 데이터가 보이는 셀에는 `keep_output`을 붙이지 마세요.
 - 실험 방법과 공용 코드 규칙은 [EXPERIMENTS.md](EXPERIMENTS.md), git·PR·커밋 절차는 [CONTRIBUTING.md](CONTRIBUTING.md)를 따릅니다.
