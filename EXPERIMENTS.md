@@ -105,6 +105,7 @@ seed: 42
 ### `scripts/train.py`를 만드는 사람을 위한 메모
 Ultralytics 8.4 소스 기준으로 확인한 내용입니다.
 - YAML의 `model`로 `YOLO(model)`을 만들고, `train(cfg=<YAML 경로>)`로 넘기면 나머지 키가 학습 설정으로 들어갑니다.
+- YAML에 `data`가 없으면 Ultralytics는 예제 데이터셋 `coco8.yaml`로 학습합니다. 그래서 `train.py`는 `data`를 `train()`에 직접 넘기고, YAML에 없으면 `configs/data.yaml`을 씁니다.
 - RT-DETR 가중치(`rtdetr-l.pt`)도 `YOLO()`가 알아서 RT-DETR 모델로 바꿔 줍니다. 모델 종류별로 분기할 필요가 없습니다.
 - Ultralytics는 `project` 값을 W&B project 이름으로 씁니다. `project="pill-object-detection"`으로 고정하고, 결과 폴더는 `save_dir=runs/<YAML 파일 이름>`으로 따로 지정합니다.
 - W&B 로깅은 `ultralytics.settings.update({"wandb": True})`로 켭니다. 이 설정은 그 컴퓨터의 Ultralytics 설정 파일에 저장됩니다.

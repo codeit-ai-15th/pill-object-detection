@@ -145,7 +145,8 @@ def main():
 
     model = YOLO(cfg["model"])
     add_callbacks(model, run_info)
-    model.train(cfg=str(exp_path), project=WANDB_PROJECT, name=exp_path.stem,
+    # data를 직접 넘긴다. YAML에 data가 없으면 Ultralytics가 예제 데이터셋 coco8.yaml로 학습한다
+    model.train(cfg=str(exp_path), data=str(data_yaml), project=WANDB_PROJECT, name=exp_path.stem,
                 save_dir=str(Path("runs") / exp_path.stem))
     return 0
 
