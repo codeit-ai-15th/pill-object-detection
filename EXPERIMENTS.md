@@ -144,3 +144,23 @@ predict(image, weights=None) -> list[dict]
 
 - `weights`를 비우면 가짜 결과를 돌려주는 mock 모드로 동작하게 만듭니다. 그러면 데모 담당은 모델이 나오기 전부터 mock 결과로 페이지를 만들 수 있고, 모델이 나오면 가중치 경로만 넣으면 됩니다.
 - 확정한 뒤 형식을 바꾸려면 팀 전체와 먼저 상의합니다. 데모와 제출 코드를 함께 고쳐야 합니다.
+
+## 규칙 4. split은 고치지 않고 새 번호로 만든다
+`prepare_data.py`는 `configs/splits/`에서 번호가 가장 큰 split 파일을 씁니다. 이미 있는 split 파일은 이전 실험을 재현할 때 필요하므로 고치거나 지우지 않습니다.
+
+### split을 바꾸는 순서
+1. `feat/` 브랜치를 만듭니다. 나누는 규칙을 바꾼다면 `src/pill_detection/data/convert.py`의 `make_group_split()`을 고칩니다.
+2. 로컬에서 새 split을 만듭니다. 파일 이름은 다음 번호(`split_v2.json`, `split_v3.json`, ...)로 자동으로 정해집니다.
+    ```bash
+    uv run python scripts/make_split.py                            # val 20%, seed 42
+    uv run python scripts/make_split.py --val-ratio 0.15 --seed 7  # 비율이나 seed를 바꿀 때
+    ```
+3. 만들어진 split 파일을 커밋하고 PR을 올립니다. 머지되면 모두 main을 pull한 뒤 `prepare_data.py`를 다시 실행합니다.
+
+### 지킬 것
+- mAP는 같은 split끼리만 비교합니다. val이 다르면 점수를 비교할 수 없으므로, split을 바꾸면 기준 모델(baseline)부터 다시 학습합니다. 어떤 split으로 학습했는지는 W&B의 `data_version`에 남습니다.
+- 두 사람이 같은 번호를 만들면 머지할 때 충돌이 납니다. 나중에 머지하는 사람이 main을 pull하고, 자기 split 파일을 지운 뒤 `make_split.py`를 다시 실행합니다.
+- 이전 split으로 다시 학습할 때만 직접 지정합니다.
+    ```bash
+    uv run python scripts/prepare_data.py --split configs/splits/split_v1.json
+    ```

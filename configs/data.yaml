@@ -2,7 +2,7 @@
 path: data/processed
 train: images/train
 val: images/val
-data_version: split_v1+fixes-488c76f0
+data_version: split_v1-01782473+fixes-488c76f0
 names:
   0: 보령부스파정 5mg
   1: 뮤테란캡슐 100mg

@@ -160,6 +160,43 @@ def make_group_split(coco, val_ratio=0.2, seed=42):
     }
 
 
+SPLITS_DIR = Path("configs/splits")  # split_v1.json, split_v2.json, ... 한 번 만든 파일은 고치지 않는다
+
+
+def split_versions(splits_dir=SPLITS_DIR):
+    """split_v<번호>.json 파일을 번호 순서로 돌려준다. 숫자로 정렬하므로 v10이 v9 뒤에 온다."""
+    found = []
+    for path in Path(splits_dir).glob("split_v*.json"):
+        number = path.stem.removeprefix("split_v")
+        if number.isdigit():  # split_v2_old.json 같은 이름은 무시한다
+            found.append((int(number), path))
+    return [path for _, path in sorted(found)]
+
+
+def latest_split(splits_dir=SPLITS_DIR):
+    """번호가 가장 큰 split 파일. 하나도 없으면 None"""
+    versions = split_versions(splits_dir)
+    return versions[-1] if versions else None
+
+
+def next_split_path(splits_dir=SPLITS_DIR):
+    """새 split을 저장할 다음 번호의 경로. 하나도 없으면 split_v1.json"""
+    latest = latest_split(splits_dir)
+    number = int(latest.stem.removeprefix("split_v")) + 1 if latest else 1
+    return Path(splits_dir) / f"split_v{number}.json"
+
+
+def check_split(split):
+    """split이 조합 단위로 나뉘었는지 검사한다. 손으로 고친 파일도 여기서 잡는다."""
+    both = sorted(set(split["train"]) & set(split["val"]))
+    if both:
+        raise ValueError(f"split 파일에 train과 val에 모두 있는 이미지가 있습니다: {both[:5]}")
+    shared = sorted({combo_of(f) for f in split["train"]} & {combo_of(f) for f in split["val"]})
+    if shared:
+        raise ValueError(f"split 파일에 train과 val로 나뉜 알약 조합이 있습니다: {shared[:5]}\n"
+                         "  같은 조합은 거의 같은 사진이라 한쪽에만 두어야 val 점수가 부풀려지지 않습니다.")
+
+
 def _link_or_copy(src, dst):
     """같은 디스크면 하드링크(공간·시간 절약), 아니면 복사한다."""
     try:

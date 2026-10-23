@@ -21,7 +21,7 @@ pill-object-detection/
 ├── configs/
 │   ├── data.yaml              # Ultralytics 데이터셋 정의. prepare_data.py가 classes.py로 생성
 │   ├── data_fixes.yaml        # 원본 라벨을 고칠 목록 (원본 파일은 수정하지 않음)
-│   ├── splits/                # train/val 분할 파일. 한 번 만들면 모두 같은 파일을 씀
+│   ├── splits/                # train/val 분할 파일. make_split.py가 만들고, prepare_data.py는 번호가 가장 큰 파일을 씀
 │   ├── smoke.yaml             # 파이프라인 동작 확인용 1 epoch 설정 (실험 아님)
 │   └── exp/                   # 실험 1개 = YAML 1개 (예: yolov8s_640.yaml)
 ├── data/                      # 폴더만 git으로 관리하고 내용은 추적하지 않음
@@ -37,6 +37,7 @@ pill-object-detection/
 │   └── utils.py               # bbox 변환, 시각화
 ├── scripts/                   # 실행용 스크립트. 로직은 src/에 두고 짧게 유지
 │   ├── prepare_data.py        # data/raw → data/processed, configs/data.yaml 생성
+│   ├── make_split.py          # train/val split을 다음 번호로 새로 만듦 (split_v2.json, ...)
 │   ├── train.py               # 실험 YAML 하나로 학습
 │   └── make_submission.py     # 제출 파일 생성 (Kaggle 제출이 있다면)
 ├── demo/
