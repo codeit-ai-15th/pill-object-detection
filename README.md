@@ -14,54 +14,24 @@
 > TODO EDA 후 데이터 개요 시각화 자료 첨부
 
 ## 📂 Project Structure
-학습은 [Ultralytics](https://docs.ultralytics.com/)를 엔진으로 쓰고, 폴더 규칙은 [Cookiecutter Data Science](https://cookiecutter-data-science.drivendata.org/)에서 필요한 것만 가져왔습니다.
+
+> 레포지토리 구조는 확정되지 않았습니다. EDA와 모델링을 거치면서 구조가 수정될 수 있습니다.
 
 ```text
 pill-object-detection/
-├── configs/
-│   ├── data.yaml              # Ultralytics 데이터셋 정의. prepare_data.py가 classes.py로 생성
-│   ├── data_fixes.yaml        # 원본 라벨을 고칠 목록 (원본 파일은 수정하지 않음)
-│   ├── splits/                # train/val 분할 파일. make_split.py가 만들고, prepare_data.py는 번호가 가장 큰 파일을 씀
-│   ├── smoke.yaml             # 파이프라인 동작 확인용 1 epoch 설정 (실험 아님)
-│   └── exp/                   # 실험 1개 = YAML 1개 (예: yolov8s_640.yaml)
 ├── data/                      # 폴더만 git으로 관리하고 내용은 추적하지 않음
 │   ├── raw/                   # 원본 데이터. 내려받은 그대로 두고 수정하지 않음
 │   └── processed/             # YOLO 포맷으로 변환한 결과
 ├── notebooks/                 # 개인 탐색용 노트북
-│   └── 00-train-colab-kaggle.ipynb  # Colab·Kaggle 공용 학습 노트북 (하나만 두고 복사하지 않음)
+│   ├── eda/                   # 개인 EDA 노트북
+│   └── modeling/              # 각자 맡은 모델링 노트북
 ├── src/pill_detection/        # 공용 코드 패키지 (노트북·스크립트·데모 어디서든 import)
-│   ├── data/
-│   │   ├── convert.py         # 원본 어노테이션 → YOLO 포맷
-│   │   └── classes.py         # YOLO index ↔ category_id ↔ 약 이름 (유일한 정의처)
-│   ├── predict.py             # 이미지 → 검출 결과. 데모와 제출이 함께 사용
-│   └── utils.py               # bbox 변환, 시각화
-├── scripts/                   # 실행용 스크립트. 로직은 src/에 두고 짧게 유지
-│   ├── prepare_data.py        # data/raw → data/processed, configs/data.yaml 생성
-│   ├── make_split.py          # train/val split을 다음 번호로 새로 만듦 (split_v2.json, ...)
-│   ├── train.py               # 실험 YAML 하나로 학습
-│   └── make_submission.py     # 제출 파일 생성 (Kaggle 제출이 있다면)
-├── demo/
-│   └── app.py                 # Streamlit 데모 페이지. predict.py만 import
-├── tests/                     # bbox 변환·클래스 매핑 검사 (uv run pytest)
+│   └── utils.py               # 공용 보일러 플레이트 코드.(bbox 변환, 시각화 등) 
 ├── runs/                      # 학습 결과. 학습할 때 자동 생성되며 git에서 제외
 ├── submissions/               # 제출 CSV. make_submission.py가 만들며 git에서 제외
 ├── hooks/                     # pre-commit hook 스크립트
-├── EXPERIMENTS.md             # 실험 규칙
 └── CONTRIBUTING.md            # git·PR·커밋 협업 규칙
 ```
-
-> `demo/app.py`는 아직 없습니다. 나머지 파일은 공용 뼈대로 만들어 두었습니다.
-
-- 모든 명령은 레포 루트에서 실행합니다.
-- `src/pill_detection/`은 `uv sync` 때 패키지로 설치됩니다. 
-    - 노트북에서도 `from pill_detection.data.classes import ...`처럼 바로 불러올 수 있습니다. 
-    - `sys.path`를 고치지 마세요.
-- `notebooks/`의 파일 이름은 `<번호>-<이름>-<설명>.ipynb`로 짓습니다. 예) `01-rk-class-distribution.ipynb`. 
-    - 다른 팀원들과 공용으로 쓸 코드는 `src/pill_detection/`으로 옮깁니다.
-    - 노트북은 **코드와 마크다운만 커밋되고 셀 출력은 자동으로 빠집니다**(nbstripout). 단, 내 화면의 출력은 그대로 로컬 디스크에 남고, 출력만 버전관리 되지 않는 겁니다. 따라서 팀원들의 노트북 출력 결과는 각자 Run All로 확인해야 합니다.
-    - 출력은 버전관리가 되지 않기 때문에 버전 관리가 필요한 내용은 마크다운 셀에 글로 적어 두세요. 출력을 꼭 남길 셀에만 `keep_output` 태그를 붙입니다. 예) VS Code: 셀의 `…` 메뉴 → Add Cell Tag
-    - 레포가 공개되어 있으므로 알약 사진처럼 원본 데이터가 보이는 셀에는 `keep_output`을 붙이지 마세요.
-- 실험 방법과 공용 코드 규칙은 [EXPERIMENTS.md](EXPERIMENTS.md), git·PR·커밋 절차는 [CONTRIBUTING.md](CONTRIBUTING.md)를 따릅니다.
 
 ## 🧑‍💻 Dependencies
 이 프로젝트의 환경은 uv로 관리됩니다. 
