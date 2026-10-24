@@ -1,4 +1,5 @@
 # Dataset Description
+> Kaggle 대회에 있는 Data Description 원문입니다. 
 
 ## Datasets
 - 원본 데이터 출처: [Ai Hub 경구약제 이미지 데이터](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&dataSetSn=576) (원본 데이터를 가공 후 제공하였습니다.)
