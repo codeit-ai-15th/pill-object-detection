@@ -12,6 +12,10 @@ __pycache__/
 data/raw/*
 !data/raw/.gitkeep
 
+# 외부 데이터: AI Hub에서 받은 원본과 변환 결과도 용량이 커서 버전관리하지 않는다.
+data/external/*
+!data/external/.gitkeep
+
 # 가공 데이터와 학습 결과
 data/processed/*
 !data/processed/.gitkeep
