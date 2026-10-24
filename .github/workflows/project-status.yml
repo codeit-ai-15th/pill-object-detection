@@ -1,0 +1,144 @@
+# 브랜치 생성과 PR 이벤트에 맞춰 연결된 이슈의 프로젝트 보드 Status를 옮긴다
+#   이슈 번호가 든 브랜치 첫 push → In progress
+#   PR 열림/다시 열림/Ready for review → In review (Draft면 In progress)
+#   PR 닫힘 → In progress, PR merge → Done + 이슈 close
+# 보드는 org 프로젝트라 GITHUB_TOKEN으로는 못 바꾼다. project 권한 PAT를 PROJECT_TOKEN secret으로 등록해야 한다.
+name: 이슈 상태 자동 이동
+
+on:
+  create:
+  pull_request:
+    types: [opened, reopened, ready_for_review, converted_to_draft, closed]
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  PROJECT_ORG: codeit-ai-15th
+  PROJECT_NUMBER: 2
+  # 보드 Status 옵션 이름과 글자 그대로 같아야 한다
+  STATUS_IN_PROGRESS: In progress
+  STATUS_IN_REVIEW: In review
+  STATUS_DONE: Done
+
+jobs:
+  move-issue-status:
+    # create 이벤트는 태그 생성에도 오므로 브랜치일 때만 실행
+    if: github.event_name != 'create' || github.event.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    # 같은 브랜치의 이벤트가 연달아 와도 순서대로 처리
+    concurrency:
+      group: project-status-${{ github.event.pull_request.head.ref || github.event.ref }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/github-script@v9
+        env:
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { PROJECT_TOKEN, PROJECT_ORG, PROJECT_NUMBER, STATUS_IN_PROGRESS, STATUS_IN_REVIEW, STATUS_DONE } = process.env;
+
+            if (!PROJECT_TOKEN) {
+              core.setFailed('PROJECT_TOKEN secret이 없습니다. project 권한이 있는 PAT를 레포 Settings → Secrets and variables → Actions에 등록하세요.');
+              return;
+            }
+
+            // 이벤트에 따라 옮길 상태를 정한다
+            let branch;
+            let body = '';
+            let target;
+            if (context.eventName === 'create') {
+              branch = context.payload.ref;
+              target = STATUS_IN_PROGRESS;
+            } else {
+              const pr = context.payload.pull_request;
+              branch = pr.head.ref;
+              body = pr.body ?? '';
+              if (context.payload.action === 'closed') {
+                target = pr.merged ? STATUS_DONE : STATUS_IN_PROGRESS;
+              } else {
+                target = pr.draft ? STATUS_IN_PROGRESS : STATUS_IN_REVIEW;
+              }
+            }
+
+            // 브랜치 이름(feat/12-설명, 12-설명)과 PR 본문의 '관련 이슈' 섹션에서 이슈 번호를 모은다
+            const numbers = new Set();
+            const fromBranch = branch.match(/^(?:[^/]+\/)?(\d+)(?:-|$)/);
+            if (fromBranch) numbers.add(Number(fromBranch[1]));
+            const section = body.split(/^##[^\n]*관련 이슈.*$/m)[1]?.split(/^(?:---|##)/m)[0] ?? '';
+            for (const [, number] of section.matchAll(/#(\d+)/g)) numbers.add(Number(number));
+
+            if (numbers.size === 0) {
+              core.info(`브랜치 '${branch}'와 PR 본문에서 연결된 이슈를 찾지 못해 건너뜁니다.`);
+              return;
+            }
+
+            const project = getOctokit(PROJECT_TOKEN);
+            const { organization } = await project.graphql(`
+              query($org: String!, $number: Int!) {
+                organization(login: $org) {
+                  projectV2(number: $number) {
+                    id
+                    field(name: "Status") {
+                      ... on ProjectV2SingleSelectField { id options { id name } }
+                    }
+                  }
+                }
+              }`, { org: PROJECT_ORG, number: Number(PROJECT_NUMBER) });
+            const board = organization.projectV2;
+            const option = board.field.options.find((o) => o.name === target);
+            if (!option) {
+              core.setFailed(`보드 Status에 '${target}' 옵션이 없습니다. 워크플로 env의 상태 이름을 확인하세요.`);
+              return;
+            }
+
+            for (const number of numbers) {
+              let issue;
+              try {
+                ({ data: issue } = await github.rest.issues.get({ owner, repo, issue_number: number }));
+              } catch {
+                core.info(`#${number}: 이슈를 찾지 못해 건너뜁니다.`);
+                continue;
+              }
+              if (issue.pull_request) {
+                core.info(`#${number}: PR 번호라서 건너뜁니다.`);
+                continue;
+              }
+              // 닫힌 이슈는 Done으로만 옮긴다. merge 뒤 같은 번호로 브랜치를 또 만들어도 되돌아가지 않게
+              if (issue.state === 'closed' && target !== STATUS_DONE) {
+                core.info(`#${number}: 이미 닫힌 이슈라서 건너뜁니다.`);
+                continue;
+              }
+
+              const { node } = await project.graphql(`
+                query($id: ID!) {
+                  node(id: $id) {
+                    ... on Issue { projectItems(first: 20) { nodes { id project { id } } } }
+                  }
+                }`, { id: issue.node_id });
+              let itemId = node.projectItems.nodes.find((item) => item.project.id === board.id)?.id;
+              if (!itemId) {
+                const { addProjectV2ItemById } = await project.graphql(`
+                  mutation($project: ID!, $content: ID!) {
+                    addProjectV2ItemById(input: { projectId: $project, contentId: $content }) { item { id } }
+                  }`, { project: board.id, content: issue.node_id });
+                itemId = addProjectV2ItemById.item.id;
+                // 보드 기본 워크플로(Item added → Backlog)가 나중에 돌아 상태를 덮어쓰지 않게 잠깐 기다린다
+                await new Promise((resolve) => setTimeout(resolve, 5000));
+              }
+
+              await project.graphql(`
+                mutation($project: ID!, $item: ID!, $field: ID!, $option: String!) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $project, itemId: $item, fieldId: $field,
+                    value: { singleSelectOptionId: $option }
+                  }) { projectV2Item { id } }
+                }`, { project: board.id, item: itemId, field: board.field.id, option: option.id });
+
+              if (target === STATUS_DONE && issue.state !== 'closed') {
+                await github.rest.issues.update({ owner, repo, issue_number: number, state: 'closed', state_reason: 'completed' });
+              }
+              core.info(`#${number} → ${target}`);
+            }

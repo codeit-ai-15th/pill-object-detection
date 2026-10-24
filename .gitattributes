@@ -1,0 +1,4 @@
+# 노트북은 출력을 지우고 코드·마크다운만 커밋한다 (nbstripout git 필터). 내 화면의 출력은 그대로 남는다.
+# 출력을 남길 셀에는 keep_output 태그를 붙인다. 필터 설정은 hooks/nbstripout_setup.py가 처음 커밋할 때 한다.
+*.ipynb filter=nbstripout
+*.ipynb diff=ipynb
