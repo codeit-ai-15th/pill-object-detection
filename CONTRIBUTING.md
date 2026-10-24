@@ -24,7 +24,7 @@
         git pull origin main     # 원격의 최신 main 내용을 받아오기
         git switch -c <브랜치 이름>   # 새 브랜치를 만들고 그 브랜치로 이동
         ```
-    - 브랜치 이름은 위의 branch naming rule을 따릅니다. 예) `git switch -c eda/raewoo`, `git switch -c exp/add-dropout`
+    - 브랜치 이름은 아래의 branch naming rule 절을 따릅니다. 예) `git switch -c eda/raewoo`, `git switch -c exp/add-dropout`
     - 이미 만들어 둔 브랜치로 이동할 때는 `-c` 없이 `git switch <브랜치 이름>`을 사용합니다.
     - 현재 내가 어느 브랜치에 있는지 확인하기
         ```bash
@@ -42,9 +42,9 @@
         git add <파일 경로>     # 특정 파일만 추가 (권장)
         git add .              # 현재 폴더의 모든 변경 사항 추가
         ```
-    - 커밋: 위의 commit convention에 맞춰 메시지를 작성합니다. `-m`을 두 번 쓰면 첫 번째는 subject, 두 번째는 body가 됩니다.
+    - 커밋: 아래의 commit convention 절에 맞춰 메시지를 작성합니다. `-m`을 두 번 쓰면 첫 번째는 subject, 두 번째는 body가 됩니다.
         ```bash
-        git commit -m "code: FashionMNIST 클래스별 분포 EDA 추가" -m "클래스별 샘플 수와 평균 이미지를 시각화함"
+        git commit -m "feat: 시각화 보일러플레이트 코드 util화" -m "confusion matrix 시각화 코드를 공용코드로 옮겼습니다."
         ```
     - 커밋 기록 확인
         ```bash
