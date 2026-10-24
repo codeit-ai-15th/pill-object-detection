@@ -1,7 +1,0 @@
-# 베이스라인 예시. 모델·imgsz·epochs·batch는 일요일 회의에서 확정한다.
-model: yolov8s.pt
-data: configs/data.yaml
-imgsz: 640
-epochs: 100
-batch: 16
-seed: 42

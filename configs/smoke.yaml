@@ -1,8 +1,0 @@
-# 파이프라인이 끝까지 도는지만 확인하는 설정. 실험이 아니므로 configs/exp/ 밖에 둔다.
-# 공용 노트북이 본 실험 전에 매번 W&B에 올리지 않고(WANDB_MODE=offline) 돌린다. 노트북이 쓰므로 지우지 않는다.
-model: yolov8n.pt
-data: configs/data.yaml
-imgsz: 320
-epochs: 1
-batch: 8
-seed: 42
