@@ -61,7 +61,9 @@
 5. PR
     - push 후 GitHub 레포지토리 페이지에 들어가면 `Compare & pull request` 버튼이 보입니다. 이 버튼을 누릅니다.
         - 버튼이 보이지 않으면 `Pull requests` 탭 → `New pull request` → `base: main`, `compare: <내 브랜치>`를 선택합니다.
-    - PR 제목과 설명에 무슨 작업을 했는지 작성하고 `Create pull request`를 누릅니다.
+    - PR 제목을 쓰고, 본문에 자동으로 채워진 PR 템플릿의 각 항목을 작성한 뒤 `Create pull request`를 누릅니다.
+        - `관련 이슈`에 이슈 번호를 적으면 그 이슈의 보드 상태가 자동으로 바뀝니다. 아래 [PR과 이슈 상태](#pr과-이슈-상태)를 참고하세요.
+        - 아직 작업 중이면 버튼 옆 화살표에서 `Create draft pull request`를 고릅니다.
     - 팀원의 리뷰를 받은 뒤 main에 병합(Merge)합니다.
     - 리뷰 반영으로 수정할 내용이 생기면, 같은 브랜치에서 3~4번(커밋, 푸쉬)을 반복하면 PR에 자동으로 반영됩니다.
 
@@ -99,6 +101,24 @@
 | 잡업 | chore/설명 | chore/uv-setup | 
 
 > 추후 브랜치 유형 추가가 필요하면 여기에 추가됩니다. 
+
+- 이슈와 연결된 작업이면 유형과 상관없이 `<유형>/<이슈번호>-설명`으로 만듭니다. 예) `eda/5-raewoo`, `chore/11-pipeline`
+    - 이 브랜치를 처음 push하면 프로젝트 보드에서 그 이슈가 자동으로 `In progress`로 옮겨집니다. 이후 상태 변화는 아래 [PR과 이슈 상태](#pr과-이슈-상태)를 참고하세요.
+
+## PR과 이슈 상태
+- PR을 만들면 `.github/pull_request_template.md` 양식이 본문에 자동으로 채워집니다. 각 항목을 채우고, `관련 이슈`에는 `- #12`처럼 이슈 번호를 적습니다.
+- 브랜치 이름의 이슈 번호와 `관련 이슈`에 적은 번호를 보고, 프로젝트 보드의 이슈 상태를 아래처럼 자동으로 옮깁니다. 보드에서 손으로 옮길 필요가 없습니다.
+
+    | 언제 | 이슈 상태 |
+    | -- | -- |
+    | 이슈 번호가 든 브랜치를 처음 push | In progress |
+    | PR을 Draft로 열거나, 열린 PR을 Draft로 되돌림 | In progress |
+    | PR을 열거나 다시 엶, Draft에서 Ready for review로 바꿈 | In review |
+    | PR을 merge하지 않고 닫음 | In progress |
+    | PR을 merge함 | Done (이슈도 자동으로 닫힘) |
+
+- 커밋을 추가로 push하는 것만으로는 상태가 바뀌지 않습니다. 리뷰를 반영해 push해도 In review가 유지됩니다.
+- 자동화 설정은 `.github/workflows/project-status.yml`에 있습니다. 상태가 안 바뀌면 GitHub 레포의 `Actions` 탭에서 `이슈 상태 자동 이동` 실행 로그를 확인하세요.
 
 ## commit convention
 - 일정 작업 단위가 완성되면 커밋을 진행합니다.
