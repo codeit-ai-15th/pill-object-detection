@@ -21,11 +21,13 @@
 pill-object-detection/
 ├── data/                      # 폴더만 git으로 관리하고 내용은 추적하지 않음
 │   ├── raw/                   # 원본 데이터. 내려받은 그대로 두고 수정하지 않음
+│   ├── external/              # 대회 외부 데이터. AI Hub 원본(aihub/)과 Kaggle 형식 변환본(aihub_converted/)
 │   └── processed/             # YOLO 포맷으로 변환한 결과
 ├── notebooks/                 # 개인 탐색용 노트북
 │   ├── eda/                   # 개인 EDA 노트북
 │   └── modeling/              # 각자 맡은 모델링 노트북
 ├── src/pill_detection/        # 공용 코드 패키지 (노트북·스크립트·데모 어디서든 import)
+│   ├── data.py                # 라벨 로딩, AI Hub 조합 라벨 읽기와 변환, 조합 단위 분할
 │   └── utils.py               # 공용 보일러 플레이트 코드.(bbox 변환, 시각화 등) 
 ├── runs/                      # 학습 결과
 ├── submissions/               # 제출 CSV
