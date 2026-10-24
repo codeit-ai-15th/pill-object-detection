@@ -12,7 +12,7 @@ __pycache__/
 data/raw/*
 !data/raw/.gitkeep
 
-# 가공 데이터와 학습 결과: 각자 scripts/로 다시 만든다.
+# 가공 데이터와 학습 결과
 data/processed/*
 !data/processed/.gitkeep
 runs/
@@ -21,7 +21,7 @@ wandb/
 # 모델 가중치: git 대신 W&B Artifact나 공유 드라이브로 공유한다.
 *.pt
 
-# 제출 파일: make_submission.py로 다시 만든다.
+# 제출 파일
 submissions/
 
 # API 키 같은 비밀 값 (W&B 키, 2차 마일스톤 공공데이터 키)

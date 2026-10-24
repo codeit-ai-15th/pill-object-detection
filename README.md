@@ -27,8 +27,8 @@ pill-object-detection/
 │   └── modeling/              # 각자 맡은 모델링 노트북
 ├── src/pill_detection/        # 공용 코드 패키지 (노트북·스크립트·데모 어디서든 import)
 │   └── utils.py               # 공용 보일러 플레이트 코드.(bbox 변환, 시각화 등) 
-├── runs/                      # 학습 결과. 학습할 때 자동 생성되며 git에서 제외
-├── submissions/               # 제출 CSV. make_submission.py가 만들며 git에서 제외
+├── runs/                      # 학습 결과
+├── submissions/               # 제출 CSV
 ├── hooks/                     # pre-commit hook 스크립트
 └── CONTRIBUTING.md            # git·PR·커밋 협업 규칙
 ```
@@ -63,7 +63,7 @@ pill-object-detection/
     ```bash
     uv add <패키지>
     ```
-    | **NOTE**: `pip install`로 설치하지 않습니다. `uv.lock`에 기록되지 않아 다른 팀원 간 환경에 drfit 발생함. 
+    | **NOTE**: `pip install`로 설치하지 않습니다. `uv.lock`에 기록되지 않아 다른 팀원 간 환경에 drift 발생함. 
 
 5. **NOTE**
     1. `pyproject.toml`과 `uv.lock`은 항상 같이 커밋합니다.
@@ -75,10 +75,9 @@ pill-object-detection/
         git add pyproject.toml uv.lock
         git commit --no-edit                                    # 작업 브랜치에 머지 커밋 생성
         ```
-    4. 스크립트는 `uv run python scripts/train.py configs/exp/yolov8s_640.yaml`처럼 실행합니다. 가상환경을 따로 켤 필요가 없습니다.
-    5. `pyproject.toml`이나 `uv.lock`을 커밋하면 pre-commit hook이 `uv lock --check`로 두 파일이 일치하는지 검사합니다. 실패하면 터미널에 원인과 해결 명령이 출력되니 그대로 따라 하면 됩니다. `--no-verify`로 우회하지 마세요.
-    6. pre-commit hook을 추가할 때는 스크립트를 `hooks/`에 만들고 `.pre-commit-config.yaml`에 등록합니다.
-    7. 노트북을 처음 커밋하면 pre-commit hook이 이 저장소에 출력 제거 필터(nbstripout)를 설정합니다. 따로 할 일은 없습니다.
+    4. `pyproject.toml`이나 `uv.lock`을 커밋하면 pre-commit hook이 `uv lock --check`로 두 파일이 일치하는지 검사합니다. 실패하면 터미널에 원인과 해결 명령이 출력되니 그대로 따라 하면 됩니다. `--no-verify`로 우회하지 마세요.
+    5. pre-commit hook을 추가할 때는 스크립트를 `hooks/`에 만들고 `.pre-commit-config.yaml`에 등록합니다.
+    6. 노트북을 처음 커밋하면 pre-commit hook이 이 저장소에 출력 제거 필터(nbstripout)를 설정합니다. 따로 할 일은 없습니다.
         - 노트북을 `git add`하거나 `git status`를 실행할 때 `external filter` 오류가 나면 `uv sync`를 실행합니다. `.venv`를 지우고 다시 만들지 않은 경우에 납니다.
         - Colab의 "GitHub에 사본 저장"으로 커밋하지 않습니다. 필터를 거치지 않아 출력이 그대로 올라갑니다.
 
