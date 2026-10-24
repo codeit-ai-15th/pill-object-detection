@@ -77,7 +77,6 @@
     - 항상 main에 최근 변경사항이 있는 지 확인하는 습관을 들이세요. origin과 local의 drift가 있지 않도록 항상 로컬 환경을 최신화 해주세요. 
 
 # 협업 방식
-> 실험 방법과 공용 코드 규칙은 [EXPERIMENTS.md](EXPERIMENTS.md)를 따릅니다.
 
 ## general rule
 - 절대로 main 브랜치에는 push하지 않습니다. 
