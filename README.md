@@ -21,7 +21,9 @@
 pill-object-detection/
 ├── data/                      # 폴더만 git으로 관리하고 내용은 추적하지 않음
 │   ├── raw/                   # 원본 데이터. 내려받은 그대로 두고 수정하지 않음
-│   ├── external/              # 대회 외부 데이터. AI Hub 원본(aihub/)과 Kaggle 형식 변환본(aihub_converted/)
+│   ├── external/              # 대회 외부 데이터. 하위 폴더는 raw/와 같은 이름(train_annotations/, train_images/)으로 둠
+│   │   ├── aihub/             # AI Hub 원본 zip. 풀지 않고 AI Hub 파일 이름 그대로 둠
+│   │   └── aihub_converted/   # zip을 풀어 Kaggle 형식으로 바꾼 결과. raw/와 같은 구조
 │   └── processed/             # YOLO 포맷으로 변환한 결과
 ├── notebooks/                 # 개인 탐색용 노트북
 │   ├── eda/                   # 개인 EDA 노트북
@@ -29,6 +31,8 @@ pill-object-detection/
 ├── src/pill_detection/        # 공용 코드 패키지 (노트북·스크립트·데모 어디서든 import)
 │   ├── data.py                # 라벨 로딩, AI Hub 조합 라벨 읽기와 변환, 조합 단위 분할
 │   └── utils.py               # 공용 보일러 플레이트 코드.(bbox 변환, 시각화 등) 
+├── script/                    # 직접 실행하는 스크립트
+│   └── download_aihub.py      # AI Hub에서 filekey로 zip 받기 (대회 금지 파일은 받지 않음)
 ├── runs/                      # 학습 결과
 ├── submissions/               # 제출 CSV
 ├── hooks/                     # pre-commit hook 스크립트
@@ -82,6 +86,22 @@ pill-object-detection/
     6. 노트북을 처음 커밋하면 pre-commit hook이 이 저장소에 출력 제거 필터(nbstripout)를 설정합니다. 따로 할 일은 없습니다.
         - 노트북을 `git add`하거나 `git status`를 실행할 때 `external filter` 오류가 나면 `uv sync`를 실행합니다. `.venv`를 지우고 다시 만들지 않은 경우에 납니다.
         - Colab의 "GitHub에 사본 저장"으로 커밋하지 않습니다. 필터를 거치지 않아 출력이 그대로 올라갑니다.
+
+## 📦 AI Hub 외부 데이터 받기
+대회 원본(`data/raw/`)에 더해 [AI Hub 576 데이터셋](https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=576)을 보충 데이터로 씁니다. 대회 규칙상 `TL_2_조합.zip`, `TS_2_조합.zip`은 쓰지 않습니다. ([RULE.md](RULE.md))
+
+1. **준비(최초 1회)**
+    - AI Hub에서 576 데이터셋 이용 승인을 받고 API 키를 발급받습니다.
+    - `.env.example`을 복사해 `.env`를 만들고 `AIHUB_APIKEY`에 키를 넣습니다.
+
+2. **받기**
+    ```bash
+    # EDA 노트북(notebooks/eda/00_raewoo_first_eda.ipynb)에 필요한 허용 조합 라벨 zip 8개 (약 59MB)
+    uv run python script/download_aihub.py 66065 66067 66068 66069 66070 66071 66072 66243
+    ```
+    - zip은 풀지 않고 `data/external/aihub/`의 `train_annotations/`(라벨 zip)와 `train_images/`(이미지 zip)에 받습니다.
+    - 금지 파일의 filekey가 있으면 아무것도 받지 않고 멈춥니다. 이미 받은 파일은 건너뜁니다.
+    - filekey 목록과 폴더 규칙은 [script/download_aihub.py](script/download_aihub.py) 맨 위 설명을 봅니다.
 
 ## 🧠 Model Architecture 
 > TODO 최종 선정 모델 아키텍처 다이어그램

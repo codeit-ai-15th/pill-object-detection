@@ -129,10 +129,10 @@ def check_aihub_file(path):
         ValueError: TL_2_조합.zip, TS_2_조합.zip일 때.
 
     Examples:
-        >>> check_aihub_file("data/external/aihub/TL_1_조합.zip")  # 허용 파일은 아무것도 돌려주지 않는다
-        >>> check_aihub_file("data/external/aihub/TL_2_조합.zip")
+        >>> check_aihub_file("data/external/aihub/train_annotations/TL_1_조합.zip")  # 허용 파일은 아무것도 돌려주지 않는다
+        >>> check_aihub_file("data/external/aihub/train_annotations/TL_2_조합.zip")
         Traceback (most recent call last):
-        ValueError: TL_2_조합.zip은 대회에서 사용을 금지한 파일입니다(RULE.md). 이 파일을 지우고 다른 조합 zip만 사용하세요: rm 'data/external/aihub/TL_2_조합.zip'
+        ValueError: TL_2_조합.zip은 대회에서 사용을 금지한 파일입니다(RULE.md). 이 파일을 지우고 다른 조합 zip만 사용하세요: rm 'data/external/aihub/train_annotations/TL_2_조합.zip'
     """
     name = unicodedata.normalize("NFC", os.path.basename(path))
     if name in BANNED_AIHUB_FILES:
@@ -165,7 +165,7 @@ def read_aihub_label_zip(zip_path):
         ValueError: 대회에서 금지한 파일일 때.
 
     Examples:
-        >>> records = read_aihub_label_zip(".../라벨링데이터/경구약제조합_5000종/TL_1_조합.zip")
+        >>> records = read_aihub_label_zip("data/external/aihub/train_annotations/TL_1_조합.zip")
         >>> len(records), sum(not r["errors"] for r in records.values())  # (전체 이미지, 오류 없는 이미지)
         (1503, 1461)
         >>> record = records["K-000250-000573-002483-006192_0_2_0_2_70_000_200.png"]
@@ -232,7 +232,8 @@ def convert_aihub_to_kaggle(records, out_dir, start_image_id, start_annotation_i
 
     Args:
         records (dict[str, dict]): read_aihub_label_zip()의 결과. 여러 zip의 결과를 합쳐도 된다.
-        out_dir (str): 저장할 폴더. load_annotations()로 다시 읽을 수 있다.
+        out_dir (str): 저장할 폴더. data/external/aihub_converted/train_annotations에 저장해
+            data/raw/train_annotations와 같은 구조로 둔다. load_annotations()로 다시 읽을 수 있다.
         start_image_id (int): 첫 image_id. 대회 train과 test가 1~1500을 나눠 쓰므로(test는 파일명 숫자) 1500보다 크게 준다.
         start_annotation_id (int): 첫 annotation id. Kaggle train의 최댓값(5691)보다 크게 준다.
 
@@ -240,14 +241,14 @@ def convert_aihub_to_kaggle(records, out_dir, start_image_id, start_annotation_i
         int: 저장한 이미지 수. 이미지 하나에 알약 수만큼 JSON 파일이 생긴다.
 
     Examples:
-        >>> records = read_aihub_label_zip(".../TL_1_조합.zip")
-        >>> convert_aihub_to_kaggle(records, "data/external/aihub_converted", 1501, 5692)  # 오류 이미지 42장은 건너뜀
+        >>> records = read_aihub_label_zip("data/external/aihub/train_annotations/TL_1_조합.zip")
+        >>> convert_aihub_to_kaggle(records, "data/external/aihub_converted/train_annotations", 1501, 5692)  # 오류 이미지 42장은 건너뜀
         1461
 
         파일명 순서로 저장하므로, 첫 이미지(알약 4개)는 image_id 1501, annotation id 5692~5695가 된다.
         첫 알약의 파일과 내용 (Kaggle train_annotations와 같은 형식):
 
-        data/external/aihub_converted/K-000250-000573-002483-006192_json/K-000250/
+        data/external/aihub_converted/train_annotations/K-000250-000573-002483-006192_json/K-000250/
             K-000250-000573-002483-006192_0_2_0_2_70_000_200.json
         {"images": [{"file_name": "K-000250-000573-002483-006192_0_2_0_2_70_000_200.png", ...,
                      "drug_N": "K-000250", "dl_idx": "250", "id": 1501}],
