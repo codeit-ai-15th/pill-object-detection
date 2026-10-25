@@ -96,7 +96,7 @@
 | 기능 | feat/이슈번호-설명	| feat/12-wandb-logging |
 | 버그 | fix/이슈번호-설명 | fix/15-bbox-normalize |
 | 실험 | exp/모델-핵심변경 | exp/rtdetr-l-640 |
-| EDA | eda/설명 | eda/TODO | 
+| EDA | eda/설명 | eda/rw-first-eda | 
 | 문서 | docs/설명 | docs/readme-results | 
 | 잡업 | chore/설명 | chore/uv-setup | 
 
@@ -134,6 +134,7 @@
     | **타입** | **용도** | **예시** |
     | --- | --- | --- |
     | `feat` | 새 기능 | `feat: add wandb bbox logging` |
+    | `eda` | eda | `eda: check class ratio`| 
     | `fix` | 버그 수정 | `fix: convert xywh to xyxy before NMS` |
     | `exp` | 실험 설정 변경 (팀 자체 규칙) | `exp: yolov8s img640 mosaic=1.0` |
     | `refactor` | 동작 변화 없는 구조 개선 | `refactor: split dataset class` |
