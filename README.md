@@ -22,8 +22,9 @@ pill-object-detection/
 ├── data/                      # 폴더만 git으로 관리하고 내용은 추적하지 않음
 │   ├── raw/                   # 원본 데이터. 내려받은 그대로 두고 수정하지 않음
 │   ├── external/              # 대회 외부 데이터. 하위 폴더는 raw/와 같은 이름(train_annotations/, train_images/)으로 둠
-│   │   ├── aihub/             # AI Hub 원본 zip. 풀지 않고 AI Hub 파일 이름 그대로 둠
-│   │   └── aihub_converted/   # zip을 풀어 Kaggle 형식으로 바꾼 결과. raw/와 같은 구조
+│   │   ├── aihub/             # AI Hub 원본 zip. AI Hub 파일 이름 그대로 둠 (이미지 zip은 푼 뒤 지워도 됨)
+│   │   ├── aihub_raw/         # 라벨 zip을 그대로 푼 원본 JSON
+│   │   └── aihub_converted/   # Kaggle 형식으로 바꾼 라벨과 이미지. raw/와 같은 구조
 │   └── processed/             # YOLO 포맷으로 변환한 결과
 ├── notebooks/                 # 개인 탐색용 노트북
 │   ├── eda/                   # 개인 EDA 노트북
@@ -32,7 +33,8 @@ pill-object-detection/
 │   ├── data.py                # 라벨 로딩, AI Hub 조합 라벨 읽기와 변환, 조합 단위 분할
 │   └── utils.py               # 공용 보일러 플레이트 코드.(bbox 변환, 시각화 등) 
 ├── script/                    # 직접 실행하는 스크립트
-│   └── download_aihub.py      # AI Hub에서 filekey로 zip 받기 (대회 금지 파일은 받지 않음)
+│   ├── download_aihub.py      # AI Hub에서 filekey로 zip 받기 (대회 금지 파일은 받지 않음)
+│   └── extract_aihub.py       # 받은 AI Hub zip을 data/raw와 같은 구조로 풀기
 ├── runs/                      # 학습 결과
 ├── submissions/               # 제출 CSV
 ├── hooks/                     # pre-commit hook 스크립트
@@ -96,12 +98,24 @@ pill-object-detection/
 
 2. **받기**
     ```bash
-    # EDA 노트북(notebooks/eda/00_raewoo_first_eda.ipynb)에 필요한 허용 조합 라벨 zip 8개 (약 59MB)
+    # 허용 조합 라벨 zip 8개 (약 59MB)
     uv run python script/download_aihub.py 66065 66067 66068 66069 66070 66071 66072 66243
     ```
-    - zip은 풀지 않고 `data/external/aihub/`의 `train_annotations/`(라벨 zip)와 `train_images/`(이미지 zip)에 받습니다.
+    - zip은 `data/external/aihub/`의 `train_annotations/`(라벨 zip)와 `train_images/`(이미지 zip)에 받습니다.
     - 금지 파일의 filekey가 있으면 아무것도 받지 않고 멈춥니다. 이미 받은 파일은 건너뜁니다.
     - filekey 목록과 폴더 규칙은 [script/download_aihub.py](script/download_aihub.py) 맨 위 설명을 봅니다.
+
+3. **풀기**
+    ```bash
+    # 라벨 zip → data/external/aihub_raw/train_annotations/ (원본 JSON 그대로)
+    uv run python script/extract_aihub.py data/external/aihub/train_annotations/*.zip
+
+    # 이미지 zip(각 약 3.5GB)은 하나씩 받고, 풀고, 지운다 → data/external/aihub_converted/train_images/
+    uv run python script/download_aihub.py 66154
+    uv run python script/extract_aihub.py data/external/aihub/train_images/TS_1_조합.zip --delete-images
+    # 66156~66161(TS_3~8), 66254(VS_1)도 같은 방법으로 받는다. 모두 풀면 약 28GB이다
+    ```
+    - Kaggle 형식 라벨(`aihub_converted/train_annotations/`)은 [01_raewoo_external_aihub_eda.ipynb](notebooks/eda/01_raewoo_external_aihub_eda.ipynb) 1-3이 만듭니다.
 
 ## 🧠 Model Architecture 
 > TODO 최종 선정 모델 아키텍처 다이어그램

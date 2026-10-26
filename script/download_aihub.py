@@ -3,7 +3,7 @@
 사용법
     uv run python script/download_aihub.py <filekey> [<filekey> ...] [--out <폴더>]
 
-    # EDA 노트북(notebooks/eda/00_raewoo_first_eda.ipynb)에 필요한 허용 조합 라벨 zip 8개 (합계 약 59MB)
+    # EDA 노트북(notebooks/eda/01_raewoo_external_aihub_eda.ipynb)에 필요한 허용 조합 라벨 zip 8개 (합계 약 59MB)
     uv run python script/download_aihub.py 66065 66067 66068 66069 66070 66071 66072 66243
 
 준비
@@ -14,7 +14,9 @@
     data/external/aihub/
     ├── train_annotations/   # 라벨 zip: TL_*, VL_* (파일 이름 둘째 글자가 L)
     └── train_images/        # 이미지 zip: TS_*, VS_* (파일 이름 둘째 글자가 S)
-- zip을 푼 결과는 data/raw와 같은 구조로 data/external/aihub_converted/에 둔다. (이 스크립트는 풀지 않는다)
+- zip은 이 스크립트가 풀지 않는다. 푸는 것은 script/extract_aihub.py가 한다.
+    - 라벨 zip의 원본 JSON → data/external/aihub_raw/train_annotations/
+    - 이미지 zip의 PNG → data/external/aihub_converted/train_images/ (Kaggle 형식 라벨은 EDA 노트북 01의 1-3이 만든다)
 - 대회에서 금지한 TL_2_조합.zip, TS_2_조합.zip은 받지 않는다. (RULE.md, pill_detection.data.check_aihub_file)
 - 이미 있는 파일은 다시 받지 않는다.
 

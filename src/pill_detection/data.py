@@ -6,7 +6,7 @@
 - 조합 이름은 이미지 파일명의 첫 "_" 앞부분이다. (K-001900-016548-019607-029451)
 - 같은 조합의 사진은 같은 알약 배치를 다른 각도에서 찍은 것이라, 분할은 조합 단위로 한다.
 
-AI Hub 조합 라벨이 Kaggle 라벨과 다른 점 (notebooks/eda/00_raewoo_first_eda.ipynb 6-2)
+AI Hub 조합 라벨이 Kaggle 라벨과 다른 점 (notebooks/eda/01_raewoo_external_aihub_eda.ipynb 1-2)
 - Kaggle의 category_id와 dl_idx는 K-코드 숫자(drug_N)다. AI Hub 원본의 dl_idx는 K-코드와 달라서 drug_N으로 만든다.
 - AI Hub 원본은 image_id, category_id, annotation id가 모두 1이다.
 - AI Hub 원본에는 bbox가 빈 "-오류" 폴더, " copy" 중복 파일, macOS "._" 파일이 섞여 있다.
@@ -222,10 +222,10 @@ def read_aihub_label_zip(zip_path):
     return records
 
 
-def convert_aihub_to_kaggle(records, out_dir, start_image_id, start_annotation_id):
+def convert_aihub_to_kaggle(records, out_dir, start_image_id, start_annotation_id, skip_errors=True):
     """read_aihub_label_zip() 결과를 Kaggle train_annotations와 같은 구조의 JSON으로 저장한다.
 
-    대회 측 가공(DATA.md)과 같게 id를 다시 매긴다. "errors"가 있는 이미지는 저장하지 않는다.
+    대회 측 가공(DATA.md)과 같게 id를 다시 매긴다. 기본값으로는 "errors"가 있는 이미지를 저장하지 않는다.
     - image_id: start_image_id부터 이미지마다 하나씩
     - category_id, dl_idx: K-코드 숫자 (Kaggle과 같음)
     - annotation id: start_annotation_id부터 annotation마다 하나씩
@@ -236,6 +236,8 @@ def convert_aihub_to_kaggle(records, out_dir, start_image_id, start_annotation_i
             data/raw/train_annotations와 같은 구조로 둔다. load_annotations()로 다시 읽을 수 있다.
         start_image_id (int): 첫 image_id. 대회 train과 test가 1~1500을 나눠 쓰므로(test는 파일명 숫자) 1500보다 크게 준다.
         start_annotation_id (int): 첫 annotation id. Kaggle train의 최댓값(5691)보다 크게 준다.
+        skip_errors (bool): True면 "errors"가 있는 이미지를 건너뛴다. False면 읽을 수 있는 annotation만 저장한다.
+            라벨이 빠진 이미지를 Kaggle 형식에서 찾아 고치려면 False로 준다. (bbox가 비었거나 잘못된 알약은 JSON이 생기지 않는다)
 
     Returns:
         int: 저장한 이미지 수. 이미지 하나에 알약 수만큼 JSON 파일이 생긴다.
@@ -260,7 +262,7 @@ def convert_aihub_to_kaggle(records, out_dir, start_image_id, start_annotation_i
     image_id, annotation_id, saved = start_image_id, start_annotation_id, 0
     for file_name in sorted(records):
         record = records[file_name]
-        if record["errors"]:
+        if skip_errors and record["errors"]:
             continue
         for ann in record["annotations"]:
             code = ann["category_id"]
