@@ -20,6 +20,7 @@
 ```text
 pill-object-detection/
 ├── data/                      # 폴더만 git으로 관리하고 내용은 추적하지 않음
+│   ├── external/              # AIhub에서 내려받은 데이터. 내려받은 그대로 두고 수정하지 않음. 
 │   ├── raw/                   # 원본 데이터. 내려받은 그대로 두고 수정하지 않음
 │   └── processed/             # YOLO 포맷으로 변환한 결과
 ├── notebooks/                 # 개인 탐색용 노트북

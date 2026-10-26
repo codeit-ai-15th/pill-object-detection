@@ -18,6 +18,10 @@ data/processed/*
 runs/
 wandb/
 
+# 외부 데이터
+data/external/*
+!data/external/.gitkeep
+
 # 모델 가중치: git 대신 W&B Artifact나 공유 드라이브로 공유한다.
 *.pt
 
