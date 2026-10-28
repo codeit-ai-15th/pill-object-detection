@@ -412,7 +412,7 @@ def _read_json(path):
 def _write_json(path, data):
     """원본 annotation JSON과 같은 형식으로 저장한다.
 
-    원본 JSON 763개가 모두 이 형식이다. (노트북 jaeone_label_fix 4번 저장 형식 확인)
+    원본 JSON 763개가 모두 이 형식이다.
     4칸 들여쓰기, 한글 그대로(ensure_ascii=False), BOM 없음, 줄바꿈 LF, 파일 끝 줄바꿈 없음.
     Windows에서 텍스트 모드로 쓰면 줄바꿈이 CRLF로 바뀌므로, 글자를 바이트로 바꿔 저장한다.
     """

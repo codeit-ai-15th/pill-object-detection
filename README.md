@@ -19,10 +19,11 @@
 
 ```text
 pill-object-detection/
-├── data/                      # 폴더만 git으로 관리하고 내용은 추적하지 않음
+├── data/                      # raw·processed·external은 폴더만 git으로 관리하고 내용은 추적하지 않음
 │   ├── external/              # AIhub에서 내려받은 데이터. 내려받은 그대로 두고 수정하지 않음. 
 │   ├── raw/                   # 원본 데이터. 내려받은 그대로 두고 수정하지 않음
-│   └── processed/             # YOLO 포맷으로 변환한 결과
+│   ├── processed/             # 가공 결과. 라벨 수정 사본(train_annotations), YOLO 포맷 변환 결과
+│   └── label_fix/             # 라벨 수정 목록과 변경 기록 CSV. git으로 관리함
 ├── notebooks/                 # 개인 탐색용 노트북
 │   ├── eda/                   # 개인 EDA 노트북
 │   └── modeling/              # 각자 맡은 모델링 노트북
