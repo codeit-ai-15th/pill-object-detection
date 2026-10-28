@@ -18,6 +18,7 @@ AI 코딩 에이전트(Claude Code, Codex 등)가 이 레포에서 작업할 때
 | 브랜치 이름, 커밋 메시지, PR과 이슈 보드 | [CONTRIBUTING.md](CONTRIBUTING.md#협업-방식) |
 | PR 본문 양식 | [.github/pull_request_template.md](.github/pull_request_template.md) |
 | bbox 형식 세 가지와 변환 함수 | [src/pill_detection/utils.py](src/pill_detection/utils.py) 모듈 docstring |
+| 라벨 수정 사본 만들기: 수정 목록 CSV 형식, 실행 방법 | [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring, [README.md](README.md) Scripts |
 | 환경 변수 이름 | [.env.example](.env.example) |
 | git에서 제외하는 파일 | [.gitignore](.gitignore) |
 | pre-commit hook | [.pre-commit-config.yaml](.pre-commit-config.yaml), 스크립트는 [hooks/](hooks/) |
@@ -39,12 +40,13 @@ AI 코딩 에이전트(Claude Code, Codex 등)가 이 레포에서 작업할 때
 uv sync                              # pull 뒤나 의존성이 바뀐 뒤 환경 맞추기
 uv run python <스크립트>               # 가상환경을 켜지 않고 실행
 uv add <패키지>                        # 의존성 추가. 개발용은 uv add --dev <패키지>
+uv run scripts/<이름>.py --help      # 레포 최상위에서 스크립트 실행. 사용법은 README Scripts
 uv run pre-commit run --all-files    # 커밋 전에 hook 미리 돌려 보기
 ```
 
 ## 코드 작성
 - 노트북, 스크립트, 데모가 같이 쓰는 코드는 `src/pill_detection/`에 둡니다. import 이름은 `pill_detection`입니다(`from pill_detection.utils import xywh_to_yolo`). → [pyproject.toml](pyproject.toml)
-- 새 함수를 만들기 전에 [utils.py](src/pill_detection/utils.py)에 이미 있는지 확인합니다.
+- 새 함수를 만들기 전에 [utils.py](src/pill_detection/utils.py)와 [data.py](src/pill_detection/data.py)에 이미 있는지 확인합니다.
 - bbox를 다룰 때는 값이 어떤 형식인지 먼저 확인하고 utils.py의 변환 함수를 씁니다. 형식을 섞어도 에러 없이 점수만 떨어집니다.
 - 스타일은 기존 코드([utils.py](src/pill_detection/utils.py), [hooks/](hooks/))를 따릅니다.
   - 주석과 docstring은 한국어로 씁니다.
