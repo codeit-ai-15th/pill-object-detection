@@ -27,7 +27,9 @@ pill-object-detection/
 │   ├── eda/                   # 개인 EDA 노트북
 │   └── modeling/              # 각자 맡은 모델링 노트북
 ├── src/pill_detection/        # 공용 코드 패키지 (노트북·스크립트·데모 어디서든 import)
+│   ├── data.py                # 데이터 읽기, 라벨 수정 사본 만들기
 │   └── utils.py               # 공용 보일러 플레이트 코드.(bbox 변환, 시각화 등) 
+├── scripts/                   # 터미널에서 실행하는 스크립트 (uv run scripts/<이름>.py)
 ├── runs/                      # 학습 결과
 ├── submissions/               # 제출 CSV
 ├── hooks/                     # pre-commit hook 스크립트
@@ -81,6 +83,61 @@ pill-object-detection/
     6. 노트북을 처음 커밋하면 pre-commit hook이 이 저장소에 출력 제거 필터(nbstripout)를 설정합니다. 따로 할 일은 없습니다.
         - 노트북을 `git add`하거나 `git status`를 실행할 때 `external filter` 오류가 나면 `uv sync`를 실행합니다. `.venv`를 지우고 다시 만들지 않은 경우에 납니다.
         - Colab의 "GitHub에 사본 저장"으로 커밋하지 않습니다. 필터를 거치지 않아 출력이 그대로 올라갑니다.
+
+## 🛠️ Scripts
+`scripts/`의 스크립트는 Python을 따로 켜지 않고 터미널에서 명령 한 줄로 실행합니다. 위 Dependencies의 `uv sync`를 먼저 마친 상태여야 합니다.
+
+- **레포 최상위**(`pill-object-detection/`)에서 `uv run scripts/<이름>.py`로 실행합니다. 가상환경을 켜지 않아도 됩니다.
+- 경로 인자는 지금 터미널이 있는 폴더 기준입니다. 레포 최상위에서는 `data/...`로 시작하는 경로를 넣습니다. 
+- 인자 설명은 `--help`로 봅니다.
+    ```bash
+    uv run scripts/make_fixed_annotations.py --help
+    ```
+- 아래 예시의 줄 끝 `\`는 macOS/Linux 터미널에서 명령을 여러 줄로 나눠 쓰는 표시입니다. Windows PowerShell에서는 `\`를 `` ` ``(백틱)으로 바꾸거나 한 줄로 이어 씁니다.
+
+### 1. make_fixed_annotations.py: 라벨 수정 사본 만들기
+수정 목록 CSV대로 고친 annotation 사본과 변경 기록 CSV를 한 번에 만듭니다. [src/pill_detection/data.py](src/pill_detection/data.py)의 `make_fixed_annotations()`를 부르기만 하며, 인자의 자세한 뜻과 규칙은 그 함수의 docstring에 있습니다.
+
+| 인자 | 하는 일 | 예시 |
+| --- | --- | --- |
+| `--fix-csv` | 수정 목록 CSV. 읽기만 함 | `data/label_fix/label_fixes.csv` |
+| `--base-ann-dir` | 기준 annotation 폴더. 읽기만 함 | `data/raw/train_annotations` |
+| `--img-dir` | 이미지 폴더. 읽기만 함. 2차 이후에도 원본 | `data/raw/train_images` |
+| `--out-ann-dir` | 사본 annotation 폴더. **폴더 전체를 지우고 다시 만듦** | `data/processed/train_annotations` |
+| `--change-csv` | 변경 기록 CSV. 내용이 바뀌면 `_v2`, `_v3` …로 새로 저장 | `data/label_fix/apply_label_fixes.csv` |
+
+- **예시 1. 1차 가공: 원본을 기준으로 사본 만들기**
+    ```bash
+    uv run scripts/make_fixed_annotations.py \
+        --fix-csv data/label_fix/label_fixes.csv \
+        --base-ann-dir data/raw/train_annotations \
+        --img-dir data/raw/train_images \
+        --out-ann-dir data/processed/train_annotations \
+        --change-csv data/label_fix/apply_label_fixes.csv
+    ```
+    성공하면 아래처럼 요약이 출력됩니다.
+    ```text
+    기준 JSON 763개 → 사본 JSON 771개 (data/processed/train_annotations)
+    수정 목록 21줄 적용: add 8, modify 13
+    변경 기록: data/label_fix/apply_label_fixes.csv (21건)
+    ```
+
+- **예시 2. 2차 가공: 1차 사본을 기준으로 한 번 더 고치기**
+    - `--base-ann-dir`에 1차 사본을 넣고, `--out-ann-dir`는 1차 사본과 다른 폴더로 정합니다. 폴더 이름은 `train_annotations`로 같아야 합니다.
+    - `--img-dir`는 그대로 원본 이미지 폴더입니다. 사본에는 이미지가 없습니다.
+    - 수정 목록과 변경 기록은 1차와 다른 파일 이름을 쓰면 단계별 기록이 섞이지 않습니다. 아래 `_round2` 파일 이름은 예시입니다.
+    ```bash
+    uv run scripts/make_fixed_annotations.py \
+        --fix-csv data/label_fix/label_fixes_round2.csv \
+        --base-ann-dir data/processed/train_annotations \
+        --img-dir data/raw/train_images \
+        --out-ann-dir data/processed/round2/train_annotations \
+        --change-csv data/label_fix/apply_label_fixes_round2.csv
+    ```
+
+- **NOTE**
+    1. 같은 수정 목록으로 다시 실행해도 결과는 같습니다. 사본 폴더는 다시 만들어지고, 변경 기록은 이전 기록과 내용이 같으면 새 파일을 만들지 않고 이전 파일 경로를 보여줍니다.
+    2. 수정 목록이나 경로에 문제가 있으면 `[오류]` 뒤에 원인과 해결 방법이 나오고 멈춥니다. 메시지에 적힌 대로 고친 뒤 다시 실행하세요.
 
 ## 🧠 Model Architecture 
 > TODO 최종 선정 모델 아키텍처 다이어그램
