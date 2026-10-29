@@ -31,6 +31,7 @@ from helpers import (
     KAGGLE_ANN_DIR,
     KAGGLE_ANN_KEYS,
     KAGGLE_FIXED_HASH,
+    KAGGLE_IMG_DIR,
     LABEL_FIX_CSV,
     expected_file_name,
     fix_rows_sha,
@@ -107,6 +108,17 @@ def test_run_again_keeps_same_result(train_dataset):
     assert not (kwargs["change_csv"].parent / "apply_label_fixes_v3.csv").exists()
     assert tree_hash(aihub_ann) == before
     assert tree_hash(kwargs["kaggle_out_ann_dir"]) == KAGGLE_FIXED_HASH
+
+
+def test_run_kaggle_only_joins_same_change_log(train_dataset, tmp_path):
+    """같은 정제 목록으로 Kaggle만 다시 만들면(make_fixed_annotations), 같은 묶음의 v2를 그대로 두고 v3을 만들지 않는다."""
+    from pill_detection.data import make_fixed_annotations
+
+    change_csv = train_dataset["kwargs"]["change_csv"]
+    result = make_fixed_annotations(LABEL_FIX_CSV, KAGGLE_ANN_DIR, KAGGLE_IMG_DIR, tmp_path / "train_annotations", change_csv)
+    assert result["change_csv"].name == "apply_label_fixes_v2.csv"
+    assert not (change_csv.parent / "apply_label_fixes_v3.csv").exists()
+    assert len(result["changes"]) == len(read_csv_rows(result["change_csv"]))
 
 
 # ---------- AI Hub 결과 폴더: 노트북 결론 ----------

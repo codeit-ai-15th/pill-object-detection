@@ -11,7 +11,7 @@
 - write_label_changes: 기준과 결과를 비교해서, 바뀐 annotation을 변경 전후 값과 함께 CSV로 저장한다.
   내용이 바뀌었을 때만 번호를 붙인 새 파일(_v2, _v3 …)로 저장해서, 이전 기록을 덮어쓰지 않는다.
 - make_train_dataset: 위 함수들을 차례로 불러 Kaggle 사본, AI Hub 사본, 변경 기록 하나를 한 번에 만든다. (학습 데이터 준비)
-- make_fixed_annotations: Kaggle 원본만 고친 사본과 변경 기록을 만든다. (Kaggle만 2차 가공할 때)
+- make_fixed_annotations: Kaggle 원본만 고친 사본과 변경 기록을 만든다. (AI Hub 데이터 없이 Kaggle 사본만 다시 만들 때)
 AI Hub 파일 이름 도우미: check_aihub_file(금지 파일 검사), combo_name, pill_codes
 
 annotation 폴더 구조
@@ -39,6 +39,13 @@ annotation 폴더 구조
     - image_fix: 이미지 필드를 고칠 때만 "필드=값". 예: back_color=연회색 배경 (aihub만)
 - 정제 목록의 한 줄은 (source, file_name, category_id)로 구분한다. annotation 하나는 한 줄에서만 고친다.
 - 옛 5열 정제 목록(file_name, category_id, action, bbox, area)도 읽는다. source=kaggle로 보고 bbox, area를 _after 값으로 읽는다.
+
+변경 기록 (write_label_changes)
+- 기록은 한 묶음이다: data/label_fix/apply_label_fixes.csv(1번), apply_label_fixes_v2.csv, _v3 …
+    - 1번은 main의 Kaggle 기록(CHANGE_COLUMNS)이고, v2부터는 Kaggle과 AI Hub를 함께 담는다. (TRAIN_CHANGE_COLUMNS)
+- 모든 버전은 원본 대비 누적이다. 최신 파일 하나에 지금까지의 수정 전체가 있고, 두 버전 사이에 바뀐 것은 두 파일을 비교해 본다.
+- make_train_dataset, make_fixed_annotations 어느 쪽으로 만들든 같은 묶음에 쌓인다. 최신 기록과 내용이 같으면 새 파일을 만들지 않는다.
+- Kaggle만 다시 만들면(make_fixed_annotations) aihub 줄은 최신 기록에서 그대로 이어받는다.
 """
 
 import collections
@@ -1048,7 +1055,7 @@ def rename_aihub_files(ann_dir, img_dir, out_img_dir):
 def write_label_changes(base_records, out_records, csv_path, key_map=None, sources=None):
     """기준과 결과를 비교해서, 바뀐 annotation을 변경 전후 값과 함께 CSV로 저장한다.
 
-    기준(base_records)은 원본일 수도 있고, 2차·3차 가공을 할 때의 이전 수정본일 수도 있다.
+    기준(base_records)에는 원본을 넣는다. 기록 묶음의 모든 버전은 원본 대비 누적이라서, 최신 파일 하나에 지금까지의 수정 전체가 있다.
     두 목록을 같은 key(이미지 파일명, category_id)끼리 비교한다. bbox와 area만 비교하고,
     나머지 값(제품명, image_id 등)이 바뀌었는지는 보지 않는다.
 
@@ -1056,21 +1063,29 @@ def write_label_changes(base_records, out_records, csv_path, key_map=None, sourc
     - 기준 key를 key_map으로 결과 key에 이어서 비교한다. 파일명이나 클래스가 바뀐 annotation도 한 줄(modify)로 남는다.
     - 열은 TRAIN_CHANGE_COLUMNS다. file_name_after, category_id_after는 결과의 값이고, delete 줄은 비운다.
 
+    묶음의 최신 기록이 TRAIN_CHANGE_COLUMNS 형식이면, key_map과 sources를 주지 않은 호출(make_fixed_annotations)도 그 형식으로 쓴다.
+    - sources가 없으면 모든 key를 kaggle로 본다. (sources에 없는 key도 kaggle로 본다)
+    - 이번 호출이 다루지 않은 출처(sources의 값에 없는 출처, sources가 없으면 kaggle이 아닌 출처)의 줄은
+      최신 기록에서 글자 그대로 이어받는다. 그 출처의 사본은 다시 만들지 않았으니 변경도 최신 기록 그대로이기 때문이다.
+    - 그래서 Kaggle만 다시 만들어도 AI Hub 줄이 빠진 기록이 생기지 않고, 정제 목록이 그대로면 새 파일이 생기지 않는다.
+    - 묶음이 비었거나 최신 기록이 CHANGE_COLUMNS 형식이면 지금까지처럼 CHANGE_COLUMNS로 쓴다.
+
     action은 비교 결과로 정한다.
     - add: 결과에만 있다. before 열은 빈칸이다.
     - modify: 둘 다 있고 bbox나 area가 다르다. (key_map을 주면 파일명이나 클래스가 다른 것도)
     - delete: 기준에만 있다. after 열은 빈칸이다. Kaggle 정제 목록으로는 생기지 않으며, 생기면 숨기지 않고 기록한다.
 
-    줄 순서는 add, modify, delete 순서이고, 같은 action 안에서는 JSON 경로 순서다.
+    줄 순서는 add, modify, delete 순서이고, 같은 action 안에서는 JSON 경로 순서다. 이어받은 줄은 같은 action 안에서 뒤에 둔다.
     CSV는 UTF-8(BOM 없음)로 저장하고, bbox는 정제 목록 CSV와 같은 [x, y, w, h] 형식으로 적는다.
 
     저장할 파일은 아래 규칙으로 정한다. 이전 기록을 덮어쓰지 않는다.
-    - csv_path와 같은 이름의 파일 중 번호가 가장 큰 것을 찾는다. 번호 없는 csv_path가 1번,
+    - csv_path와 같은 이름의 파일(묶음) 중 번호가 가장 큰 것을 찾는다. 번호 없는 csv_path가 1번,
       그다음은 이름 뒤에 _v2, _v3 …을 붙인 파일이다. (apply_label_fixes.csv, apply_label_fixes_v2.csv …)
-    - 하나도 없으면 csv_path로 저장한다.
+      csv_path가 _vN(N≥2)으로 끝나면 그 부분을 뗀 이름을 1번 파일로 본다. 그래서 _v2 경로를 넣어도 같은 묶음에 쌓인다.
+    - 하나도 없으면 1번 파일로 저장한다.
     - 가장 최근 파일과 새로 만든 내용이 같으면 저장하지 않고, 그 파일의 경로를 돌려준다.
       같은 정제 목록으로 다시 실행해도 파일이 늘지 않게 하려는 것이다.
-      줄바꿈 방식(CRLF/LF)과 BOM 차이는 같은 내용으로 본다. (git이 줄바꿈을 바꿔 꺼낼 수 있기 때문)
+      줄바꿈 방식(CRLF/LF), BOM, 줄 순서 차이는 같은 내용으로 본다. (git이 줄바꿈을 바꿔 꺼낼 수 있고, 이어받은 줄은 순서가 달라질 수 있기 때문)
     - 다르면 다음 번호의 파일로 저장한다.
 
     Args:
@@ -1081,10 +1096,12 @@ def write_label_changes(base_records, out_records, csv_path, key_map=None, sourc
         key_map (dict[tuple[str, int], tuple[str, int]] | None): 기준 key → 결과 key. 없는 key는 그대로 잇는다.
             add 줄도 넣으면 원래 파일명과 클래스가 file_name, category_id 열에 남는다.
         sources (dict[tuple[str, int], str] | None): 기준 key와 결과 key → "kaggle"이나 "aihub". source 열에 쓴다.
+            없으면 모든 key를 kaggle로 본다.
 
     Returns:
         tuple[Path, list[dict]]: (기록 파일 경로, 변경 목록).
             기록 파일 경로는 새로 저장한 파일, 또는 내용이 같아서 그대로 둔 가장 최근 파일이다.
+            변경 목록은 기록 파일의 줄과 같다. (이어받은 줄도 들어 있다)
             변경 목록의 key는 CHANGE_COLUMNS(또는 TRAIN_CHANGE_COLUMNS)다. bbox는 리스트, area는 정수, 빈칸은 None이다.
 
             {
@@ -1097,10 +1114,51 @@ def write_label_changes(base_records, out_records, csv_path, key_map=None, sourc
                 "area_after": 97965,
             }
     """
-    # 1. 기준과 결과를 비교해서 변경 목록을 만든다.
-    action_order = {"add": 0, "modify": 1, "delete": 2}
-    train = key_map is not None or sources is not None
+    # 1. 같은 묶음의 기존 기록 파일을 찾는다. 번호 없는 파일이 1번, <이름>_v2, _v3 …이 2번, 3번 …이다.
+    csv_path = Path(csv_path)
+    numbered_name = re.fullmatch(r"(.+)_v(\d+)", csv_path.stem)
+    if numbered_name and int(numbered_name.group(2)) >= 2:  # _vN 파일 경로를 받아도 같은 묶음에 쌓는다
+        csv_path = csv_path.with_name(numbered_name.group(1) + csv_path.suffix)
+    versions = {}
+    if csv_path.is_file():
+        versions[1] = csv_path
+    numbered = re.compile(rf"{re.escape(csv_path.stem)}_v(\d+){re.escape(csv_path.suffix)}")
+    for p in csv_path.parent.glob(f"{csv_path.stem}_v*{csv_path.suffix}"):
+        match = numbered.fullmatch(p.name)
+        if match and int(match.group(1)) >= 2:
+            versions[int(match.group(1))] = p
+    latest_text = ""
+    if versions:
+        latest_text = versions[max(versions)].read_bytes().decode("utf-8-sig", errors="replace").replace("\r\n", "\n")
+
+    # 2. 기록 형식을 정한다. 최신 기록이 Kaggle + AI Hub 형식이면 그 형식으로 쓰고,
+    #    이번 호출이 다루지 않은 출처의 줄은 최신 기록에서 이어받는다.
+    def parse(column, value):
+        """기록 CSV 칸의 글자를 변경 목록의 값으로 바꾼다. (아래 cell의 반대)
+
+        AI Hub 원본에는 bbox가 []이고 area에 bbox 리스트가 든 JSON도 있어서, 숫자 칸도 JSON으로 읽고 안 되면 글자 그대로 둔다.
+        """
+        if value == "":
+            return None
+        if column in ("source", "file_name", "file_name_after", "action"):
+            return value
+        try:
+            return json.loads(value)
+        except ValueError:
+            return value
+
+    latest_train = latest_text.split("\n", 1)[0] == ",".join(TRAIN_CHANGE_COLUMNS)
+    train = key_map is not None or sources is not None or latest_train
+    covered = set(sources.values()) if sources else {"kaggle"}
     key_map, sources = key_map or {}, sources or {}
+    carried = []
+    if latest_train:
+        for row in csv.DictReader(io.StringIO(latest_text)):
+            if row["source"] not in covered:
+                carried.append({column: parse(column, row[column]) for column in TRAIN_CHANGE_COLUMNS})
+
+    # 3. 기준과 결과를 비교해서 변경 목록을 만든다.
+    action_order = {"add": 0, "modify": 1, "delete": 2}
     # (기준 key, 결과 key) 짝. key_map에 없는 기준 key는 같은 key와 잇되, 다른 기준 key가 이미 이어진 결과 key면 delete로 둔다
     claimed = set(key_map.values())
     pairs = [(base_key, key_map.get(base_key, None if base_key in claimed else base_key)) for base_key in base_records]
@@ -1132,15 +1190,17 @@ def write_label_changes(base_records, out_records, csv_path, key_map=None, sourc
             "_json_path": (out or base)["json_path"],  # 정렬에만 쓰고 저장하지 않는다
         }
         if train:
-            change["source"] = sources.get(base_key) or sources.get(out_key)
+            change["source"] = sources.get(base_key) or sources.get(out_key) or "kaggle"
             change["file_name_after"] = out_key[0] if out else None
             change["category_id_after"] = out_key[1] if out else None
         changes.append(change)
     changes.sort(key=lambda c: (action_order[c["action"]], c["_json_path"]))
     for change in changes:
         del change["_json_path"]
+    # 이어받은 줄은 같은 action 안에서 새로 계산한 줄 뒤에 둔다. (sort는 순서가 같은 줄끼리 원래 순서를 지킨다)
+    changes = sorted(changes + carried, key=lambda c: action_order[c["action"]])
 
-    # 2. 저장할 CSV 내용을 글자로 먼저 만든다.
+    # 4. 저장할 CSV 내용을 글자로 먼저 만든다.
     def cell(value):
         """CSV 칸에 적을 글자. 빈칸은 None, bbox(리스트)는 [x, y, w, h] 형식."""
         if value is None:
@@ -1155,22 +1215,15 @@ def write_label_changes(base_records, out_records, csv_path, key_map=None, sourc
         writer.writerow([cell(change[col]) for col in columns])
     text = buffer.getvalue()
 
-    # 3. 같은 이름의 기존 기록 파일을 찾는다. 번호 없는 파일이 1번, <이름>_v2, _v3 …이 2번, 3번 …이다.
-    csv_path = Path(csv_path)
-    versions = {}
-    if csv_path.is_file():
-        versions[1] = csv_path
-    numbered = re.compile(rf"{re.escape(csv_path.stem)}_v(\d+){re.escape(csv_path.suffix)}")
-    for p in csv_path.parent.glob(f"{csv_path.stem}_v*{csv_path.suffix}"):
-        match = numbered.fullmatch(p.name)
-        if match and int(match.group(1)) >= 2:
-            versions[int(match.group(1))] = p
+    # 5. 가장 최근 파일과 내용이 같으면 저장하지 않고, 다르면 다음 번호로 저장한다.
+    def lines(csv_text):
+        """(열 이름 줄, 나머지 줄을 정렬한 목록). 줄 순서만 다른 기록을 같은 내용으로 보려고 쓴다."""
+        header, *rows = csv_text.replace("\r\n", "\n").split("\n")
+        return header, sorted(row for row in rows if row)
 
-    # 4. 가장 최근 파일과 내용이 같으면 저장하지 않고, 다르면 다음 번호로 저장한다.
     if versions:
         latest = max(versions)
-        latest_text = versions[latest].read_bytes().decode("utf-8-sig", errors="replace")
-        if latest_text.replace("\r\n", "\n") == text.replace("\r\n", "\n"):
+        if lines(latest_text) == lines(text):
             return versions[latest], changes
         target = csv_path.with_name(f"{csv_path.stem}_v{latest + 1}{csv_path.suffix}")
     else:
@@ -1193,7 +1246,7 @@ def make_train_dataset(fix_csv, kaggle_ann_dir, kaggle_img_dir, aihub_ann_dir, a
 
     1~2에서 문제가 있으면 파일을 하나도 건드리지 않고 멈춘다.
     변경 기록은 Kaggle 줄과 AI Hub 줄을 함께 담는다. (source 열로 구분, 열은 TRAIN_CHANGE_COLUMNS)
-    Kaggle만 기록한 1번 파일(apply_label_fixes.csv)이 있으면 내용이 달라 _v2로 저장되고, 같은 정제 목록으로 다시 실행하면 그대로 둔다.
+    기록은 원본 대비 누적이다. 묶음의 최신 기록과 내용이 다르면 다음 번호(_v2, _v3 …)로 쌓고, 같으면 그대로 둔다.
 
     경로는 상대경로도 되며, 실행하는 위치(현재 작업 폴더)를 기준으로 찾는다. 레포 최상위에서 실행할 때의 예:
         make_train_dataset(
@@ -1268,8 +1321,9 @@ def make_train_dataset(fix_csv, kaggle_ann_dir, kaggle_img_dir, aihub_ann_dir, a
 def make_fixed_annotations(fix_csv, base_ann_dir, img_dir, out_ann_dir, change_csv):
     """정제 목록대로 고친 Kaggle annotation 사본과 변경 기록을 한 번에 만든다.
 
-    학습 데이터 전체(Kaggle + AI Hub)는 make_train_dataset으로 만든다. 이 함수는 Kaggle만 2차 가공할 때 쓴다.
+    학습 데이터 전체(Kaggle + AI Hub)는 make_train_dataset으로 만든다. 이 함수는 AI Hub 데이터 없이 Kaggle 사본만 다시 만들 때 쓴다.
     정제 목록에 aihub 줄이 있으면 kaggle 줄만 쓴다.
+    변경 기록은 make_train_dataset과 같은 묶음에 쌓는다. 최신 기록의 aihub 줄은 그대로 이어받는다. (write_label_changes 참고)
 
     아래 함수를 이 순서로 부르기만 한다. 한 단계씩 확인하거나 테스트할 때는 각 함수를 따로 쓴다.
         1. read_label_fixes(fix_csv, source="kaggle")  정제 목록 읽기
@@ -1287,29 +1341,22 @@ def make_fixed_annotations(fix_csv, base_ann_dir, img_dir, out_ann_dir, change_c
       레포 최상위에서 실행하면 "data/raw/...", notebooks/eda/label_fix의 노트북에서 실행하면 "../../../data/raw/..."처럼 쓴다.
     - 읽기만 하는 경로: fix_csv, base_ann_dir, img_dir
     - 지우고 쓰는 경로: out_ann_dir (폴더 전체를 지우고 다시 만든다), change_csv (번호를 붙인 새 파일을 만든다)
-
-    2차 가공(1차 사본을 기준으로)의 예:
-    - base_ann_dir에 1차 사본(data/processed/train_annotations)을 넣는다.
-    - img_dir는 그대로 원본 이미지 폴더(data/raw/train_images)다. 사본에는 이미지가 없다.
-    - out_ann_dir는 1차 사본과 다른 곳이어야 한다. (예: data/processed/round2/train_annotations)
-    - fix_csv는 2차에 고칠 줄만 적은 목록이다.
-    - change_csv는 data/label_fix/apply_label_fixes.csv가 아닌 다른 이름을 쓴다.
-      그 이름의 최신 기록은 make_train_dataset이 쓴 Kaggle + AI Hub 기록(v2)이라, 같은 이름을 쓰면 두 기록이 번갈아 쌓인다.
+    - 고칠 것이 생기면 정제 목록에 줄을 더하고 원본부터 다시 만든다. 이전 사본을 기준으로 한 번 더 고치지 않는다.
+      변경 기록이 원본 대비 누적이어야 최신 기록 하나에 수정 전체가 남기 때문이다.
 
     Args:
         fix_csv (str | Path): 정제 목록 CSV. (예: data/label_fix/label_fixes.csv) kaggle 줄만 쓴다. (read_label_fixes 참고)
-        base_ann_dir (str | Path): 기준 annotation 폴더. 읽기만 한다.
-            1차 가공은 원본(data/raw/train_annotations), 2차 이후는 이전 사본을 넣는다.
+        base_ann_dir (str | Path): 기준 annotation 폴더. 읽기만 한다. 원본(data/raw/train_annotations)을 넣는다.
             정제 목록의 각 줄을 이 폴더와 대조하고(3), 이 폴더를 사본 위치에 복사하고(4),
             add 줄의 새 JSON에 넣을 알약 정보와 이미지 정보를 이 폴더에서 읽는다(5).
         img_dir (str | Path): 이미지 폴더. 읽기만 한다. (예: data/raw/train_images)
-            정제 목록의 이미지 파일이 있는지 확인하는 데만 쓴다(3). 2차 이후에도 원본 이미지 폴더를 넣는다.
-        out_ann_dir (str | Path): 고친 annotation을 만들 사본 폴더. (예: data/processed/round2/train_annotations)
+            정제 목록의 이미지 파일이 있는지 확인하는 데만 쓴다(3).
+        out_ann_dir (str | Path): 고친 annotation을 만들 사본 폴더. (예: data/processed/train_annotations)
             폴더 전체를 지우고 base_ann_dir에서 다시 복사한 뒤 고친다(4, 5).
             - 폴더 이름이 base_ann_dir와 같아야 한다. (train_annotations) 다르면 멈춘다.
             - base_ann_dir와 겹치면(같은 폴더이거나 한쪽이 다른 쪽 안에 있으면) 멈춘다.
             - git에 올라가지 않도록 data/processed 아래에 둔다. (.gitignore가 data/processed/*를 제외한다)
-        change_csv (str | Path): 변경 기록의 1번 파일 경로. (예: data/label_fix/apply_round2_label_fixes.csv)
+        change_csv (str | Path): 변경 기록의 1번 파일 경로. (예: data/label_fix/apply_label_fixes.csv)
             이전 기록과 내용이 같으면 저장하지 않고, 다르면 _v2, _v3 …을 붙인 새 파일로 저장한다. (write_label_changes 참고)
 
     Returns:
@@ -1319,7 +1366,8 @@ def make_fixed_annotations(fix_csv, base_ann_dir, img_dir, out_ann_dir, change_c
                 "n_out": 771,                # 사본 JSON 수 (add 줄만큼 늘어난다)
                 "applied": [...],            # apply_label_fixes()의 결과. 정제 목록 한 줄당 dict 하나 (21개)
                 "change_csv": Path(...),     # 변경 기록 파일 경로. 새로 저장했거나, 내용이 같아서 그대로 둔 파일
-                "changes": [...],            # write_label_changes()의 변경 목록 (21개)
+                "changes": [...],            # write_label_changes()의 변경 목록. 기록 파일의 줄과 같다
+                                             # (묶음이 비었으면 21개, 최신 기록이 Kaggle + AI Hub 형식이면 이어받은 aihub 줄도 들어 있다)
             }
 
     Raises:

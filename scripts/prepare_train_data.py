@@ -11,7 +11,8 @@
     3. pill_detection.data.make_train_dataset()을 불러 정제 목록(data/label_fix/label_fixes.csv)대로 고친 사본을 만든다.
         - Kaggle 사본: data/processed/train_annotations
         - AI Hub 사본: data/processed/ai_hub/train_annotations, train_images (PNG는 원본의 하드링크)
-        - 변경 기록: data/label_fix/apply_label_fixes_v2.csv (Kaggle과 AI Hub를 함께 기록. 같은 정제 목록으로 다시 실행하면 그대로 둔다)
+        - 변경 기록: data/label_fix/apply_label_fixes_v{n}.csv (Kaggle과 AI Hub를 함께 기록. 원본 대비 누적이다.
+          정제 목록을 고쳐 다시 실행하면 다음 번호로 쌓고, 같은 정제 목록으로 다시 실행하면 그대로 둔다)
     중간에 멈추면 같은 명령을 다시 실행한다. 끝난 단계는 건너뛴다.
 
 준비
