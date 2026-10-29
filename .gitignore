@@ -22,6 +22,9 @@ wandb/
 data/external/*
 !data/external/.gitkeep
 
+# 노트북에서 시험으로 만든 변경 기록 (notebooks/eda/label_fix/test.ipynb)
+data/label_fix/test_*.csv
+
 # 모델 가중치: git 대신 W&B Artifact나 공유 드라이브로 공유한다.
 *.pt
 
