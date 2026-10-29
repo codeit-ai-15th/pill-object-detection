@@ -7,6 +7,7 @@
 """
 
 import collections
+import csv
 import json
 import os
 import unicodedata
@@ -121,6 +122,46 @@ def test_run_kaggle_only_joins_same_change_log(train_dataset, tmp_path):
     assert len(result["changes"]) == len(read_csv_rows(result["change_csv"]))
 
 
+def test_run_ann_ids_follow_kaggle(train_dataset):
+    """AI Hub annotation id는 Kaggle 사본(add 줄 포함)의 가장 큰 id 다음부터라, 두 사본을 합쳐도 id가 겹치지 않는다."""
+    kwargs = train_dataset["kwargs"]
+    kaggle_ids = [r["ann_id"] for r in load_annotations(kwargs["kaggle_out_ann_dir"]).values()]
+    aihub_ids = [r["ann_id"] for r in load_annotations(kwargs["aihub_out_dir"] / "train_annotations").values()]
+    assert min(aihub_ids) == max(kaggle_ids) + 1 == AIHUB_START_ANN_ID
+
+
+def test_run_bad_fix_stops_before_writing(train_dataset, tmp_path):
+    """정제 목록에 AI Hub 사본을 만들 수 없는 줄이 있으면, 두 사본과 변경 기록을 하나도 건드리지 않고 멈춘다.
+
+    NAME_CODES에 없는 image_fix 값은 정제 라벨로 파일명을 다시 만들 때(build_aihub_export) 드러난다.
+    사본을 지우기 전에 멈추는지 보려고, 두 사본 폴더에 표시 파일을 두고 실행 뒤에도 남아 있는지 본다.
+    """
+    from pill_detection.data import make_train_dataset
+
+    rows = read_csv_rows(LABEL_FIX_CSV)
+    next(row for row in rows if row["source"] == "aihub" and row["action"] == "modify")["image_fix"] = "back_color=흰색 배경"
+    bad_csv = tmp_path / "label_fixes.csv"
+    with open(bad_csv, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+    kwargs = train_dataset["kwargs"]
+    aihub_ann = kwargs["aihub_out_dir"] / "train_annotations"
+    marks = [kwargs["kaggle_out_ann_dir"] / "_mark.txt", aihub_ann / "_mark.txt"]
+    before = (tree_hash(aihub_ann), sorted(p.name for p in kwargs["change_csv"].parent.iterdir()))
+    try:
+        for mark in marks:
+            mark.write_text("이 파일이 지워지면 사본을 건드린 것이다", encoding="utf-8")
+        with pytest.raises(ValueError, match="이미지 필드|NAME_CODES"):
+            make_train_dataset(**{**kwargs, "fix_csv": bad_csv})
+        assert all(mark.is_file() for mark in marks)
+        assert (tree_hash(aihub_ann), sorted(p.name for p in kwargs["change_csv"].parent.iterdir())) == before
+    finally:
+        for mark in marks:
+            mark.unlink(missing_ok=True)
+
+
 # ---------- AI Hub 결과 폴더: 노트북 결론 ----------
 
 @pytest.fixture(scope="module")
@@ -171,7 +212,7 @@ def test_aihub_folders_names_and_format(aihub_tree):
 
 
 def test_aihub_ids(aihub_tree):
-    """image id는 파일명 순서로 1501부터, annotation id는 5692부터 빈 번호 없이 매긴다. 대회 번호와 겹치지 않는다."""
+    """image id는 파일명 순서로 1501부터, annotation id는 Kaggle 사본 다음(5700)부터 빈 번호 없이 매긴다. 대회 번호와 겹치지 않는다."""
     image_ids = {}
     for name, anns in aihub_tree["by_image"].items():
         ids = {data["images"][0]["id"] for data in anns}
@@ -245,7 +286,7 @@ def test_aihub_pngs_link_to_raw(aihub_tree):
 
 
 def test_aihub_matches_notebook_export(aihub_tree):
-    """JSON 45,819개가 01 노트북이 내보낸 결과와 바이트까지 같다. 정제 목록의 aihub 줄이 바뀌면 건너뛴다."""
+    """JSON 45,819개가 01 노트북이 내보낸 결과와 annotation id(+8)만 빼고 바이트까지 같다. 정제 목록의 aihub 줄이 바뀌면 건너뛴다."""
     if fix_rows_sha(LABEL_FIX_CSV, "aihub") != AIHUB_FIX_ROWS_SHA:
         pytest.skip("정제 목록의 aihub 줄이 바뀌어 노트북 결과와 비교할 수 없습니다. "
                     "결과를 확인한 뒤 tests/helpers.py의 AIHUB_EXPORT_HASH와 AIHUB_FIX_ROWS_SHA를 새 값으로 바꾸세요.")

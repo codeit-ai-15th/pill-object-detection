@@ -3,6 +3,7 @@
 기준값은 코드를 고치기 전의 결과에서 잡았다. 기준값이 바뀌면 그 이유가 의도한 변경인지 먼저 확인한다.
 - KAGGLE_FIXED_HASH: main(e9100f9)의 make_fixed_annotations가 옛 label_fixes.csv(21줄)로 만든 사본 JSON 771개
 - AIHUB_EXPORT_HASH: 01 노트북(eda/raewoo-external-eda 317cd30) 2-7이 내보낸 JSON 45,819개. 2-8에서 점검을 마친 결과다.
+    노트북은 annotation id를 5692부터 매겼다. Kaggle 사본(add 줄 5692~5699)과 겹쳐서, 그 결과의 annotation id만 +8(5700부터) 한 해시다.
 - AIHUB_FIX_ROWS_SHA: AIHUB_EXPORT_HASH를 만든 정제 목록의 aihub 줄. 이 줄이 바뀌면 AI Hub 결과도 바뀌므로 해시 비교를 건너뛴다.
 """
 
@@ -26,7 +27,7 @@ TEST_OUT_DIR = DATA_DIR / "processed" / "_pytest"  # 하드링크가 되도록 �
 
 # (JSON 수, 해시)
 KAGGLE_FIXED_HASH = (771, "506ee722cba0d070120e94fd1310acd2a390b22cd954f4606aec8d8b96fd80c6")
-AIHUB_EXPORT_HASH = (45819, "37ccfaa8c8d325770f7d248c687914e6302ad45dde35fbdb2f23ac8cedd4cf3b")
+AIHUB_EXPORT_HASH = (45819, "8472ce82e63ed09463e10eec5cbd33e0478a25f730c80217fe8bbd49c9ee90c5")
 AIHUB_FIX_ROWS_SHA = "2bd750a08c083cacaddd40258b6afd84bba6e8e0f5cf6c0a2fcba63dcb20cbc0"
 
 # 01 노트북의 결론 (2-5 정제 라벨 표, 2-7 내보낸 결과 표, 2-8 다시 점검)
@@ -35,7 +36,8 @@ AIHUB_N_JSON = 45819
 AIHUB_N_CLASSES = 116
 AIHUB_N_COMBOS = 3997
 AIHUB_N_EXCLUDED = 35  # 찾지 못함 20, 같은 장면 6, 같은 알약 구성 9
-AIHUB_START_IMAGE_ID, AIHUB_START_ANN_ID = 1501, 5692  # 대회 train·test 번호(1~1500, ~5691) 다음
+AIHUB_START_IMAGE_ID = 1501  # 대회 train·test image id(1~1500) 다음
+AIHUB_START_ANN_ID = 5700  # Kaggle 사본 annotation id(원본 ~5691 + add 8줄 5692~5699) 다음
 
 # 2-6 이름 표: 원래 이름 → 정제 라벨로 다시 만든 이름
 EXPECTED_RENAMES = {

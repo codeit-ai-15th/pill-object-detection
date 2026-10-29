@@ -1,13 +1,14 @@
 """데이터를 읽고 고치는 함수.
 
 학습 데이터(Kaggle 원본 + AI Hub 외부 데이터)의 라벨 정제에 쓰는 아래 함수가 있다.
-앞의 세 함수는 파일을 읽기만 하고, copy_annotations부터 파일을 지우고 쓴다.
+read_label_fixes, load_annotations, check_label_fixes, build_aihub_export는 파일을 읽기만 하고, 나머지는 파일을 지우고 쓴다.
 - read_label_fixes: 정제 목록 CSV를 읽고 CSV 안의 형식을 검사한다.
 - load_annotations: annotation 폴더의 JSON을 모두 읽어 (이미지 파일명, category_id)별 목록을 만든다.
 - check_label_fixes: 정제 목록의 각 줄이 원본과 맞는지 확인하고, 줄마다 고치거나 새로 만들 JSON을 정한다.
-- copy_annotations: 사본 annotation 폴더를 지우고, 원본 annotation 폴더를 그대로 다시 복사한다.
-- apply_label_fixes: check_label_fixes가 정한 대로 사본의 JSON을 고치고, add 줄은 새 JSON을 만든다.
-- rename_aihub_files: AI Hub 사본의 파일명을 정제 라벨에 맞게 다시 만들고, Kaggle 형식으로 다시 쓰고, PNG를 새 이름으로 링크한다.
+- copy_annotations: 사본 annotation 폴더를 지우고, 원본 annotation 폴더를 그대로 다시 복사한다. (Kaggle 사본)
+- apply_label_fixes: check_label_fixes가 정한 대로 사본의 JSON을 고치고, add 줄은 새 JSON을 만든다. (Kaggle 사본)
+- build_aihub_export: AI Hub 사본에 쓸 JSON과 정제 라벨에 맞춘 새 파일명을 원본에서 메모리로 모두 만들고 검사한다.
+- write_aihub_export: build_aihub_export의 결과에 id를 매겨 AI Hub 사본 폴더에 쓰고, PNG를 새 이름으로 링크한다.
 - write_label_changes: 기준과 결과를 비교해서, 바뀐 annotation을 변경 전후 값과 함께 CSV로 저장한다.
   내용이 바뀌었을 때만 번호를 붙인 새 파일(_v2, _v3 …)로 저장해서, 이전 기록을 덮어쓰지 않는다.
 - make_train_dataset: 위 함수들을 차례로 불러 Kaggle 사본, AI Hub 사본, 변경 기록 하나를 한 번에 만든다. (학습 데이터 준비)
@@ -24,10 +25,11 @@ annotation 폴더 구조
     - PNG만 있는 이미지와 JSON만 있는 이미지가 있다. "_index.png"는 학습에 쓰지 않는 안내 이미지다.
 
 학습 데이터 사본
-- 원본은 읽기만 한다. 원본 annotation 폴더를 복사한 사본의 JSON만 정제 목록대로 고친다.
-    - Kaggle: data/raw → data/processed/train_annotations. 이미지는 복사하지 않고 원본(data/raw/train_images)에서 읽는다.
+- 원본은 읽기만 한다.
+    - Kaggle: data/raw → data/processed/train_annotations. 원본 annotation 폴더를 복사한 사본의 JSON만 정제 목록대로 고친다.
+      이미지는 복사하지 않고 원본(data/raw/train_images)에서 읽는다.
     - AI Hub: data/external/aihub/raw → data/processed/ai_hub/train_annotations, train_images.
-      파일명을 정제 라벨에 맞게 고치므로, 이미지는 새 이름의 하드링크로 둔다. (다른 디스크면 복사)
+      정제한 JSON을 Kaggle 형식으로 새로 쓴다. 파일명을 정제 라벨에 맞게 고치므로, 이미지는 새 이름의 하드링크로 둔다. (다른 디스크면 복사)
 - 정제 목록은 어떻게 고칠지만 적은 CSV 하나다. 지금 위치: data/label_fix/label_fixes.csv (01 AI Hub EDA 노트북 2-4가 aihub 줄을 만든다)
     - source: kaggle 또는 aihub. 어느 원본의 줄인지 나타낸다.
     - file_name: 원본 이미지 파일명.
@@ -88,10 +90,9 @@ KAGGLE_ANN_KEYS = ("area", "iscrowd", "bbox", "category_id", "ignore", "segmenta
 # 대회에서 사용을 금지한 AI Hub 파일 (RULE.md)
 BANNED_AIHUB_FILES = ("TL_2_조합.zip", "TS_2_조합.zip")
 
-# AI Hub 사본의 첫 image id와 annotation id. 대회 train과 test가 image id 1~1500(test는 파일명 숫자)을,
-# 대회 train이 annotation id ~5691을 쓰므로 그다음부터 매긴다.
+# AI Hub 사본의 첫 image id. 대회 train과 test가 image id 1~1500(test는 파일명 숫자)을 쓰므로 그다음부터 매긴다.
+# annotation id는 make_train_dataset이 Kaggle 사본의 가장 큰 id 다음부터 매긴다. (Kaggle add 줄이 원본 ~5691 다음 번호를 쓴다)
 AIHUB_START_IMAGE_ID = 1501
-AIHUB_START_ANN_ID = 5692
 
 # 이미지 파일명의 숫자 7자리가 나타내는 이미지 필드 (순서대로). 예: K-..._0_2_0_2_70_000_200.png
 NAME_FIELDS = ("drug_S", "back_color", "drug_dir", "light_color", "camera_la", "camera_lo", "size")
@@ -499,7 +500,7 @@ def check_label_fixes(fixes, records, img_dir, aihub=False):
         - 정제 줄이 없는 알약은 쓸 수 있는(읽을 수 있고 bbox가 맞는) 원본 JSON이 정확히 하나여야 한다.
     - 알약 정보: 같은 조합의 같은 약 폴더에 JSON이 없으면, 같은 클래스의 JSON 중 json_path 순서로 첫 번째를 쓴다.
       (AI Hub는 같은 클래스의 알약 정보가 원본 전체에서 같다) 클래스를 바꾸는 modify 줄도 새 클래스의 알약 정보 JSON을 정한다.
-    - 이미지 정보: 같은 이미지의 JSON이 하나도 없으면(PNG만 있는 이미지) None으로 두고, apply_label_fixes가 파일명에서 채운다.
+    - 이미지 정보: 같은 이미지의 JSON이 하나도 없으면(PNG만 있는 이미지) None으로 두고, build_aihub_export가 파일명에서 채운다.
 
     Args:
         fixes (list[dict]): read_label_fixes()의 결과. Kaggle이면 source=kaggle 줄, AI Hub면 source=aihub 줄만 넣는다.
@@ -761,9 +762,10 @@ def _json_bytes(data):
     return json.dumps(data, ensure_ascii=False, indent=4).encode("utf-8")
 
 
-def apply_label_fixes(plans, records, raw_ann_dir, out_ann_dir, aihub=False):
-    """check_label_fixes()가 정한 대로 사본의 JSON을 고치고, add 줄은 새 JSON을 만든다.
+def apply_label_fixes(plans, records, raw_ann_dir, out_ann_dir):
+    """check_label_fixes()가 정한 대로 사본의 JSON을 고치고, add 줄은 새 JSON을 만든다. (Kaggle 사본)
 
+    AI Hub 사본은 build_aihub_export, write_aihub_export로 만든다.
     copy_annotations()로 원본 annotation 폴더를 사본에 복사한 뒤에 실행한다. 원본 폴더는 읽기만 한다.
     모든 줄을 먼저 확인하고 고친 내용을 메모리에서 만든 뒤에 저장한다.
     그래서 문제가 있는 줄이 있으면 아무 파일도 건드리지 않고 멈춘다.
@@ -777,24 +779,17 @@ def apply_label_fixes(plans, records, raw_ann_dir, out_ann_dir, aihub=False):
           image_id는 이미지 정보 JSON의 이미지 id로, bbox와 area는 정제 목록 값으로 바꾼다.
     - 저장 형식은 원본 JSON과 같다. (_write_json)
 
-    aihub=True면 AI Hub 사본에 맞춰 아래를 더 한다. id와 파일명은 rename_aihub_files가 다시 매기므로 여기서는 두지 않는다.
-    - 먼저 plans의 target_path에 없는 JSON을 사본에서 지운다. (사본 JSON, -오류 폴더, 읽을 수 없는 JSON, 제외한 이미지, JSON만 있는 이미지)
-    - modify에서 category_id_after가 있으면 알약 정보를 새 클래스 JSON(drug_json_path)의 값으로 바꾸고, 새 약 폴더(target_path)로 옮긴다.
-    - add에서 이미지 정보 JSON이 없으면(PNG만 있는 이미지) 이미지 필드를 파일명 숫자(NAME_CODES)로 채운다.
-    - image_fix가 있으면 images[0]의 그 필드를 바꾼다.
-
     Args:
         plans (list[dict]): check_label_fixes()의 결과.
         records (dict[tuple[str, int], dict]): 원본 annotation 폴더로 만든 load_annotations()의 결과.
             새 annotation id를 원본에서 가장 큰 id 다음부터 매기는 데 쓴다.
         raw_ann_dir (str | Path): 원본 annotation 폴더. (예: data/raw/train_annotations) 읽기만 한다.
         out_ann_dir (str | Path): 사본 annotation 폴더. (예: data/processed/train_annotations) 이 폴더의 파일만 고치고 만든다.
-        aihub (bool): AI Hub 사본 규칙으로 고칠지. plans도 check_label_fixes(aihub=True)의 결과를 넣는다.
 
     Returns:
         list[dict]: plans와 같은 순서로, 줄마다 적용한 결과. key는 file_name, category_id, action,
             json_path(사본 annotation 폴더 기준), ann_id, bbox, area다.
-            ann_id는 modify면 원래 id, add면 새로 매긴 id다. aihub=True면 keep을 뺀 줄만 돌려주고, json_path는 target_path다.
+            ann_id는 modify면 원래 id, add면 새로 매긴 id다.
 
     Raises:
         FileNotFoundError: 원본이나 사본 annotation 폴더가 없을 때, 또는 modify 줄의 JSON이 사본에 없을 때.
@@ -805,8 +800,6 @@ def apply_label_fixes(plans, records, raw_ann_dir, out_ann_dir, aihub=False):
         raise FileNotFoundError(f"원본 annotation 폴더가 없습니다: {raw_ann_dir.name}\n폴더 경로를 확인하세요. (예: data/raw/train_annotations)")
     if not out_ann_dir.is_dir():
         raise FileNotFoundError(f"사본 annotation 폴더가 없습니다: {out_ann_dir.name}\ncopy_annotations()로 사본을 먼저 만드세요.")
-    if aihub:
-        return _apply_aihub_fixes(plans, raw_ann_dir, out_ann_dir)
 
     # 1단계: 모든 줄을 확인하고, 저장할 내용을 메모리에서 만든다. 여기서는 파일을 쓰지 않는다.
     next_ann_id = max(r["ann_id"] for r in records.values()) + 1
@@ -880,66 +873,36 @@ def _image_fields_from_name(file_name):
     return fields
 
 
-def _apply_aihub_fixes(plans, raw_ann_dir, out_ann_dir):
-    """apply_label_fixes(aihub=True)의 본체."""
-    targets = {plan["target_path"] for plan in plans}
-
-    # 1단계: 저장할 내용을 메모리에서 만든다
-    writes = []
-    applied = []
-    for plan in plans:
-        if plan["action"] == "keep":
-            if not (out_ann_dir / plan["json_path"]).is_file():
-                raise FileNotFoundError(f"사본에 남길 JSON이 없습니다. ({plan['json_path']})\ncopy_annotations()로 사본을 먼저 만든 뒤 실행하세요.")
-            continue
-        where = f"정제 목록 (aihub, {plan['file_name']}, K-{plan['category_id']:06d}, {plan['action']})"
-        if plan["action"] == "modify":
-            source = out_ann_dir / plan["json_path"]
-            if not source.is_file():
-                raise FileNotFoundError(f"{where}: 사본에 고칠 JSON이 없습니다. ({plan['json_path']})\ncopy_annotations()로 사본을 먼저 만든 뒤 실행하세요.")
-            data = _read_json(source)
-            if plan["drug_json_path"]:  # 클래스를 바꾼다: 알약 정보는 새 클래스 JSON, 이미지 필드는 이 JSON의 값
-                own_image = data["images"][0]
-                data = {**data, **{k: v for k, v in _read_json(raw_ann_dir / plan["drug_json_path"]).items() if k != "annotations"}}
-                data["images"] = [dict(data["images"][0])]
-                for field in IMAGE_FIELDS:
-                    data["images"][0][field] = own_image[field]
-        else:  # add: 알약 정보 JSON을 바탕으로, 이미지 필드만 같은 이미지 JSON(없으면 파일명)의 값으로 바꾼다
-            data = _read_json(raw_ann_dir / plan["drug_json_path"])
-            image = (_read_json(raw_ann_dir / plan["image_json_path"])["images"][0] if plan["image_json_path"]
-                     else _image_fields_from_name(plan["file_name"]))
+def _fixed_aihub_json(plan, raw_ann_dir):
+    """build_aihub_export에서 알약 하나(plans의 한 줄)의 정제한 JSON을 원본에서 만든다. (Kaggle 형식으로 바꾸기 전)"""
+    if plan["action"] == "keep":
+        return _read_json(raw_ann_dir / plan["json_path"])
+    where = f"정제 목록 (aihub, {plan['file_name']}, K-{plan['category_id']:06d}, {plan['action']})"
+    if plan["action"] == "modify":
+        data = _read_json(raw_ann_dir / plan["json_path"])
+        if plan["drug_json_path"]:  # 클래스를 바꾼다: 알약 정보는 새 클래스 JSON, 이미지 필드는 이 JSON의 값
+            own_image = data["images"][0]
+            data = {**data, **{k: v for k, v in _read_json(raw_ann_dir / plan["drug_json_path"]).items() if k != "annotations"}}
+            data["images"] = [dict(data["images"][0])]
             for field in IMAGE_FIELDS:
-                if field in image:
-                    data["images"][0][field] = image[field]
-        new_id = plan["category_id_after"] or plan["category_id"]
-        if data["images"][0]["drug_N"] != f"K-{new_id:06d}":
-            raise ValueError(f"{where}: 알약 정보 JSON의 drug_N이 {data['images'][0]['drug_N']}입니다. (K-{new_id:06d}이어야 함)\n"
-                             f"check_label_fixes()의 결과를 그대로 넣었는지 확인하세요.")
-        if plan["image_fix"]:
-            data["images"][0].update(plan["image_fix"])
-        ann = data["annotations"][0]
-        ann["bbox"] = list(plan["bbox_after"])
-        ann["area"] = plan["area_after"]
-        writes.append((out_ann_dir / plan["target_path"], data))
-        applied.append({"file_name": plan["file_name"], "category_id": plan["category_id"], "action": plan["action"],
-                        "json_path": plan["target_path"], "ann_id": ann.get("id"), "bbox": ann["bbox"], "area": ann["area"]})
-
-    # 2단계: 남기지 않을 JSON과 빈 폴더를 지우고 저장한다
-    for path in out_ann_dir.rglob("*.json"):
-        if _rel_path(path, out_ann_dir) not in targets:
-            path.unlink()
-    for target, data in writes:
-        target.parent.mkdir(parents=True, exist_ok=True)
-        _write_json(target, data)
-    _remove_empty_dirs(out_ann_dir)
-    return applied
-
-
-def _remove_empty_dirs(root):
-    """root 아래의 빈 폴더를 지운다. root는 남긴다."""
-    for folder, _, _ in sorted(os.walk(root), key=lambda t: -len(t[0])):
-        if Path(folder) != Path(root) and not any(Path(folder).iterdir()):
-            Path(folder).rmdir()
+                data["images"][0][field] = own_image[field]
+    else:  # add: 알약 정보 JSON을 바탕으로, 이미지 필드만 같은 이미지 JSON(없으면 파일명)의 값으로 바꾼다
+        data = _read_json(raw_ann_dir / plan["drug_json_path"])
+        image = (_read_json(raw_ann_dir / plan["image_json_path"])["images"][0] if plan["image_json_path"]
+                 else _image_fields_from_name(plan["file_name"]))
+        for field in IMAGE_FIELDS:
+            if field in image:
+                data["images"][0][field] = image[field]
+    new_id = plan["category_id_after"] or plan["category_id"]
+    if data["images"][0]["drug_N"] != f"K-{new_id:06d}":
+        raise ValueError(f"{where}: 알약 정보 JSON의 drug_N이 {data['images'][0]['drug_N']}입니다. (K-{new_id:06d}이어야 함)\n"
+                         f"check_label_fixes()의 결과를 그대로 넣었는지 확인하세요.")
+    if plan["image_fix"]:
+        data["images"][0].update(plan["image_fix"])
+    ann = data["annotations"][0]
+    ann["bbox"] = list(plan["bbox_after"])
+    ann["area"] = plan["area_after"]
+    return data
 
 
 def _export_name(categories, image):
@@ -957,43 +920,46 @@ def _export_name(categories, image):
     return "K-" + "-".join(f"{c:06d}" for c in sorted(categories)) + "_" + "_".join(codes) + ".png"
 
 
-def rename_aihub_files(ann_dir, img_dir, out_img_dir):
-    """AI Hub 사본의 파일명을 정제 라벨에 맞게 다시 만들고, JSON을 Kaggle 형식으로 다시 쓰고, PNG를 새 이름으로 둔다.
+def build_aihub_export(plans, raw_ann_dir, img_dir):
+    """AI Hub 사본에 쓸 JSON과 정제 라벨에 맞춘 새 파일명을 원본에서 메모리로 모두 만들고 검사한다. 파일은 읽기만 한다.
 
-    apply_label_fixes(aihub=True)를 마친 사본에 실행한다. 정제로 클래스나 이미지 필드가 바뀐 이미지는 파일명이 라벨과 어긋나므로,
-    모든 이미지의 이름을 정제 라벨에서 한 규칙으로 다시 만든다. 대부분은 원래 이름과 같다.
+    write_aihub_export가 이 결과를 그대로 쓴다. 사본을 지우기 전에 실행해서, 문제가 있으면 사본을 건드리기 전에 멈춘다.
+
+    알약마다(plans의 한 줄) 정제한 JSON을 원본에서 만든다.
+    - keep: 원본 JSON(json_path)을 그대로 쓴다.
+    - modify: 원본 JSON(json_path)의 bbox와 area를 정제 목록 값으로 바꾼다.
+      category_id_after가 있으면 알약 정보를 새 클래스 JSON(drug_json_path)의 값으로 바꾼다. 이미지 필드는 그대로다.
+    - add: 알약 정보 JSON(drug_json_path)을 바탕으로, 이미지 필드(IMAGE_FIELDS)는 같은 이미지의 JSON(image_json_path)에서 가져온다.
+      그 JSON이 없으면(PNG만 있는 이미지) 파일명 숫자(NAME_CODES)로 채운다.
+    - image_fix가 있으면 images[0]의 그 필드를 바꾼다.
+
+    정제로 클래스나 이미지 필드가 바뀐 이미지는 파일명이 라벨과 어긋나므로, 모든 이미지의 이름을 정제 라벨에서 한 규칙으로 다시 만든다.
+    대부분은 원래 이름과 같다.
     - 이름: 조합 자리는 클래스를 작은 번호부터, 숫자 7자리는 이미지 필드(NAME_FIELDS)의 코드(NAME_CODES)다.
-    - JSON: <조합>_json/K-<코드>/<새 이름>.json에 대회 train JSON과 같은 키, 순서, 저장 형식으로 다시 쓴다.
+    - JSON: 대회 train JSON과 같은 키와 순서로 만든다.
         - category_id, categories.id, dl_idx = K-코드 숫자, categories.name = dl_name, iscrowd = 0, area = 너비 × 높이
-        - image id는 새 이름 순서로 AIHUB_START_IMAGE_ID부터, annotation id는 같은 순서(이미지 안에서는 클래스 순서)로 AIHUB_START_ANN_ID부터
-    - PNG: out_img_dir에 새 이름의 하드링크로 둔다. 원본과 다른 디스크라 하드링크를 만들 수 없으면 복사한다.
-    모든 이름과 JSON을 메모리에서 만들고 확인한 뒤에, ann_dir의 조합 폴더와 out_img_dir의 PNG를 지우고 다시 쓴다.
+        - image id와 annotation id는 None으로 두고, write_aihub_export가 매긴다.
 
     Args:
-        ann_dir (str | Path): AI Hub 사본 annotation 폴더. (예: data/processed/ai_hub/train_annotations)
-        img_dir (str | Path): AI Hub 원본 이미지 폴더. 읽기만 한다. (예: data/external/aihub/raw/train_images)
-        out_img_dir (str | Path): 사본 이미지 폴더. (예: data/processed/ai_hub/train_images) 이 폴더의 PNG를 지우고 다시 만든다.
+        plans (list[dict]): check_label_fixes(aihub=True)의 결과.
+        raw_ann_dir (str | Path): AI Hub 원본 annotation 폴더. 읽기만 한다. (예: data/external/aihub/raw/train_annotations)
+        img_dir (str | Path): AI Hub 원본 이미지 폴더. PNG가 있는지만 본다. (예: data/external/aihub/raw/train_images)
 
     Returns:
-        dict: {"n_images": 이미지 수, "n_json": JSON 수, "renamed": {원래 이름: 새 이름} (바뀐 이미지만),
-               "names": {원래 이름: 새 이름} (모든 이미지), "linked": 하드링크 수, "copied": 복사한 수}
+        dict: {"names": {원래 이름: 새 이름} (모든 이미지),
+               "images": {새 이름: 그 이미지의 JSON 목록 (클래스 순서)} (새 이름 순서)}
 
     Raises:
-        ValueError: 같은 이미지의 JSON끼리 이미지 필드가 다를 때, 새 이름이 겹칠 때, 같은 이미지에 같은 클래스가 두 번 있을 때,
-            사본 이미지 폴더가 원본 이미지 폴더와 겹칠 때.
+        ValueError: 알약 정보 JSON의 클래스가 정제 클래스와 다를 때, 같은 이미지의 JSON끼리 이미지 필드가 다를 때,
+            같은 이미지에 같은 클래스가 두 번 있을 때, 이미지 필드 값의 파일명 코드가 NAME_CODES에 없을 때, 새 이름이 겹칠 때.
         FileNotFoundError: 원본 PNG가 없을 때.
     """
-    ann_dir, img_dir, out_img_dir = Path(ann_dir), Path(img_dir), Path(out_img_dir)
-    img_abs, out_abs = img_dir.resolve(), out_img_dir.resolve()
-    if img_abs == out_abs or out_abs.is_relative_to(img_abs) or img_abs.is_relative_to(out_abs):
-        raise ValueError(f"사본 이미지 폴더({out_img_dir.name})가 원본 이미지 폴더와 겹칩니다. 사본 PNG를 지우면 원본이 지워질 수 있어서 멈춥니다.\n"
-                         f"사본 이미지 폴더를 따로 지정하세요. (예: data/processed/ai_hub/train_images)")
+    raw_ann_dir, img_dir = Path(raw_ann_dir), Path(img_dir)
 
-    # 이미지별로 JSON을 모은다
+    # 알약마다 정제한 JSON을 만들고 이미지별로 모은다
     by_image = {}
-    for path in sorted(ann_dir.rglob("*.json"), key=lambda p: _rel_path(p, ann_dir)):
-        data = _read_json(path)
-        by_image.setdefault(_aihub_image_name(path.name), []).append(data)
+    for plan in plans:
+        by_image.setdefault(plan["file_name"], []).append(_fixed_aihub_json(plan, raw_ann_dir))
 
     names = {}
     for file_name, items in by_image.items():
@@ -1007,34 +973,80 @@ def rename_aihub_files(ann_dir, img_dir, out_img_dir):
     if len(set(names.values())) != len(names):
         duplicated = [n for n, count in collections.Counter(names.values()).items() if count > 1]
         raise ValueError(f"정제 라벨로 다시 만든 파일명이 겹칩니다: {duplicated[:3]}\n같은 사진이 다른 조합 이름으로 들어 있지 않은지 확인하고, 하나를 exclude 하세요.")
-
-    # 새 JSON을 메모리에서 만든다
-    writes = {}
-    image_ids = {new: i for i, new in enumerate(sorted(names.values()), start=AIHUB_START_IMAGE_ID)}
-    ann_id = AIHUB_START_ANN_ID
-    for file_name, new in sorted(names.items(), key=lambda t: t[1]):
-        items = sorted(by_image[file_name], key=lambda d: int(d["images"][0]["drug_N"].removeprefix("K-")))
-        for data in items:
-            category_id = int(data["images"][0]["drug_N"].removeprefix("K-"))
-            x, y, w, h = data["annotations"][0]["bbox"]
-            image = {**data["images"][0], "file_name": new, "imgfile": new, "id": image_ids[new], "dl_idx": str(category_id)}
-            values = {"area": w * h, "iscrowd": 0, "bbox": [x, y, w, h], "category_id": category_id, "ignore": 0,
-                      "segmentation": [], "id": ann_id, "image_id": image_ids[new]}
-            writes[f"{combo_name(new)}_json/K-{category_id:06d}/{Path(new).stem}.json"] = {
-                "images": [image], "type": "instances", "annotations": [{key: values[key] for key in KAGGLE_ANN_KEYS}],
-                "categories": [{"supercategory": "pill", "id": category_id, "name": image["dl_name"]}],
-            }
-            ann_id += 1
     for file_name in names:
         if not (img_dir / file_name).is_file():
             raise FileNotFoundError(f"{file_name}: 원본 PNG가 {img_dir.name} 폴더에 없습니다.\nAI Hub 이미지 zip을 모두 풀었는지 확인하세요.")
 
-    # 확인이 끝난 뒤 지우고 다시 쓴다
-    for folder in ann_dir.iterdir():
-        if folder.is_dir():
-            shutil.rmtree(folder)
+    # Kaggle 형식 JSON을 만든다. id 자리는 키 순서를 지키려고 미리 만들어 두고, write_aihub_export가 채운다
+    images = {}
+    for file_name, new in sorted(names.items(), key=lambda t: t[1]):
+        items = sorted(by_image[file_name], key=lambda d: int(d["images"][0]["drug_N"].removeprefix("K-")))
+        images[new] = []
+        for data in items:
+            category_id = int(data["images"][0]["drug_N"].removeprefix("K-"))
+            x, y, w, h = data["annotations"][0]["bbox"]
+            image = {**data["images"][0], "file_name": new, "imgfile": new, "id": None, "dl_idx": str(category_id)}
+            values = {"area": w * h, "iscrowd": 0, "bbox": [x, y, w, h], "category_id": category_id, "ignore": 0,
+                      "segmentation": [], "id": None, "image_id": None}
+            images[new].append({
+                "images": [image], "type": "instances", "annotations": [{key: values[key] for key in KAGGLE_ANN_KEYS}],
+                "categories": [{"supercategory": "pill", "id": category_id, "name": image["dl_name"]}],
+            })
+    return {"names": names, "images": images}
+
+
+def write_aihub_export(export, raw_ann_dir, raw_img_dir, out_dir, start_ann_id):
+    """build_aihub_export()의 결과에 id를 매겨 AI Hub 사본 폴더에 쓰고, PNG를 새 이름으로 둔다.
+
+    out_dir 아래에 원본과 같은 이름의 annotation 폴더, 이미지 폴더를 사본으로 둔다. (예: data/processed/ai_hub/train_annotations)
+    - JSON: 사본 annotation 폴더를 지우고, <조합>_json/K-<코드>/<새 이름>.json에 원본 annotation JSON과 같은 저장 형식으로 쓴다.
+        - image id는 새 이름 순서로 AIHUB_START_IMAGE_ID부터, annotation id는 같은 순서(이미지 안에서는 클래스 순서)로 start_ann_id부터
+    - PNG: 사본 이미지 폴더의 PNG를 지우고, 새 이름의 하드링크로 둔다. 원본과 다른 디스크라 하드링크를 만들 수 없으면 복사한다.
+
+    Args:
+        export (dict): build_aihub_export()의 결과. 이 dict 안의 JSON에 id를 채운다.
+        raw_ann_dir (str | Path): AI Hub 원본 annotation 폴더. 사본 폴더 이름을 정하고, 겹치는지 보는 데만 쓴다.
+        raw_img_dir (str | Path): AI Hub 원본 이미지 폴더. 읽기만 한다. (예: data/external/aihub/raw/train_images)
+        out_dir (str | Path): AI Hub 사본 폴더. (예: data/processed/ai_hub) 상위 폴더가 없으면 만든다.
+        start_ann_id (int): 첫 annotation id. make_train_dataset은 Kaggle 사본의 가장 큰 id 다음 번호를 넣는다. (지금 정제 목록이면 5700)
+
+    Returns:
+        dict: {"n_images": 이미지 수, "n_json": JSON 수, "renamed": {원래 이름: 새 이름} (바뀐 이미지만),
+               "names": {원래 이름: 새 이름} (모든 이미지), "linked": 하드링크 수, "copied": 복사한 수}
+
+    Raises:
+        ValueError: 사본 폴더가 원본 폴더와 겹칠 때. (같은 폴더이거나 한쪽이 다른 쪽 안에 있을 때) 아무것도 지우지 않고 멈춘다.
+    """
+    raw_ann_dir, raw_img_dir, out_dir = Path(raw_ann_dir), Path(raw_img_dir), Path(out_dir)
+    out_ann_dir, out_img_dir = out_dir / raw_ann_dir.name, out_dir / raw_img_dir.name
+
+    # 지우기 전에 사본 폴더가 원본 폴더와 겹치지 않는지 확인한다
+    for raw in (raw_ann_dir, raw_img_dir):
+        for out in (out_ann_dir, out_img_dir):
+            raw_abs, out_abs = raw.resolve(), out.resolve()
+            if raw_abs == out_abs or out_abs.is_relative_to(raw_abs) or raw_abs.is_relative_to(out_abs):
+                raise ValueError(
+                    f"AI Hub 사본 폴더({out.name})가 원본 폴더({raw.name})와 겹칩니다. 사본을 지우면 원본이 지워질 수 있어서 멈춥니다.\n"
+                    f"AI Hub 사본 폴더를 원본과 따로 떨어진 곳으로 지정하세요. (예: data/processed/ai_hub)"
+                )
+
+    # id를 매긴다
+    names, images = export["names"], export["images"]
+    writes = {}
+    ann_id = start_ann_id
+    for image_id, new in enumerate(sorted(images), start=AIHUB_START_IMAGE_ID):
+        for data in images[new]:
+            ann = data["annotations"][0]
+            data["images"][0]["id"] = ann["image_id"] = image_id
+            ann["id"] = ann_id
+            ann_id += 1
+            writes[f"{combo_name(new)}_json/K-{ann['category_id']:06d}/{Path(new).stem}.json"] = data
+
+    # 지우고 다시 쓴다
+    if out_ann_dir.exists():
+        shutil.rmtree(out_ann_dir)
     for json_path, data in writes.items():
-        target = ann_dir / json_path
+        target = out_ann_dir / json_path
         target.parent.mkdir(parents=True, exist_ok=True)
         _write_json(target, data)
     out_img_dir.mkdir(parents=True, exist_ok=True)
@@ -1043,10 +1055,10 @@ def rename_aihub_files(ann_dir, img_dir, out_img_dir):
     linked = copied = 0
     for file_name, new in names.items():
         try:
-            os.link(img_dir / file_name, out_img_dir / new)
+            os.link(raw_img_dir / file_name, out_img_dir / new)
             linked += 1
         except OSError:  # 원본과 다른 디스크라 하드링크를 만들 수 없으면 복사한다
-            shutil.copy2(img_dir / file_name, out_img_dir / new)
+            shutil.copy2(raw_img_dir / file_name, out_img_dir / new)
             copied += 1
     return {"n_images": len(names), "n_json": len(writes), "renamed": {old: new for old, new in names.items() if old != new},
             "names": names, "linked": linked, "copied": copied}
@@ -1239,12 +1251,13 @@ def make_train_dataset(fix_csv, kaggle_ann_dir, kaggle_img_dir, aihub_ann_dir, a
     아래 함수를 이 순서로 부르기만 한다. 한 단계씩 확인하거나 테스트할 때는 각 함수를 따로 쓴다.
         1. read_label_fixes(fix_csv)                              정제 목록 읽기 (kaggle 줄, aihub 줄로 나눔)
         2. load_annotations(...), check_label_fixes(...)          두 원본을 읽고 정제 목록과 대조 (AI Hub는 aihub=True)
-        3. copy_annotations, apply_label_fixes                    Kaggle 사본 만들고 고치기
-        4. copy_annotations, apply_label_fixes(aihub=True)        AI Hub 사본 만들고 고치기
-        5. rename_aihub_files                                     AI Hub 파일명을 정제 라벨에 맞게 고치고 PNG 링크
-        6. load_annotations(두 사본), write_label_changes          두 사본을 엄격하게 다시 읽고, 변경 기록 하나 저장
+        3. build_aihub_export                                     AI Hub 사본의 JSON과 새 파일명을 메모리에서 만들고 검사
+        4. copy_annotations, apply_label_fixes, load_annotations  Kaggle 사본 만들고 고치고, 엄격하게 다시 읽기
+        5. write_aihub_export                                     AI Hub 사본 쓰기, PNG 링크. annotation id는 Kaggle 사본 다음 번호부터
+        6. load_annotations(AI Hub 사본), write_label_changes      AI Hub 사본을 엄격하게 다시 읽고, 변경 기록 하나 저장
 
-    1~2에서 문제가 있으면 파일을 하나도 건드리지 않고 멈춘다.
+    1~3에서 문제가 있으면 파일을 하나도 건드리지 않고 멈춘다. 그래서 이전에 만든 사본도 그대로 남는다.
+    AI Hub annotation id는 Kaggle 사본(add 줄이 원본 다음 번호를 받는다)의 가장 큰 id 다음부터 매겨서, 두 사본의 id가 겹치지 않는다.
     변경 기록은 Kaggle 줄과 AI Hub 줄을 함께 담는다. (source 열로 구분, 열은 TRAIN_CHANGE_COLUMNS)
     기록은 원본 대비 누적이다. 묶음의 최신 기록과 내용이 다르면 다음 번호(_v2, _v3 …)로 쌓고, 같으면 그대로 둔다.
 
@@ -1289,20 +1302,30 @@ def make_train_dataset(fix_csv, kaggle_ann_dir, kaggle_img_dir, aihub_ann_dir, a
     kaggle_plans = check_label_fixes(kaggle_fixes, kaggle_base, kaggle_img_dir)
     aihub_base = load_annotations(aihub_ann_dir, aihub=True)
     aihub_plans = check_label_fixes(aihub_fixes, aihub_base, aihub_img_dir, aihub=True)
-    if set(kaggle_base) & set(aihub_base):
-        raise ValueError("Kaggle 원본과 AI Hub 원본에 같은 (파일명, 클래스)가 있습니다. 변경 기록에서 둘을 구별할 수 없어서 멈춥니다.")
+    overlap = sorted(set(kaggle_base) & set(aihub_base))
+    if overlap:
+        combos = sorted({combo_name(file_name) for file_name, _ in overlap})
+        ann_name, img_name = Path(aihub_ann_dir).name, Path(aihub_img_dir).name
+        raise ValueError(
+            f"Kaggle 원본과 AI Hub 원본에 같은 (파일명, 클래스)가 {len(overlap)}개 있습니다. "
+            f"예: {overlap[0][0]}, K-{overlap[0][1]:06d}\n"
+            f"변경 기록에서 둘을 구별할 수 없어서 멈춥니다. 대회 데이터는 금지 zip({', '.join(BANNED_AIHUB_FILES)})과 같은 출처로 보여서, "
+            f"AI Hub 원본에 금지 zip이나 대회 데이터를 직접 푼 파일이 섞였을 수 있습니다. "
+            f"(data/external/aihub/sources.csv에 없는 파일이 직접 넣은 파일입니다)\n"
+            f"겹친 조합 {len(combos)}개: {', '.join(combos[:5])}{' …' if len(combos) > 5 else ''}\n"
+            f"AI Hub 원본 폴더(예: data/external/aihub/raw)에서 겹친 조합의 파일을 지우고 다시 실행하세요. "
+            f"예: rm -r {ann_name}/{combos[0]}_json {img_name}/{combos[0]}_*.png"
+        )
+    aihub_export = build_aihub_export(aihub_plans, aihub_ann_dir, aihub_img_dir)  # 여기까지는 파일을 건드리지 않는다
 
     copy_annotations(kaggle_ann_dir, kaggle_out_ann_dir)
     kaggle_applied = apply_label_fixes(kaggle_plans, kaggle_base, kaggle_ann_dir, kaggle_out_ann_dir)
-
-    aihub_out_dir = Path(aihub_out_dir)
-    aihub_out_ann_dir = aihub_out_dir / Path(aihub_ann_dir).name
-    copy_annotations(aihub_ann_dir, aihub_out_ann_dir)
-    apply_label_fixes(aihub_plans, aihub_base, aihub_ann_dir, aihub_out_ann_dir, aihub=True)
-    renamed = rename_aihub_files(aihub_out_ann_dir, aihub_img_dir, aihub_out_dir / Path(aihub_img_dir).name)
-
     kaggle_out = load_annotations(kaggle_out_ann_dir)
-    aihub_out = load_annotations(aihub_out_ann_dir)  # Kaggle 형식 검사를 그대로 통과해야 한다
+
+    # Kaggle add 줄이 원본 다음 번호를 받으므로, AI Hub는 Kaggle 사본의 가장 큰 id 다음부터 매긴다
+    renamed = write_aihub_export(aihub_export, aihub_ann_dir, aihub_img_dir, aihub_out_dir,
+                                 start_ann_id=max(r["ann_id"] for r in kaggle_out.values()) + 1)
+    aihub_out = load_annotations(Path(aihub_out_dir) / Path(aihub_ann_dir).name)  # Kaggle 형식 검사를 그대로 통과해야 한다
     key_map = {(plan["file_name"], plan["category_id"]):
                (renamed["names"][plan["file_name"]], plan["category_id_after"] or plan["category_id"]) for plan in aihub_plans}
     sources = {key: "kaggle" for key in kaggle_base.keys() | kaggle_out.keys()}
@@ -1324,6 +1347,8 @@ def make_fixed_annotations(fix_csv, base_ann_dir, img_dir, out_ann_dir, change_c
     학습 데이터 전체(Kaggle + AI Hub)는 make_train_dataset으로 만든다. 이 함수는 AI Hub 데이터 없이 Kaggle 사본만 다시 만들 때 쓴다.
     정제 목록에 aihub 줄이 있으면 kaggle 줄만 쓴다.
     변경 기록은 make_train_dataset과 같은 묶음에 쌓는다. 최신 기록의 aihub 줄은 그대로 이어받는다. (write_label_changes 참고)
+    kaggle add 줄을 더하면 Kaggle 사본의 annotation id가 늘어나서, 이미 만든 AI Hub 사본(Kaggle 사본 다음 번호부터)과 id가 겹친다.
+    add 줄을 더했으면 make_train_dataset(scripts/prepare_train_data.py)으로 두 사본을 함께 다시 만든다.
 
     아래 함수를 이 순서로 부르기만 한다. 한 단계씩 확인하거나 테스트할 때는 각 함수를 따로 쓴다.
         1. read_label_fixes(fix_csv, source="kaggle")  정제 목록 읽기
