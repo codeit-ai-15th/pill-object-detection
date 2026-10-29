@@ -19,7 +19,7 @@ AI 코딩 에이전트(Claude Code, Codex 등)가 이 레포에서 작업할 때
 | PR 본문 양식 | [.github/pull_request_template.md](.github/pull_request_template.md) |
 | bbox 형식 세 가지와 변환 함수 | [src/pill_detection/utils.py](src/pill_detection/utils.py) 모듈 docstring |
 | 학습 데이터 준비: AI Hub 받기, 정제 목록 CSV 형식, 실행 방법 | [README.md](README.md) 학습 데이터 준비, [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring |
-| 라벨 수정 사본 만들기(Kaggle 2차 가공) | [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring, [README.md](README.md) Scripts |
+| Kaggle 사본만 다시 만들기(AI Hub 없이) | [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring, [README.md](README.md) Scripts |
 | 테스트: 기준값과 노트북 결론 | [tests/helpers.py](tests/helpers.py) 모듈 docstring |
 | 환경 변수 이름 | [.env.example](.env.example) |
 | git에서 제외하는 파일 | [.gitignore](.gitignore) |
