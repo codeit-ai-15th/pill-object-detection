@@ -20,17 +20,26 @@
 ```text
 pill-object-detection/
 ├── data/                      # raw·processed·external은 폴더만 git으로 관리하고 내용은 추적하지 않음
-│   ├── external/              # AIhub에서 내려받은 데이터. 내려받은 그대로 두고 수정하지 않음. 
-│   ├── raw/                   # 원본 데이터. 내려받은 그대로 두고 수정하지 않음
-│   ├── processed/             # 가공 결과. 라벨 수정 사본(train_annotations), YOLO 포맷 변환 결과
-│   └── label_fix/             # 라벨 수정 목록과 변경 기록 CSV. git으로 관리함
+│   ├── raw/                   # Kaggle 원본 데이터. 내려받은 그대로 두고 수정하지 않음
+│   ├── external/aihub/        # AI Hub 외부 데이터. 내려받은 그대로 두고 수정하지 않음
+│   │   ├── raw/               # zip을 풀어 둔 원본. raw/와 같은 구조 (train_annotations, train_images)
+│   │   └── sources.csv        # 파일마다 나온 zip 이름
+│   ├── processed/             # 가공 결과. 학습 데이터 사본, YOLO 포맷 변환 결과
+│   │   ├── train_annotations/ # Kaggle 정제 사본 (이미지는 data/raw/train_images를 씀)
+│   │   └── ai_hub/            # AI Hub 정제 사본. train_annotations, train_images(원본 PNG의 하드링크)
+│   └── label_fix/             # 정제 목록(label_fixes.csv)과 변경 기록 CSV. git으로 관리함
 ├── notebooks/                 # 개인 탐색용 노트북
 │   ├── eda/                   # 개인 EDA 노트북
 │   └── modeling/              # 각자 맡은 모델링 노트북
 ├── src/pill_detection/        # 공용 코드 패키지 (노트북·스크립트·데모 어디서든 import)
-│   ├── data.py                # 데이터 읽기, 라벨 수정 사본 만들기
+│   ├── data.py                # 데이터 읽기, 정제 목록대로 학습 데이터 사본 만들기
 │   └── utils.py               # 공용 보일러 플레이트 코드.(bbox 변환, 시각화 등) 
 ├── scripts/                   # 터미널에서 실행하는 스크립트 (uv run scripts/<이름>.py)
+│   ├── prepare_train_data.py  # 학습 데이터 준비: AI Hub 받기·풀기, 정제, 변경 기록을 한 번에
+│   ├── download_aihub.py      # AI Hub에서 filekey로 zip 받기 (대회 금지 파일은 받지 않음)
+│   ├── extract_aihub.py       # 받은 AI Hub zip을 풀고 지우기
+│   └── make_fixed_annotations.py  # Kaggle만 2차 가공할 때 쓰는 사본 만들기
+├── tests/                     # 공용 코드 테스트 (uv run pytest)
 ├── runs/                      # 학습 결과
 ├── submissions/               # 제출 CSV
 ├── hooks/                     # pre-commit hook 스크립트
@@ -85,6 +94,44 @@ pill-object-detection/
         - 노트북을 `git add`하거나 `git status`를 실행할 때 `external filter` 오류가 나면 `uv sync`를 실행합니다. `.venv`를 지우고 다시 만들지 않은 경우에 납니다.
         - Colab의 "GitHub에 사본 저장"으로 커밋하지 않습니다. 필터를 거치지 않아 출력이 그대로 올라갑니다.
 
+## 📦 학습 데이터 준비
+학습 데이터는 Kaggle 원본(`data/raw/`)과 [AI Hub 576 데이터셋](https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=576)을 함께 씁니다. 대회 규칙상 `TL_2_조합.zip`, `TS_2_조합.zip`은 쓰지 않습니다. ([RULE.md](RULE.md))
+
+1. **준비(최초 1회)**
+    - Kaggle 대회 데이터를 `data/raw/`(`train_annotations/`, `train_images/`)에 풉니다.
+    - AI Hub에서 576 데이터셋 이용 승인을 받고 API 키를 발급받습니다. `.env.example`을 복사해 `.env`를 만들고 `AIHUB_APIKEY`에 키를 넣습니다.
+    - 디스크가 약 35GB 필요합니다. AI Hub 원본이 약 28GB이고, 받는 동안 zip 하나(약 3GB)의 2배와 여유 2GB가 더 필요합니다.
+
+2. **명령 하나로 준비**
+    ```bash
+    uv run scripts/prepare_train_data.py
+    ```
+    - AI Hub zip 16개(허용 조합 라벨 8개, 이미지 8개)를 하나씩 받고, `data/external/aihub/raw/`에 풀고, zip을 지웁니다. 이미 다 푼 zip은 건너뜁니다.
+    - 정제 목록 [data/label_fix/label_fixes.csv](data/label_fix/label_fixes.csv)대로 고친 사본을 만듭니다. 몇 분 걸립니다.
+        - Kaggle: `data/processed/train_annotations/` (이미지는 `data/raw/train_images/`)
+        - AI Hub: `data/processed/ai_hub/train_annotations/`, `train_images/`. 정제로 클래스나 메타데이터가 바뀐 이미지는 파일명도 라벨에 맞게 고칩니다.
+    - 두 데이터의 변경 내역을 `data/label_fix/apply_label_fixes_v2.csv` 하나에 남깁니다. 같은 정제 목록으로 다시 실행하면 새 파일을 만들지 않습니다.
+    - 중간에 멈추면 같은 명령을 다시 실행합니다.
+    - 성공하면 아래처럼 요약이 출력됩니다.
+        ```text
+        Kaggle: JSON 763개 → 771개 (data/processed/train_annotations)
+        AI Hub: 이미지 11,974장, JSON 45,819개, 이름을 고친 이미지 13장 (data/processed/ai_hub). PNG 하드링크 11,974장, 복사 0장
+        변경 기록: data/label_fix/apply_label_fixes_v2.csv aihub add 70, aihub delete 161, aihub modify 968, kaggle add 8, kaggle modify 13
+        ```
+
+3. **정제 목록 형식**
+    - 한 줄은 알약 하나를 어떻게 고칠지 적습니다. `source` 열(`kaggle`/`aihub`)로 어느 데이터의 줄인지 구분합니다.
+    - 열의 뜻과 규칙은 [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring에 있습니다.
+    - aihub 줄은 AI Hub EDA 노트북(`notebooks/eda/01_raewoo_external_aihub_eda.ipynb`) 2-4가 만듭니다. 손으로 고치지 않습니다.
+    - 이 CSV를 직접 읽어 Kaggle 라벨만 고치는 코드는 `source == "kaggle"`인 줄만 씁니다.
+
+4. **테스트**
+    ```bash
+    uv run pytest
+    ```
+    - 기존 Kaggle 라벨 수정 결과와 01 노트북의 정제 결론(이미지 수, 형식, 라벨 누락·좌표 오류 없음, 이름 변경 13장)이 그대로인지 확인합니다.
+    - 실제 데이터가 없는 테스트는 이유를 적고 건너뜁니다. 전체 실행은 약 3분 걸립니다.
+
 ## 🛠️ Scripts
 `scripts/`의 스크립트는 Python을 따로 켜지 않고 터미널에서 명령 한 줄로 실행합니다. 위 Dependencies의 `uv sync`를 먼저 마친 상태여야 합니다.
 
@@ -96,34 +143,24 @@ pill-object-detection/
     ```
 - 아래 예시의 줄 끝 `\`는 macOS/Linux 터미널에서 명령을 여러 줄로 나눠 쓰는 표시입니다. Windows PowerShell에서는 `\`를 `` ` ``(백틱)으로 바꾸거나 한 줄로 이어 씁니다.
 
-### 1. make_fixed_annotations.py: 라벨 수정 사본 만들기
-수정 목록 CSV대로 고친 annotation 사본과 변경 기록 CSV를 한 번에 만듭니다. [src/pill_detection/data.py](src/pill_detection/data.py)의 `make_fixed_annotations()`를 부르기만 하며, 인자의 자세한 뜻과 규칙은 그 함수의 docstring에 있습니다.
+### 1. prepare_train_data.py: 학습 데이터 준비
+인자 없이 실행합니다. 하는 일은 위 [학습 데이터 준비](#-학습-데이터-준비)에 있습니다. [src/pill_detection/data.py](src/pill_detection/data.py)의 `make_train_dataset()`을 부릅니다.
+- AI Hub 받기와 풀기만 따로 할 때는 `download_aihub.py`(filekey로 zip 받기), `extract_aihub.py`(zip 풀고 지우기)를 씁니다. 사용법은 `--help`와 각 파일 맨 위 설명에 있습니다.
+
+### 2. make_fixed_annotations.py: Kaggle만 고친 사본 만들기
+정제 목록 CSV의 kaggle 줄대로 고친 annotation 사본과 변경 기록 CSV를 한 번에 만듭니다. [src/pill_detection/data.py](src/pill_detection/data.py)의 `make_fixed_annotations()`를 부르기만 하며, 인자의 자세한 뜻과 규칙은 그 함수의 docstring에 있습니다.
+- 1차 가공(원본 → `data/processed/train_annotations`)은 `prepare_train_data.py`가 합니다. 이 스크립트는 Kaggle 사본을 한 번 더 고치는 2차 가공에 씁니다.
+- `--change-csv`에 `data/label_fix/apply_label_fixes.csv`를 넣지 않습니다. 그 이름의 최신 기록(`_v2`)은 Kaggle과 AI Hub를 함께 담고 있어서, 같은 이름을 쓰면 두 기록이 번갈아 쌓입니다.
 
 | 인자 | 하는 일 | 예시 |
 | --- | --- | --- |
-| `--fix-csv` | 수정 목록 CSV. 읽기만 함 | `data/label_fix/label_fixes.csv` |
-| `--base-ann-dir` | 기준 annotation 폴더. 읽기만 함 | `data/raw/train_annotations` |
+| `--fix-csv` | 정제 목록 CSV. 읽기만 함. kaggle 줄만 씀 | `data/label_fix/label_fixes_round2.csv` |
+| `--base-ann-dir` | 기준 annotation 폴더. 읽기만 함 | `data/processed/train_annotations` |
 | `--img-dir` | 이미지 폴더. 읽기만 함. 2차 이후에도 원본 | `data/raw/train_images` |
-| `--out-ann-dir` | 사본 annotation 폴더. **폴더 전체를 지우고 다시 만듦** | `data/processed/train_annotations` |
-| `--change-csv` | 변경 기록 CSV. 내용이 바뀌면 `_v2`, `_v3` …로 새로 저장 | `data/label_fix/apply_label_fixes.csv` |
+| `--out-ann-dir` | 사본 annotation 폴더. **폴더 전체를 지우고 다시 만듦** | `data/processed/round2/train_annotations` |
+| `--change-csv` | 변경 기록 CSV. 내용이 바뀌면 `_v2`, `_v3` …로 새로 저장 | `data/label_fix/apply_label_fixes_round2.csv` |
 
-- **예시 1. 1차 가공: 원본을 기준으로 사본 만들기**
-    ```bash
-    uv run scripts/make_fixed_annotations.py \
-        --fix-csv data/label_fix/label_fixes.csv \
-        --base-ann-dir data/raw/train_annotations \
-        --img-dir data/raw/train_images \
-        --out-ann-dir data/processed/train_annotations \
-        --change-csv data/label_fix/apply_label_fixes.csv
-    ```
-    성공하면 아래처럼 요약이 출력됩니다.
-    ```text
-    기준 JSON 763개 → 사본 JSON 771개 (data/processed/train_annotations)
-    수정 목록 21줄 적용: add 8, modify 13
-    변경 기록: data/label_fix/apply_label_fixes.csv (21건)
-    ```
-
-- **예시 2. 2차 가공: 1차 사본을 기준으로 한 번 더 고치기**
+- **예시. 2차 가공: 1차 사본을 기준으로 한 번 더 고치기**
     - `--base-ann-dir`에 1차 사본을 넣고, `--out-ann-dir`는 1차 사본과 다른 폴더로 정합니다. 폴더 이름은 `train_annotations`로 같아야 합니다.
     - `--img-dir`는 그대로 원본 이미지 폴더입니다. 사본에는 이미지가 없습니다.
     - 수정 목록과 변경 기록은 1차와 다른 파일 이름을 쓰면 단계별 기록이 섞이지 않습니다. 아래 `_round2` 파일 이름은 예시입니다.
