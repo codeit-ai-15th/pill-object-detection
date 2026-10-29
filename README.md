@@ -173,7 +173,9 @@ AI Hub를 받고 풀고, [src/pill_detection/data.py](src/pill_detection/data.py
     - 다 푼 zip은 건너뜁니다. 받다 멈춘 zip은 처음부터 다시 받고, 풀다 멈춘 zip은 이미 푼 파일을 건너뛰고 이어서 풉니다.
     - 정제 단계에서 멈췄으면 정제를 처음부터 다시 합니다. 원본은 건드리지 않습니다.
 
-### 2. make_fixed_annotations.py: 출처가 Kaggle인 데이터의 전처리만 고쳤을 때 사용.
+### 2. make_fixed_annotations.py: Deprecated
+> 이 스크립트는 사용하지 말아주세요. prepare_train_data.py를 사용해주세요. 동작은 똑같되, 더 안정적입니다. 
+
 [src/pill_detection/data.py](src/pill_detection/data.py)의 `make_fixed_annotations()`를 부르기만 하며, 인자의 자세한 뜻과 규칙은 그 함수의 docstring에 있습니다.
 - `prepare_train_data.py`가 `make_fixed_annotations.py`의 기능을 똑같이 수행합니다. 단, `make_fixed_annotations.py` 스크립트는 Kaggle 출처 데이터만 수정하고자 할 때 사용할 수 있습니다. 
 - 변경 기록은 `prepare_train_data.py`와 같은 파일(`data/label_fix/apply_label_fixes_v{n}.csv`)에 쌓입니다. 
