@@ -41,3 +41,7 @@ build-backend = "uv_build"
 # 프로젝트 이름은 pill-object-detection, import 이름은 pill_detection
 [tool.uv.build-backend]
 module-name = "pill_detection"
+
+# uv run pytest는 tests/만 찾는다
+[tool.pytest.ini_options]
+testpaths = ["tests"]
