@@ -1,6 +1,7 @@
 """2차 val 채점과 제출 CSV 변환(pill_detection.evaluate)을 장난감 정답으로 본다."""
 
 import csv
+import json
 from types import SimpleNamespace
 
 import pytest
@@ -61,6 +62,22 @@ def test_scores_use_their_own_scope():
     only_5 = [p for p in perfect() if p["category_id"] == 5]
     scores = ev.evaluate_val(only_5, GT)
     assert scores["test_only"] == pytest.approx(1.0) and scores["val"] < 0.99
+
+
+def test_scores_can_be_saved_as_json():
+    """클래스별 AP의 key는 Python int라서 점수를 그대로 json.dumps로 저장할 수 있다."""
+    scores = ev.evaluate_val(perfect(), GT)
+    assert all(type(c) is int for c in scores["per_class"])
+    assert json.loads(json.dumps(scores))["per_class"] == {"1": pytest.approx(1.0), "5": pytest.approx(1.0)}
+
+
+def test_empty_scope_score_is_none():
+    """채점 범위에 정답이 없으면 점수는 -1이 아니라 None이다. (test 전용 클래스나 Kaggle 사진이 없는 정답)"""
+    no_test_only = {**GT, "categories": [{**c, "test_only": 0} for c in GT["categories"]]}
+    assert ev.evaluate_val(perfect(), no_test_only)["test_only"] is None
+    no_kaggle = {**GT, "images": [{**image, "source": "aihub"} for image in GT["images"]]}
+    scores = ev.evaluate_val(perfect(), no_kaggle)
+    assert scores["kaggle"] is None and scores["val"] == pytest.approx(1.0)
 
 
 def test_unknown_image_is_refused():

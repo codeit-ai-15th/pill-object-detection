@@ -7,6 +7,7 @@
 import csv
 import json
 import random
+import shutil
 
 import pytest
 import yaml
@@ -18,6 +19,7 @@ from helpers import (
     EXPECTED_RENAMES,
     N_CLASSES,
     N_COMPETITION,
+    PROJECT_ROOT,
     SELECT_ONLY_COMPETITION,
     SELECT_OTHERS,
     SELECT_V2_AIHUB,
@@ -182,6 +184,18 @@ def test_write_rows_reports_unchanged(tmp_path):
     assert ds.read_rows(path) == [{"a": "2", "b": "x"}]
 
 
+def test_diff_rows_compares_without_writing(tmp_path):
+    """diff_rows는 파일을 쓰지 않고 비교만 한다. 같으면 None, 다르면 새 내용에만 있는 줄과 파일에만 있는 줄의 수다."""
+    path = tmp_path / "images.csv"
+    assert ds.diff_rows(path, ["a", "b"], [{"a": 1, "b": "x"}]) == {"added": 2, "removed": 0}  # 파일이 없으면 열 이름 줄도 센다
+    assert not path.exists()
+    ds.write_rows(path, ["a", "b"], [{"a": 1, "b": "x"}, {"a": 3, "b": "y"}])
+    before = path.read_bytes()
+    assert ds.diff_rows(path, ["a", "b"], [{"a": 1, "b": "x"}, {"a": 3, "b": "y"}]) is None
+    assert ds.diff_rows(path, ["a", "b"], [{"a": 2, "b": "x"}, {"a": 3, "b": "y"}]) == {"added": 1, "removed": 1}
+    assert path.read_bytes() == before
+
+
 @pytest.fixture
 def toy_dataset(tmp_path):
     """장난감 학습 데이터 폴더와 목록 CSV 2개."""
@@ -225,6 +239,7 @@ def test_build_dataset_yolo_and_coco(toy_dataset):
     train, val = (json.loads((out / "coco" / f"{s}.json").read_text(encoding="utf-8")) for s in ("train", "val"))
     assert train["categories"] == val["categories"]
     assert [c["id"] for c in train["categories"]] == [1, 2, 3, 5, ds.OTHERS_CATEGORY_ID]
+    assert {c["idx"]: c["name"] for c in train["categories"]} == data_yaml["names"]  # 모델 클래스 번호가 YOLO와 같다
     gt = json.loads((out / "eval" / "val_gt.json").read_text(encoding="utf-8"))
     assert {a["category_id"] for a in gt["annotations"]} == {c for n in lists["val"] for c, _, _ in t["images"][n]["objects"]}
     assert {c["id"]: c["competition"] for c in gt["categories"]}[9] == 0
@@ -252,6 +267,39 @@ def test_build_dataset_refuses_bad_out(toy_dataset):
         ds.build_dataset("v1", t["out"], t["data_dir"], t["images_csv"], t["classes_csv"])
     with pytest.raises(ValueError, match="원본 폴더 안"):
         ds.build_dataset("v1", t["data_dir"] / "raw" / "exp2", t["data_dir"], t["images_csv"], t["classes_csv"])
+
+
+def test_build_dataset_refuses_out_tracked_by_git(toy_dataset):
+    """레포 안에서 .gitignore에 걸리지 않는 폴더(예: data/datasets/)에는 학습 폴더를 만들지 않는다."""
+    t = toy_dataset
+    out = PROJECT_ROOT / "data" / "datasets" / "_pytest_out"
+    try:
+        with pytest.raises(ValueError, match=r"\.gitignore"):
+            ds.build_dataset("v1", out, t["data_dir"], t["images_csv"], t["classes_csv"])
+        assert not out.exists()
+    finally:  # 막지 못해 만들어졌으면 레포에 남기지 않는다
+        shutil.rmtree(out, ignore_errors=True)
+
+
+def test_build_dataset_refuses_missing_png(toy_dataset):
+    """목록의 PNG가 하나라도 없으면 폴더를 만들기 전에 멈춘다. (zip을 일부만 푼 경우)"""
+    t = toy_dataset
+    name = ds.read_image_list(t["images_csv"], "v1")["train"][0]
+    (t["data_dir"] / ds.IMAGE_DIRS[t["images"][name]["source"]] / name).unlink()
+    for link in ("hardlink", "symlink"):
+        with pytest.raises(ValueError, match="PNG"):
+            ds.build_dataset("v1", t["out"], t["data_dir"], t["images_csv"], t["classes_csv"], link=link)
+        assert not t["out"].exists()
+
+
+def test_build_dataset_coco_only_places_images(toy_dataset):
+    """COCO만 만들어도 이미지를 images/{train,val}에 둔다. COCO file_name은 그 폴더 기준이라 그대로 읽을 수 있다."""
+    t = toy_dataset
+    ds.build_dataset("v2", t["out"], t["data_dir"], t["images_csv"], t["classes_csv"], fmt="coco")
+    assert not (t["out"] / "labels").exists() and not (t["out"] / "data.yaml").exists()
+    for split in ("train", "val"):
+        coco = json.loads((t["out"] / "coco" / f"{split}.json").read_text(encoding="utf-8"))
+        assert all((t["out"] / "images" / split / image["file_name"]).is_file() for image in coco["images"])
 
 
 def test_read_exp1_split_checks(tmp_path):

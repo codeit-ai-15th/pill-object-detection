@@ -1,32 +1,33 @@
 """2차 실험 데이터: 이미지 선택 방법 4가지의 train 목록, 고정 val, 학습 폴더 만들기.
 
 용어
-- 대회 클래스: Kaggle train 클래스 + test에 나오는 클래스. 채점과 제출은 이 클래스만 한다.
-- 2차 val: 4가지 방법이 같이 쓰는 검증 이미지. 1차 val Kaggle 47장 + test 클래스 빈도를 닮게 고른 AI Hub 조합이다.
-  학습에는 넣지 않는다.
+- 대회 클래스: Kaggle train 클래스 + test에 나오는 클래스. 채점과 제출은 이 클래스에 대해서만 한다.
+- 2차 val: 이미지 선택 4가지 방법(v1, v2, v3, v4. 바로 밑 방법(VARIANTS)에서 자세히 기술되어있음)이 같이 쓰는 검증 이미지. 1차 실험의 val에서 사용한 Kaggle 47장 + 등장 클래스 빈도가 test 클래스 빈도와 비슷하게 고른 AI Hub 출처 데이터의 조합이다.
+  train에는 넣지 않는다. 
 - 2차 train: val을 뺀 나머지에서 방법 규칙으로 고른 이미지. Kaggle 1차 train 185장은 4가지 방법에 모두 들어간다.
 
 방법 (VARIANTS)
-- v1: 전부
-- v2: 객체가 적은 클래스부터 클래스별 200개를 채우도록 고른 AI Hub 이미지 (plan_uniform, 01 AI Hub EDA 노트북 4-5)
-- v3: 대회 클래스가 하나라도 든 이미지 (01 노트북 5-6)
-- v4: 전부. 대회 클래스 밖 알약은 others 한 클래스로 묶는다 (01 노트북 5-5)
+- v1: AI Hub 출처 이미지를 전부 사용함
+- v2: 객체가 적은 클래스부터 클래스별 200개를 채우도록 고른 AI Hub 출처 이미지 (plan_uniform)
+- v3: 대회 클래스가 하나라도 든 이미지
+- v4: AI Hub 출처 데이터를 전부 사용함. 단, Kaggle 제공 데이터에서 등장한 클래스가 아닌 알약은 others 한 클래스로 묶는다
 
 흐름
-- 결정 (scripts/make_dataset_lists.py, 1회): load_images → select_val → select_variants → make_image_rows, build_class_table
-  → data/datasets/images.csv, classes.csv (git으로 관리한다)
-- 만들기 (scripts/build_dataset.py, 학습할 때마다): build_dataset이 두 CSV와 정제한 학습 데이터로 학습 폴더를 만든다.
+- train/val 구성 결정 (scripts/make_dataset_lists.py, 1회): load_images → select_val → select_variants → make_image_rows, build_class_table
+  → data/datasets/images.csv, classes.csv 생성. (git으로 관리한다. 열과 줄 설명: data/datasets/README.md)
+- train/val 만들기 (scripts/build_dataset.py, 학습할 때마다): images.csv, classes.csv 두 CSV와 정제한 학습 데이터로 학습 폴더를 만든다.
 
 학습 폴더 (build_dataset)
     <out>/
-    ├── images/{train,val}/      # 이미지 하드링크 (안 되면 복사)
+    ├── images/{train,val}/      # 이미지 하드링크 (안 되면 복사). --format과 상관없이 늘 둔다
     ├── labels/{train,val}/      # YOLO 라벨. 모델 클래스 번호와 [중심 x, 중심 y, 너비, 높이] (0~1)
     ├── data.yaml                # Ultralytics 설정. names는 {번호: "3351", ..., 번호: "others"}
-    ├── coco/{train,val}.json    # COCO 형식. category id는 K-코드 숫자, others는 OTHERS_CATEGORY_ID
+    ├── coco/{train,val}.json    # COCO 형식. file_name은 images/{train,val}/ 기준. category id는 K-코드 숫자,
+    │                            #   others는 OTHERS_CATEGORY_ID. categories의 idx는 0부터의 모델 클래스 번호(YOLO와 같다)
     ├── eval/val_gt.json         # 채점용 val 정답 (pill_detection.evaluate). 모든 방법에서 같다
     ├── classes.csv              # data/datasets/classes.csv 사본
-    └── dataset_info.json        # 방법, 개수, 목록 CSV의 sha256, git commit
-- YOLO 라벨과 coco/*.json에는 그 방법의 모델 클래스만 들어간다. 모델 클래스는 그 방법의 train에 객체가 있는 클래스다.
+    └── dataset_info.json        # 방법, 개수, 목록 CSV의 sha256, git commit hash
+- YOLO 라벨과 coco/*.json에는 그 방법의 모델 클래스만 들어간다. 모델 클래스는 그 방법(v1, v2, v3, v4)의 train에 객체가 있는 클래스다.
   v3의 val에만 있는 클래스처럼 모델 클래스가 아닌 객체는 빼고, 뺀 수를 dataset_info.json에 적는다.
 - eval/val_gt.json은 val의 모든 객체를 원래 K-코드로 담는다. 채점은 대회 클래스만 하고, 나머지 객체는 무시 영역으로 쓴다.
 """
@@ -49,7 +50,7 @@ from pill_detection.utils import clip_xywh, xywh_to_yolo
 
 VARIANTS = ("v1", "v2", "v3", "v4")
 OTHERS_VARIANTS = ("v4",)  # 대회 클래스 밖 알약을 others로 묶는 방법
-OTHERS_CATEGORY_ID = 1_000_000  # others의 category id. K-코드와 겹치지 않고, torchvision의 배경 번호 0과도 겹치지 않는다
+OTHERS_CATEGORY_ID = 1_000_000  # others의 category id. K-코드와 겹치지 않는다. 학습 label로 쓰는 번호는 COCO categories의 idx다
 OTHERS_NAME = "others"
 
 V2_TARGET = 200  # v2의 클래스별 목표 객체 수 (01 노트북 4-5)
@@ -491,6 +492,27 @@ def rows_to_text(columns, rows):
     return buffer.getvalue()
 
 
+def diff_rows(path, columns, rows):
+    """CSV 파일과 새 줄을 비교한다. 파일은 쓰지 않는다. (make_dataset_lists.py --check)
+
+    Args:
+        path (str | Path): 비교할 CSV 경로. 없으면 빈 파일로 본다.
+        columns (list[str]): 열 이름.
+        rows (list[dict]): 새 줄.
+
+    Returns:
+        dict | None: 같으면 None. 다르면 {"added": 새 내용에만 있는 줄 수, "removed": 파일에만 있는 줄 수}.
+            열 이름 줄도 센다.
+    """
+    path = Path(path)
+    new = rows_to_text(columns, rows)
+    old = path.read_text(encoding="utf-8").replace("\r\n", "\n") if path.is_file() else ""
+    if old == new:
+        return None
+    old_lines, new_lines = collections.Counter(old.splitlines()), collections.Counter(new.splitlines())
+    return {"added": sum((new_lines - old_lines).values()), "removed": sum((old_lines - new_lines).values())}
+
+
 def write_rows(path, columns, rows):
     """줄을 CSV로 쓴다. 이미 같은 내용이면 쓰지 않는다.
 
@@ -504,7 +526,7 @@ def write_rows(path, columns, rows):
     """
     path = Path(path)
     text = rows_to_text(columns, rows)
-    if path.is_file() and path.read_text(encoding="utf-8").replace("\r\n", "\n") == text:
+    if diff_rows(path, columns, rows) is None:
         return False
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8", newline="")
@@ -572,6 +594,18 @@ def _git_commit():
         return None
 
 
+def _tracked_by_git(path):
+    """path가 이 레포 안이고 .gitignore에 걸리지 않으면 True. 레포 밖이거나 git이 없으면 False."""
+    repo_root = Path(__file__).resolve().parents[2]  # src/pill_detection/datasets.py → 레포 최상위
+    if not Path(path).resolve().is_relative_to(repo_root):
+        return False
+    try:  # check-ignore: 0이면 무시됨, 1이면 무시되지 않음, 128이면 git 레포가 아님
+        result = subprocess.run(["git", "check-ignore", "-q", str(path)], capture_output=True, cwd=repo_root)
+    except OSError:
+        return False
+    return result.returncode == 1
+
+
 def _place(src, dst, link):
     """이미지를 dst에 둔다. hardlink가 안 되면(다른 디스크) 복사한다. 실제로 쓴 방법을 돌려준다."""
     if link == "symlink":
@@ -621,18 +655,20 @@ def build_dataset(variant, out_dir, data_dir, images_csv, classes_csv, fmt="both
 
     Args:
         variant (str): 방법. (v1~v4)
-        out_dir (str | Path): 만들 폴더. 없거나 비어 있어야 하고, 학습 데이터 원본 폴더 안이면 안 된다.
+        out_dir (str | Path): 만들 폴더. 없거나 비어 있어야 한다. 학습 데이터 원본 폴더 안이나,
+            레포 안에서 .gitignore에 걸리지 않는 곳(예: data/datasets/)이면 안 된다.
         data_dir (str | Path): data 폴더. 정제한 학습 데이터(ANN_DIRS, IMAGE_DIRS)가 있어야 한다.
         images_csv (str | Path): data/datasets/images.csv.
         classes_csv (str | Path): data/datasets/classes.csv.
-        fmt (str): "yolo", "coco", "both". eval/val_gt.json은 형식과 상관없이 늘 쓴다.
-        link (str): 이미지를 두는 방법. "hardlink"(안 되면 복사), "symlink", "copy". COCO만 만들면 이미지는 두지 않는다.
+        fmt (str): "yolo", "coco", "both". 라벨 형식만 고른다. 이미지와 eval/val_gt.json은 형식과 상관없이 늘 둔다.
+        link (str): 이미지를 두는 방법. "hardlink"(안 되면 복사), "symlink", "copy".
 
     Returns:
         dict: dataset_info.json에 쓴 내용. (개수, 뺀 객체 수, 이미지를 둔 방법별 수 등)
 
     Raises:
-        ValueError: 인자가 틀렸거나, 출력 폴더가 비어 있지 않거나 원본 폴더 안이거나, 목록의 이미지가 학습 데이터에 없을 때.
+        ValueError: 인자가 틀렸거나, 출력 폴더가 위 조건에 맞지 않거나, 목록의 이미지가 학습 데이터(annotation, PNG)에 없을 때.
+            폴더를 만들기 전에 확인한다.
     """
     if variant not in VARIANTS or fmt not in ("yolo", "coco", "both") or link not in ("hardlink", "symlink", "copy"):
         raise ValueError(f"인자가 맞지 않습니다: variant={variant}, fmt={fmt}, link={link}\n"
@@ -642,6 +678,10 @@ def build_dataset(variant, out_dir, data_dir, images_csv, classes_csv, fmt="both
     if any(out_dir == p or out_dir.is_relative_to(p) for p in protected):
         raise ValueError(f"출력 폴더가 학습 데이터 원본 폴더 안입니다: {out_dir}\n"
                          "[해결] --out에 다른 폴더를 주세요. 예: --out data/processed/exp2/v1 또는 /content/exp2/v1")
+    if _tracked_by_git(out_dir):
+        raise ValueError(f"출력 폴더가 레포 안인데 .gitignore에 걸리지 않습니다: {out_dir}\n"
+                         "이미지와 라벨 수만 개가 git add에 함께 올라갈 수 있습니다.\n"
+                         "[해결] --out data/processed/exp2/v1처럼 data/processed/ 아래나, /content/exp2/v1처럼 레포 밖 폴더를 주세요.")
     if out_dir.exists() and any(out_dir.iterdir()):
         raise ValueError(f"출력 폴더가 비어 있지 않습니다: {out_dir}\n"
                          "[해결] 다시 만들려면 그 폴더를 지우거나, 다른 --out을 주세요.")
@@ -654,6 +694,11 @@ def build_dataset(variant, out_dir, data_dir, images_csv, classes_csv, fmt="both
         raise ValueError(f"목록의 이미지 {len(missing):,}장이 학습 데이터에 없습니다. 예: {missing[0]}\n"
                          "[해결] 학습 데이터를 다시 받거나(Drive zip) 만들고(uv run scripts/prepare_train_data.py), "
                          "레포를 최신으로 맞추세요(git pull).")
+    sources = {name: data_dir / IMAGE_DIRS[images[name]["source"]] / name for names in lists.values() for name in names}
+    no_png = [path for path in sources.values() if not path.is_file()]
+    if no_png:
+        raise ValueError(f"목록의 이미지 {len(no_png):,}장의 PNG 파일이 없습니다. 예: {no_png[0]}\n"
+                         "[해결] Drive의 이미지 zip을 레포 최상위에 다시 풀거나, uv run scripts/prepare_train_data.py로 다시 만드세요.")
 
     classes, competition, rows = table["classes"], table["competition"], table["rows"]
     index = {c: i for i, c in enumerate(classes)}
@@ -675,25 +720,27 @@ def build_dataset(variant, out_dir, data_dir, images_csv, classes_csv, fmt="both
     (out_dir / "eval").mkdir()
     (out_dir / "eval" / "val_gt.json").write_text(json.dumps(gt, ensure_ascii=False), encoding="utf-8")
 
-    categories = [_coco_category(c, rows[c]) for c in classes]
+    categories = [{**_coco_category(c, rows[c]), "idx": i} for i, c in enumerate(classes)]
     for split, names in lists.items():
         coco, dropped, clipped_out = _coco(images, names, categories, label_of)
         info["n_objects"][split] = len(coco["annotations"])
         info["dropped_objects"][split] = dropped
         info["clipped_out_objects"][split] = clipped_out
+        image_dir = out_dir / "images" / split
+        image_dir.mkdir(parents=True)
+        for name in names:
+            info["placed"][_place(sources[name], image_dir / name, link)] += 1
         if fmt in ("coco", "both"):
             (out_dir / "coco").mkdir(exist_ok=True)
             (out_dir / "coco" / f"{split}.json").write_text(json.dumps(coco, ensure_ascii=False), encoding="utf-8")
         if fmt in ("yolo", "both"):
-            image_dir, label_dir = out_dir / "images" / split, out_dir / "labels" / split
-            image_dir.mkdir(parents=True)
+            label_dir = out_dir / "labels" / split
             label_dir.mkdir(parents=True)
             by_image = collections.defaultdict(list)
             for ann in coco["annotations"]:
                 by_image[ann["image_id"]].append(ann)
             for name in names:
                 image = images[name]
-                info["placed"][_place(data_dir / IMAGE_DIRS[image["source"]] / name, image_dir / name, link)] += 1
                 lines = []
                 for ann in by_image[image["image_id"]]:
                     cx, cy, w, h = xywh_to_yolo(ann["bbox"], image["width"], image["height"])

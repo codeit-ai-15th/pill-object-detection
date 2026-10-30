@@ -4,22 +4,23 @@ val을 정할 때 한 번 실행하고 결과를 커밋한다. 커밋한 뒤에�
 팀원은 이 스크립트를 실행하지 않고, 커밋된 CSV로 scripts/build_dataset.py를 실행한다.
 
 사용법 (레포 최상위에서)
-    uv run scripts/make_dataset_lists.py --exp1-split <1차 split.csv> [--test-crops <검수표>] [--out data/datasets]
+    uv run scripts/make_dataset_lists.py --exp1-split <1차 split.csv> [--test-crops <검수표>] [--out data/datasets] [--check]
 
     # 처음 만들 때 (1차 split.csv는 Drive에서 받는다)
     uv run scripts/make_dataset_lists.py --exp1-split ~/Downloads/split.csv
-    # 커밋한 목록을 다시 만들어 같은지 볼 때 (1차 분할은 images.csv의 exp1_split 열을 쓴다)
-    uv run scripts/make_dataset_lists.py
+    # 커밋한 목록을 다시 만들어 같은지만 볼 때. 파일은 쓰지 않는다 (1차 분할은 images.csv의 exp1_split 열을 쓴다)
+    uv run scripts/make_dataset_lists.py --check
 
 입력
 - 정제한 학습 데이터 (uv run scripts/prepare_train_data.py, 또는 Drive zip을 레포 최상위에 푼 것)
 - 1차 split.csv: Kaggle 232장의 1차 train/val (file_name, split 열). 없으면 이미 쓴 images.csv의 exp1_split 열을 읽는다.
 - test 알약 검수표: notebooks/eda/02_raewoo_test_crops.csv (노트북 02). 대회 클래스와 클래스별 test 객체 수를 센다.
 
-출력 (pill_detection.datasets 모듈 docstring 참고)
+출력 (pill_detection.datasets 모듈 docstring 참고. 열과 줄 설명: data/datasets/README.md)
 - data/datasets/images.csv: 이미지 1장 = 1줄. split(2차 train/val), exp1_split, v1~v4, 객체 수
 - data/datasets/classes.csv: 클래스 1개 = 1줄 + others. 그룹, 대회 클래스, 방법별 모델 클래스 번호, test/val/train 객체 수
 - 같은 입력으로 다시 실행하면 파일을 건드리지 않고 "변경 없음"을 출력한다.
+- --check면 파일을 쓰지 않고 비교만 한다. 다르면 바뀐 줄 수를 출력하고 종료 코드 1로 끝난다.
 """
 
 import argparse
@@ -103,6 +104,7 @@ def main(argv=None):
     parser.add_argument("--test-crops", type=Path, default=DEFAULT_TEST_CROPS, help="노트북 02의 test 알약 검수표.")
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT, help="CSV를 쓸 폴더.")
     parser.add_argument("--data-dir", type=Path, default=PROJECT_ROOT / "data", help="정제한 학습 데이터가 있는 data 폴더.")
+    parser.add_argument("--check", action="store_true", help="파일을 쓰지 않고 지금 CSV와 같은지만 본다. 다르면 종료 코드 1.")
     args = parser.parse_args(argv)
 
     images_csv, classes_csv = args.out / "images.csv", args.out / "classes.csv"
@@ -125,12 +127,26 @@ def main(argv=None):
         return 1
 
     report(result, images, test_counts)
-    changed = [ds.write_rows(images_csv, ds.IMAGE_COLUMNS, result["image_rows"]),
-               ds.write_rows(classes_csv, ds.CLASS_COLUMNS, result["class_rows"])]
+    outputs = [(images_csv, ds.IMAGE_COLUMNS, result["image_rows"]), (classes_csv, ds.CLASS_COLUMNS, result["class_rows"])]
+    shown = {path: path.relative_to(PROJECT_ROOT) if path.is_relative_to(PROJECT_ROOT) else path for path, _, _ in outputs}
     print()
-    for path, did in zip((images_csv, classes_csv), changed):
-        shown = path.relative_to(PROJECT_ROOT) if path.is_relative_to(PROJECT_ROOT) else path
-        print(f"{shown}: {'썼다' if did else '변경 없음'} ({len(ds.read_rows(path)):,}줄)")
+    if args.check:
+        diffs = {path: ds.diff_rows(path, columns, rows) for path, columns, rows in outputs}
+        for path, diff in diffs.items():
+            print(f"{shown[path]}: " + ("같음" if diff is None else f"다름 (새 줄 {diff['added']:,}개, 사라질 줄 {diff['removed']:,}개)"))
+        if any(diffs.values()):
+            print("[오류] 지금 입력으로 만든 목록이 커밋한 CSV와 다릅니다. 파일은 쓰지 않았습니다.\n"
+                  "[해결] 바뀐 입력(학습 데이터, 라벨 정제 목록, 검수표)을 확인하세요. 2차 val을 바꾸면 이미 돌린 실험과 비교할 수 없습니다.")
+            return 1
+        return 0
+    existed = {path for path, _, _ in outputs if path.is_file()}
+    changed = [ds.write_rows(path, columns, rows) for path, columns, rows in outputs]
+    for (path, _, _), did in zip(outputs, changed):
+        print(f"{shown[path]}: {'썼다' if did else '변경 없음'} ({len(ds.read_rows(path)):,}줄)")
+    if any(did and path in existed for (path, _, _), did in zip(outputs, changed)):
+        folder = shown[images_csv].parent
+        print("[주의] 이미 있던 목록을 바꿔 썼습니다. 2차 val이 바뀌었으면 이미 돌린 실험과 비교할 수 없습니다.\n"
+              f"[해결] git diff {folder}로 바뀐 줄을 보고, 의도하지 않았으면 git restore {folder}로 되돌리세요.")
     return 0
 
 

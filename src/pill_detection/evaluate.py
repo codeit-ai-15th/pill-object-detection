@@ -18,6 +18,9 @@
     - bbox는 xywh 원본 픽셀이다. (pill_detection.utils 모듈 docstring)
     - category_id는 K-코드 숫자이고, others는 pill_detection.datasets.OTHERS_CATEGORY_ID이다.
 - Ultralytics 결과는 predictions_from_ultralytics로 바꾼다. 모델 클래스 이름("3351", "others")을 category_from_name으로 K-코드로 바꾼다.
+- torchvision(Faster R-CNN) 결과는 직접 바꾼다. coco/train.json의 category id(K-코드)를 그대로 label로 쓰지 않는다.
+    - 학습: label = categories의 idx + 1 (0은 배경), num_classes = 모델 클래스 수 + 1
+    - 예측: label을 idx가 label - 1인 category의 id로, boxes(xyxy)를 pill_detection.utils.xyxy_to_xywh로 바꾼다.
 
 사용 예
     >>> from ultralytics import YOLO
@@ -133,12 +136,17 @@ def coco_map(gt, predictions, image_ids=None, category_ids=None):
         category_ids (Iterable[int] | None): 이 클래스만 채점한다. None이면 정답에 있는 클래스 전부.
 
     Returns:
-        tuple[float, dict[int, float]]: (mAP, 클래스별 AP). 채점 범위에 정답이 없는 클래스는 클래스별 AP에 없다.
-            예측이 하나도 없으면 (0.0, {}).
+        tuple[float | None, dict[int, float]]: (mAP, 클래스별 AP). 채점 범위에 정답이 없는 클래스는 클래스별 AP에 없다.
+            채점 범위에 정답이 하나도 없으면 (None, {}), 정답은 있는데 예측이 하나도 없으면 (0.0, {}).
     """
     from pycocotools.coco import COCO
     from pycocotools.cocoeval import COCOeval
 
+    image_ids = None if image_ids is None else set(image_ids)
+    present = {a["category_id"] for a in gt["annotations"] if image_ids is None or a["image_id"] in image_ids}
+    category_ids = sorted(present if category_ids is None else present & set(category_ids))
+    if not category_ids:  # pycocotools는 이때 -1을 돌려준다. 점수표에 -1이 섞이지 않게 None으로 둔다
+        return None, {}
     image_of = {image["file_name"]: image["id"] for image in gt["images"]}
     results = [{"image_id": p.get("image_id", image_of.get(p.get("file_name"))), "category_id": p["category_id"],
                 "bbox": list(p["bbox"]), "score": p["score"]} for p in predictions]
@@ -153,19 +161,17 @@ def coco_map(gt, predictions, image_ids=None, category_ids=None):
         coco_dt = coco_gt.loadRes(results)
         evaluator = COCOeval(coco_gt, coco_dt, "bbox")
         evaluator.params.iouThrs = IOU_THRESHOLDS
-        image_ids = None if image_ids is None else set(image_ids)
         if image_ids is not None:
             evaluator.params.imgIds = sorted(image_ids)
-        present = {a["category_id"] for a in gt["annotations"] if image_ids is None or a["image_id"] in image_ids}
-        evaluator.params.catIds = sorted(present if category_ids is None else present & set(category_ids))
+        evaluator.params.catIds = category_ids
         evaluator.evaluate()
         evaluator.accumulate()
         evaluator.summarize()
     precision = evaluator.eval["precision"][:, :, :, 0, -1]  # [IoU 기준, recall, 클래스], 면적 전체, 최대 검출 수 100
     per_class = {}
-    for k, category_id in enumerate(evaluator.params.catIds):
+    for k, category_id in enumerate(evaluator.params.catIds):  # evaluate()가 numpy 정수로 바꿔 두므로 int로 되돌린다
         values = precision[:, :, k]
-        per_class[category_id] = float(values[values > -1].mean()) if (values > -1).any() else 0.0
+        per_class[int(category_id)] = float(values[values > -1].mean()) if (values > -1).any() else 0.0
     return float(evaluator.stats[0]), per_class
 
 
@@ -178,6 +184,8 @@ def evaluate_val(predictions, val_gt):
 
     Returns:
         dict: {"val": float, "kaggle": float, "test_only": float, "per_class": {category_id: AP}, "n_predictions": 채점한 예측 수}
+            점수의 채점 범위에 정답이 없으면 그 점수는 None이다. (Kaggle 사진이나 test 전용 클래스가 없는 정답)
+            build_dataset이 만든 val_gt.json에는 둘 다 있어서 None이 나오지 않는다.
 
     Raises:
         ValueError: 예측의 file_name이 val 정답에 없을 때. (다른 방법의 val이나 test 이미지를 넣은 경우)

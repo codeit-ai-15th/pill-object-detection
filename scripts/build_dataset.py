@@ -9,14 +9,15 @@
 
 인자
     --variant   v1(전부), v2(클래스별 최소 200), v3(대회 클래스가 든 이미지), v4(대회 클래스 밖 → others)
-    --out       만들 폴더. 없거나 비어 있어야 한다.
-    --format    yolo, coco, both (기본 both). eval/val_gt.json은 형식과 상관없이 늘 쓴다.
-    --link      hardlink(기본, 안 되면 복사), symlink, copy. 이미지를 --out에 두는 방법이다. COCO만 만들면 이미지는 두지 않는다.
+    --out       만들 폴더. 없거나 비어 있어야 한다. 레포 안이면 data/processed/ 아래여야 한다(git에 올라가지 않게).
+    --format    yolo, coco, both (기본 both). 라벨 형식만 고른다. 이미지와 eval/val_gt.json은 형식과 상관없이 늘 둔다.
+    --link      hardlink(기본, 안 되면 복사), symlink, copy. 이미지를 --out에 두는 방법이다.
     --data-dir  정제한 학습 데이터가 있는 data 폴더 (기본: 레포의 data)
 
 만드는 것 (pill_detection.datasets 모듈 docstring 참고)
-    <out>/images, labels, data.yaml      # YOLO (Ultralytics: data=<out>/data.yaml)
-    <out>/coco/train.json, val.json      # COCO (torchvision CocoDetection 등)
+    <out>/images/{train,val}             # 이미지. YOLO와 COCO가 같이 쓴다
+    <out>/labels, data.yaml              # YOLO (Ultralytics: data=<out>/data.yaml)
+    <out>/coco/train.json, val.json      # COCO (torchvision CocoDetection: root=<out>/images/train, annFile=<out>/coco/train.json)
     <out>/eval/val_gt.json               # 채점용 val 정답 (pill_detection.evaluate.evaluate_val)
     <out>/classes.csv, dataset_info.json
 """
@@ -68,10 +69,12 @@ def main(argv=None):
         print(f"모델 클래스가 아니라서 라벨에서 뺀 객체: {dropped} (채점용 eval/val_gt.json에는 남아 있다)")
     if clipped:
         print(f"사진 밖으로 나가 너비나 높이가 0이 된 box: {clipped}")
-    if info["placed"]:
-        print(f"이미지: {info['placed']}")
+    print(f"이미지: {info['placed']}")
+    out = args.out.resolve()
     if args.format in ("yolo", "both"):
-        print(f"YOLO 학습: data={(args.out / 'data.yaml').resolve()}")
+        print(f"YOLO 학습: data={out / 'data.yaml'}")
+    if args.format in ("coco", "both"):
+        print(f"COCO 학습: root={out / 'images' / 'train'}, annFile={out / 'coco' / 'train.json'} (val도 같은 모양)")
     print(f"채점 정답: {(args.out / 'eval' / 'val_gt.json').resolve()}")
     return 0
 
