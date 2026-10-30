@@ -26,9 +26,6 @@ pill-object-detection/
 ├── notebooks/                 # 개인 탐색용 노트북
 │   ├── eda/                   # 개인 EDA 노트북
 │   └── modeling/              # 각자 맡은 모델링 노트북
-│       ├── 02-cj-faster-rcnn-experiments.ipynb   # Faster·함수 내장
-│       ├── 03-cj-cascade-rcnn-experiments.ipynb  # Cascade·함수 내장
-│       └── 04-cj-two-stage-comparison.ipynb     # 동일 validation 재평가
 ├── src/pill_detection/        # 공용 코드 패키지 (노트북·스크립트·데모 어디서든 import)
 │   └── utils.py               # 기존 bbox 변환·시각화
 ├── runs/                      # 학습 결과
