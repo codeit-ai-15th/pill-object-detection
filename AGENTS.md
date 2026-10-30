@@ -18,7 +18,9 @@ AI 코딩 에이전트(Claude Code, Codex 등)가 이 레포에서 작업할 때
 | 브랜치 이름, 커밋 메시지, PR과 이슈 보드 | [CONTRIBUTING.md](CONTRIBUTING.md#협업-방식) |
 | PR 본문 양식 | [.github/pull_request_template.md](.github/pull_request_template.md) |
 | bbox 형식 세 가지와 변환 함수 | [src/pill_detection/utils.py](src/pill_detection/utils.py) 모듈 docstring |
-| 라벨 수정 사본 만들기: 수정 목록 CSV 형식, 실행 방법 | [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring, [README.md](README.md) Scripts |
+| 학습 데이터 준비: AI Hub 받기, 정제 목록 CSV 형식, 실행 방법 | [README.md](README.md) 학습 데이터 준비, [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring |
+| Kaggle 사본만 다시 만들기(AI Hub 없이) | [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring, [README.md](README.md) Scripts |
+| 테스트: 기준값과 노트북 결론 | [tests/helpers.py](tests/helpers.py) 모듈 docstring |
 | 환경 변수 이름 | [.env.example](.env.example) |
 | git에서 제외하는 파일 | [.gitignore](.gitignore) |
 | pre-commit hook | [.pre-commit-config.yaml](.pre-commit-config.yaml), 스크립트는 [hooks/](hooks/) |
@@ -41,6 +43,7 @@ uv sync                              # pull 뒤나 의존성이 바뀐 뒤 환�
 uv run python <스크립트>               # 가상환경을 켜지 않고 실행
 uv add <패키지>                        # 의존성 추가. 개발용은 uv add --dev <패키지>
 uv run scripts/<이름>.py --help      # 레포 최상위에서 스크립트 실행. 사용법은 README Scripts
+uv run pytest                        # 공용 코드를 고친 뒤 테스트. 실제 데이터가 없는 테스트는 건너뜀
 uv run pre-commit run --all-files    # 커밋 전에 hook 미리 돌려 보기
 ```
 
