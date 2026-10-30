@@ -7,10 +7,10 @@
 - 2차 train: val을 뺀 나머지에서 방법 규칙으로 고른 이미지. Kaggle 1차 train 185장은 4가지 방법에 모두 들어간다.
 
 방법 (VARIANTS)
-- v1: AI Hub 출처 이미지를 전부 사용함
+- v1: val을 뺀 이미지를 전부 사용함 (Kaggle 1차 train + AI Hub)
 - v2: 객체가 적은 클래스부터 클래스별 200개를 채우도록 고른 AI Hub 출처 이미지 (plan_uniform)
 - v3: 대회 클래스가 하나라도 든 이미지
-- v4: AI Hub 출처 데이터를 전부 사용함. 단, Kaggle 제공 데이터에서 등장한 클래스가 아닌 알약은 others 한 클래스로 묶는다
+- v4: v1과 같은 이미지를 사용함. 단, 대회 클래스가 아닌 알약은 others 한 클래스로 묶는다 (test에만 나오는 클래스는 묶지 않는다)
 
 흐름
 - train/val 구성 결정 (scripts/make_dataset_lists.py, 1회): load_images → select_val → select_variants → make_image_rows, build_class_table

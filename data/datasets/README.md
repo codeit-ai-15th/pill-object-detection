@@ -7,7 +7,7 @@
     ```bash
     uv run scripts/make_dataset_lists.py --check
     ```
-- 팀원은 이 두 파일대로 학습 폴더를 만들어 학습합니다. 사용법은 [scripts/build_dataset.py](../../scripts/build_dataset.py) 맨 위 docstring를 확인하세요.
+- 팀원은 이 두 파일대로 학습 폴더를 만들어 학습합니다. 사용법은 [scripts/build_dataset.py](../../scripts/build_dataset.py) 맨 위 docstring을 확인하세요.
     ```bash
     uv run scripts/build_dataset.py --variant v2 --out data/processed/exp2/v2
     ```
@@ -98,7 +98,7 @@ aihub,K-006697-006835-020004-023319_0_2_0_2_70_000_200.png,K-006697-006835-02000
 | `competition` | 1이면 대회 클래스(채점, 제출 대상)입니다 | `0`, `1` |
 | `idx_v1`~`idx_v4` | 그 방법의 모델 클래스 번호(0부터). 빈칸이면 그 방법이 학습하지 않는 클래스입니다 | `0`~`117`, 빈칸 |
 | `n_test` | test 842장에 등장하는 해당 클래스의 객체 수 추정치(노트북 02 검수표). `others`는 빈칸입니다 | `369` |
-| `n_val` | 2차 실험 val에 등장하는 해당 클래스의 의 객체 수. Kaggle과 AI Hub의 모든 객체를 셉니다 | `18` |
+| `n_val` | 2차 실험 val에 등장하는 해당 클래스의 객체 수. Kaggle과 AI Hub의 모든 객체를 셉니다 | `18` |
 | `n_train_v1`~`n_train_v4` | 그 방법 train의 객체 수. 학습 라벨 기준이라, v4에서 대회 클래스 밖 클래스는 0이고 `others` 줄에 합쳐집니다 | `27` |
 
 - `idx` 번호는 방법(v1, v2, v3, v4)마다 다릅니다. (예: K-027653은 v1: 78, v2: 78, v3: 65, v4: 49)
