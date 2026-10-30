@@ -20,6 +20,9 @@ AI 코딩 에이전트(Claude Code, Codex 등)가 이 레포에서 작업할 때
 | bbox 형식 세 가지와 변환 함수 | [src/pill_detection/utils.py](src/pill_detection/utils.py) 모듈 docstring |
 | 학습 데이터 준비: AI Hub 받기, 정제 목록 CSV 형식, 실행 방법 | [README.md](README.md) 학습 데이터 준비, [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring |
 | Kaggle 사본만 다시 만들기(AI Hub 없이) | [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring, [README.md](README.md) Scripts |
+| 2차 실험 진행: 학습 폴더, 학습(Colab 포함), val 채점, 제출 | [EXPERIMENTS.md](EXPERIMENTS.md), Colab 코드는 [notebooks/modeling/exp2_colab_smoke_test.ipynb](notebooks/modeling/exp2_colab_smoke_test.ipynb) |
+| 2차 실험 목록 CSV의 열, 방법 v1~v4, 학습 폴더 구성 | [data/datasets/README.md](data/datasets/README.md), [src/pill_detection/datasets.py](src/pill_detection/datasets.py) 모듈 docstring |
+| val 채점 규칙(점수 3개, 무시하는 예측)과 제출 CSV 변환 | [src/pill_detection/evaluate.py](src/pill_detection/evaluate.py) 모듈 docstring |
 | 테스트: 기준값과 노트북 결론 | [tests/helpers.py](tests/helpers.py) 모듈 docstring |
 | 환경 변수 이름 | [.env.example](.env.example) |
 | git에서 제외하는 파일 | [.gitignore](.gitignore) |
@@ -31,6 +34,7 @@ AI 코딩 에이전트(Claude Code, Codex 등)가 이 레포에서 작업할 때
 - 패키지는 `uv add`로만 추가하고 `pip install`은 쓰지 않습니다. `pyproject.toml`과 `uv.lock`은 함께 커밋하고 `uv.lock`은 직접 고치지 않습니다. → [README.md](README.md) Dependencies
 - `git commit --no-verify`로 hook을 우회하지 않습니다. hook이 실패하면 출력된 해결 명령을 따릅니다.
 - `data/raw/`의 원본 데이터는 수정하지 않습니다. → [README.md](README.md) Project Structure
+- `data/datasets/`의 목록 CSV는 2차 val을 고정합니다. 손으로 고치거나 `make_dataset_lists.py`를 `--check` 없이 실행해 바꾸지 않습니다. → [EXPERIMENTS.md](EXPERIMENTS.md#하지-말-것)
 - 대회에서 금지한 AI Hub 데이터셋은 코드, 노트북, 다운로드 스크립트 어디에도 쓰지 않습니다. → [RULE.md](RULE.md#1-데이터-사용-규칙)
 - `.env`는 읽거나 내용을 출력하지 않습니다. 키 값을 코드, 노트북, 로그, 커밋에 넣지 않습니다. 키 이름은 `.env.example`에서 확인합니다.
 - `.gitignore`가 제외하는 파일(데이터, 학습 결과, 가중치, 제출 파일)을 `git add -f`로 올리지 않습니다.

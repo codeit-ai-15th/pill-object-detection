@@ -358,6 +358,9 @@ def load_annotations(ann_dir, aihub=False):
                 "ann_id": 903,                     # annotations[0].id
                 "bbox": [6567, 625, 311, 315],     # annotations[0].bbox. [x, y, w, h] 원본 값 그대로
                 "area": 97965,                     # annotations[0].area. 원본 값 그대로라 w × h와 다를 수 있다
+                "width": 976,                      # images[0].width (aihub=False만)
+                "height": 1280,                    # images[0].height (aihub=False만)
+                "category_name": "종근당글리아티린연질캡슐(콜린알포세레이트) ",  # categories[0].name 그대로. 끝 공백도 남긴다 (aihub=False만)
             }
 
     Raises:
@@ -433,6 +436,9 @@ def load_annotations(ann_dir, aihub=False):
             "ann_id": ann["id"],
             "bbox": ann["bbox"],
             "area": ann["area"],
+            "width": image["width"],
+            "height": image["height"],
+            "category_name": cat["name"],
         }
     return records
 

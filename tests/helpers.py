@@ -5,6 +5,7 @@
 - AIHUB_EXPORT_HASH: 01 노트북(eda/raewoo-external-eda 317cd30) 2-7이 내보낸 JSON 45,819개. 2-8에서 점검을 마친 결과다.
     노트북은 annotation id를 5692부터 매겼다. Kaggle 사본(add 줄 5692~5699)과 겹쳐서, 그 결과의 annotation id만 +8(5700부터) 한 해시다.
 - AIHUB_FIX_ROWS_SHA: AIHUB_EXPORT_HASH를 만든 정제 목록의 aihub 줄. 이 줄이 바뀌면 AI Hub 결과도 바뀌므로 해시 비교를 건너뛴다.
+- SELECT_*: 01 노트북(eda/raewoo-external-eda) 4-5, 5-4~5-6의 이미지 선택 결과. pill_detection.datasets가 같은 수를 내는지 본다.
 """
 
 import csv
@@ -38,6 +39,21 @@ AIHUB_N_COMBOS = 3997
 AIHUB_N_EXCLUDED = 35  # 찾지 못함 20, 같은 장면 6, 같은 알약 구성 9
 AIHUB_START_IMAGE_ID = 1501  # 대회 train·test image id(1~1500) 다음
 AIHUB_START_ANN_ID = 5700  # Kaggle 사본 annotation id(원본 ~5691 + add 8줄 5692~5699) 다음
+
+# 01 노트북의 이미지 선택 결론. 2차 val을 떼기 전의 전체 학습 데이터(Kaggle 232장 + AI Hub 11,974장) 기준이다
+# 4-5 목표 200개로 고른 AI Hub (aihub_targets.csv와 같은 목록), 5-4 모든 알약이 대회 클래스인 AI Hub (장, 조합),
+# 5-5 others 객체 수, 5-6 대회 클래스가 하나라도 든 AI Hub, 대회 클래스 수(train 56 + test 전용 18), 5-6 학습 클래스 수
+AIHUB_TARGETS_CSV = DATA_DIR / "external" / "aihub_targets.csv"
+SELECT_V2_AIHUB = 6998
+SELECT_ONLY_COMPETITION = (2688, 896)
+SELECT_OTHERS = 17289
+SELECT_V3_AIHUB = 9742
+N_COMPETITION = 74
+N_CLASSES = 118
+V3_N_CLASSES = 96
+# 2차 val을 뗀 뒤 방법별 모델 클래스 수 (make_dataset_lists.py 보고표 [4])
+VARIANT_N_CLASSES = {"v1": 118, "v2": 118, "v3": 96, "v4": 75}
+TEST_CROPS_CSV = PROJECT_ROOT / "notebooks" / "eda" / "02_raewoo_test_crops.csv"  # 노트북 02의 test 알약 검수표
 
 # 2-6 이름 표: 원래 이름 → 정제 라벨로 다시 만든 이름
 EXPECTED_RENAMES = {

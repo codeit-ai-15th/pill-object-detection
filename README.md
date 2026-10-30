@@ -24,25 +24,31 @@ pill-object-detection/
 │   ├── external/aihub/        # AI Hub 외부 데이터. 내려받은 그대로 두고 수정하지 않음
 │   │   ├── raw/               # zip을 풀어 둔 원본. raw/와 같은 구조 (train_annotations, train_images)
 │   │   └── sources.csv        # 파일마다 나온 zip 이름
-│   ├── processed/             # 가공 결과. 학습 데이터 사본, YOLO 포맷 변환 결과
+│   ├── processed/             # 가공 결과. 학습 데이터 사본, 2차 실험 방법별 학습 폴더(exp2/)
 │   │   ├── train_annotations/ # Kaggle 정제 사본 (이미지는 data/raw/train_images를 씀)
 │   │   └── ai_hub/            # AI Hub 정제 사본. train_annotations, train_images(원본 PNG의 하드링크)
+│   ├── datasets/              # 2차 실험 목록 CSV(images.csv, classes.csv)와 설명. git으로 관리함
 │   └── label_fix/             # 정제 목록(label_fixes.csv)과 변경 기록 CSV. git으로 관리함
 ├── notebooks/                 # 개인 탐색용 노트북
 │   ├── eda/                   # 개인 EDA 노트북
-│   └── modeling/              # 각자 맡은 모델링 노트북
+│   └── modeling/              # 각자 맡은 모델링 노트북, 2차 실험 Colab 스모크 테스트
 ├── src/pill_detection/        # 공용 코드 패키지 (노트북·스크립트·데모 어디서든 import)
 │   ├── data.py                # 데이터 읽기, 정제 목록대로 학습 데이터 사본 만들기
+│   ├── datasets.py            # 2차 실험 목록 CSV와 방법별 학습 폴더(YOLO, COCO) 만들기
+│   ├── evaluate.py            # 2차 val 채점(mAP@[0.75:0.95])과 Kaggle 제출 CSV 변환
 │   └── utils.py               # 공용 보일러 플레이트 코드.(bbox 변환, 시각화 등) 
 ├── scripts/                   # 터미널에서 실행하는 스크립트 (uv run scripts/<이름>.py)
 │   ├── prepare_train_data.py  # 학습 데이터 준비: AI Hub 받기·풀기, 정제, 변경 기록을 한 번에
 │   ├── download_aihub.py      # AI Hub에서 filekey로 zip 받기 (대회 금지 파일은 받지 않음)
 │   ├── extract_aihub.py       # 받은 AI Hub zip을 풀고 지우기
-│   └── make_fixed_annotations.py  # AI Hub 없이 Kaggle 사본만 다시 만들기
+│   ├── make_fixed_annotations.py  # AI Hub 없이 Kaggle 사본만 다시 만들기
+│   ├── make_dataset_lists.py  # 2차 실험 목록 CSV 만들기. 팀원은 --check로 내 데이터가 같은지만 확인
+│   └── build_dataset.py       # 목록 CSV대로 방법(v1~v4)별 학습 폴더 만들기
 ├── tests/                     # 공용 코드 테스트 (uv run pytest)
 ├── runs/                      # 학습 결과
 ├── submissions/               # 제출 CSV
 ├── hooks/                     # pre-commit hook 스크립트
+├── EXPERIMENTS.md             # 2차 실험 가이드: 학습 폴더, 학습, val 채점, 제출
 └── CONTRIBUTING.md            # git·PR·커밋 협업 규칙
 ```
 
@@ -208,6 +214,20 @@ AI Hub를 받고 풀고, [src/pill_detection/data.py](src/pill_detection/data.py
 - **NOTE**
     1. 같은 수정 목록으로 다시 실행해도 결과는 같습니다. 사본 폴더는 다시 만들어지고, 변경 기록은 이전 기록과 내용이 같으면 새 파일을 만들지 않고 이전 파일 경로를 보여줍니다.
     2. 수정 목록이나 경로에 문제가 있으면 `[오류]` 뒤에 원인과 해결 방법이 나오고 멈춥니다. 메시지에 적힌 대로 고친 뒤 다시 실행하세요.
+
+### 3. build_dataset.py: 방법별 학습 폴더 만들기
+[data/datasets/](data/datasets/README.md)의 목록 CSV대로 2차 실험 방법(v1~v4) 하나의 학습 폴더를 만듭니다. 학습, 채점, 제출 순서는 [EXPERIMENTS.md](EXPERIMENTS.md)에 있습니다.
+
+| 인자 | 하는 일 | 예시 |
+| --- | --- | --- |
+| `--variant` | 방법. v1(전부), v2(클래스별 최소 200), v3(대회 클래스가 든 사진), v4(대회 클래스 밖 → others) | `v2` |
+| `--out` | 만들 폴더. 없거나 비어 있어야 함. 레포 안이면 `data/processed/` 아래 | `data/processed/exp2/v2` |
+| `--format` | (생략 가능) 라벨 형식 `yolo`, `coco`, `both` | 기본값 `both` |
+
+```bash
+uv run scripts/build_dataset.py --variant v2 --out data/processed/exp2/v2
+```
+`<out>/data.yaml`(YOLO), `<out>/coco/`(COCO), `<out>/eval/val_gt.json`(채점 정답)이 생깁니다. 이미지는 원본에 하드링크합니다. 나머지 인자(`--link`, `--data-dir`)는 `--help`를 봅니다.
 
 ## 🧠 Model Architecture 
 > TODO 최종 선정 모델 아키텍처 다이어그램
