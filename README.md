@@ -26,8 +26,11 @@ pill-object-detection/
 ├── notebooks/                 # 개인 탐색용 노트북
 │   ├── eda/                   # 개인 EDA 노트북
 │   └── modeling/              # 각자 맡은 모델링 노트북
+│       ├── 02-cj-faster-rcnn-experiments.ipynb   # Faster·함수 내장
+│       ├── 03-cj-cascade-rcnn-experiments.ipynb  # Cascade·함수 내장
+│       └── 04-cj-two-stage-comparison.ipynb     # 동일 validation 재평가
 ├── src/pill_detection/        # 공용 코드 패키지 (노트북·스크립트·데모 어디서든 import)
-│   └── utils.py               # 공용 보일러 플레이트 코드.(bbox 변환, 시각화 등) 
+│   └── utils.py               # 기존 bbox 변환·시각화
 ├── runs/                      # 학습 결과
 ├── submissions/               # 제출 CSV
 ├── hooks/                     # pre-commit hook 스크립트
@@ -81,6 +84,19 @@ pill-object-detection/
     6. 노트북을 처음 커밋하면 pre-commit hook이 이 저장소에 출력 제거 필터(nbstripout)를 설정합니다. 따로 할 일은 없습니다.
         - 노트북을 `git add`하거나 `git status`를 실행할 때 `external filter` 오류가 나면 `uv sync`를 실행합니다. `.venv`를 지우고 다시 만들지 않은 경우에 납니다.
         - Colab의 "GitHub에 사본 저장"으로 커밋하지 않습니다. 필터를 거치지 않아 출력이 그대로 올라갑니다.
+
+
+## 두 모델 실험과 비교
+
+`notebooks/modeling/02-cj-faster-rcnn-experiments.ipynb`와 `03-cj-cascade-rcnn-experiments.ipynb`는 각 노트북 상단에 데이터·학습·평가·CSV 함수 구현을 포함합니다. 분리했던 `detection_data.py`, `detection_analysis.py`, `faster_experiments.py`는 사용하지 않습니다. 기존 `utils.py`는 다른 작업에서 계속 사용할 수 있도록 보존합니다.
+
+- 공통 흐름: 환경 A → B → 설치 변경 시 현재 VM의 Python 세션만 재시작 → A → B → 셀 1 → 내장 함수 → 셀 2부터 실행합니다. 새 공용 Python 파일의 GitHub 반영·업로드는 필요하지 않습니다. GitHub는 기존 환경 기준 파일과 팀 수정표를 준비하는 데 사용합니다.
+- Faster: 기존 GitHub의 `uv.lock`을 기본 Colab 커널에 적용합니다. 로컬은 `uv sync --locked` 후 해당 `.venv` 커널을 사용합니다.
+- Cascade: 내장 함수를 실행한 뒤 환경 C에서 공식 MMDetection 3.3.0·MMCV 2.1.0·Torch 2.1.0+cu121·Python 3.11 전용 환경을 생성합니다. 기본 Colab 커널을 교체하지 않고 노트북에 정의한 함수를 별도 Python 프로세스에 전달합니다. 전용 환경은 Colab의 `/content`에만 만들며 프로젝트의 `pyproject.toml`·`uv.lock`을 바꾸지 않습니다. 환경 C의 GPU NMS·RoIAlign 검증 뒤 실제 batch 16·640·FP32 스모크를 수행합니다.
+- 실험: 두 모델 각각 COCO 사전학습 기반 FE/PT/FT × 학습률 3개로 seed 0 탐색 9회 후 상위 두 설정에 seed 1·2를 추가합니다. 최대 100 epoch·patience 30·AdamW·FP32·추가 랜덤 증강 없음·고정 train/val을 사용합니다. 실행 스위치는 기본 False입니다.
+- 데이터: 원본·고정 분할·수정표 경로를 노트북에서 지정합니다. `label_fixes.csv`의 `bbox`와 팀 수정표의 `bbox_after`를 지원합니다. 원본 데이터는 수정하지 않습니다.
+- 결과: 모델별 `runs/cj_faster_experiments/`, `runs/cj_cascade_experiments/`에 체크포인트·W&B 기록·mAP·AP·혼동행렬·오류 이미지를 저장합니다. 재개는 실행 폴더를 명시할 때만 수행합니다. 제출 CSV는 `submissions/` 아래 모델별 폴더에 생성하며 Kaggle에 자동 제출하지 않습니다.
+- 비교: 두 학습 노트북의 셀 17-1에서 `EXPORT_COMPARISON=True`로 최종 설정의 seed 0·1·2 validation 자료를 저장한 뒤 `04-cj-two-stage-comparison.ipynb`를 실행합니다. 비교에 필요한 함수도 상단에 내장되어 있습니다. 데이터·라벨·클래스 매핑·고정 조건·예측 파일 해시를 검사하고 동일 기본 커널에서 mAP@[0.75:0.95]를 재계산합니다. 별도 Cascade 환경과 재학습은 필요하지 않습니다. 서로 다른 공식 프레임워크·체크포인트·BN eps의 차이와 GPU 정보를 함께 기록합니다.
 
 ## 🧠 Model Architecture 
 > TODO 최종 선정 모델 아키텍처 다이어그램
