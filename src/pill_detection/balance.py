@@ -41,6 +41,7 @@
 import collections
 import json
 import math
+import random
 import statistics
 from pathlib import Path
 
@@ -81,18 +82,21 @@ def load_train_objects(dataset_dir):
     return objects
 
 
-def repeat_list(objects, threshold=None):
+def repeat_list(objects, threshold=None, seed=0):
     """오버샘플링: 희소 클래스가 든 이미지를 더 반복한 train 목록. (LVIS의 Repeat Factor Sampling)
 
     - 클래스 c의 이미지 비율 f_c = c가 든 이미지 수 ÷ train 이미지 수
     - 클래스 반복 계수 r_c = max(1, √(threshold ÷ f_c)). f_c가 threshold보다 작은 클래스만 1보다 커진다.
-    - 이미지 반복 횟수 = 그 이미지에 든 클래스의 r_c 중 최댓값을 반올림(0.5는 올림)한 값. 모든 이미지가 한 번 이상 들어간다.
-    - LVIS는 epoch마다 확률적으로 반올림한다. 여기서는 목록 파일 하나를 모든 모델이 같이 쓰도록 결정적으로 반올림한다.
+    - 이미지 반복 계수 r = 그 이미지에 든 클래스의 r_c 중 최댓값.
+    - 이미지 반복 횟수 = r의 정수 부분 + (소수 부분의 확률로 1). 예) r = 1.3이면 30% 확률로 2번, 아니면 1번.
+      평균이 r이 되므로 r이 1.5보다 작은 이미지도 반복 효과가 남는다. 모든 이미지가 한 번 이상 들어간다.
+    - LVIS는 epoch마다 새로 뽑는다. 여기서는 목록 파일 하나를 모든 모델이 같이 쓰도록 seed로 한 번만 뽑는다.
 
     Args:
         objects (dict[str, dict]): load_train_objects()의 결과.
         threshold (float | None): 반복을 시작하는 이미지 비율. LVIS는 0.001을 썼다.
             None이면 모델 클래스 f_c의 중앙값이다. 절반의 클래스가 반복 대상이 되도록 정한 기본값이며, 값을 주면 바꿀 수 있다.
+        seed (int): 소수 부분을 뽑는 난수 seed. 입력과 seed가 같으면 목록이 늘 같다.
 
     Returns:
         list[str]: 파일명 목록. 파일명 순서이고, 반복하는 이미지는 연달아 여러 번 나온다.
@@ -102,10 +106,11 @@ def repeat_list(objects, threshold=None):
     if threshold is None:
         threshold = statistics.median(freq.values())
     repeat = {c: max(1.0, math.sqrt(threshold / f)) for c, f in freq.items()}
+    rng = random.Random(seed)
     files = []
     for name in sorted(objects):
         r = max((repeat[c] for c in objects[name]["classes"]), default=1.0)
-        files += [name] * max(1, math.floor(r + 0.5))
+        files += [name] * (math.floor(r) + (rng.random() < r - math.floor(r)))
     return files
 
 
@@ -136,7 +141,7 @@ def undersample_list(objects, target):
 def write_train_list(dataset_dir, name, files):
     """train 목록을 학습 폴더의 sampling/<name>/에 쓴다. (모듈 docstring의 학습 폴더 안에 생기는 것 참고)
 
-    같은 이름으로 다시 부르면 덮어쓴다. 목록은 입력이 같으면 늘 같아서, Colab 세션마다 다시 만들어도 된다.
+    같은 이름으로 다시 부르면 덮어쓴다. 목록은 입력(repeat_list는 seed까지)이 같으면 늘 같아서, Colab 세션마다 다시 만들어도 된다.
 
     Args:
         dataset_dir (str | Path): build_dataset이 만든 학습 폴더.
@@ -178,7 +183,7 @@ def class_weights(dataset_dir, power):
     - 가중치 = (1 ÷ train 객체 수)^power를 평균이 1이 되게 나눈 값. power가 0이면 모두 1이고, 1이면 객체 수에 반비례한다.
     - 객체 수는 원래 train(coco/train.json)에서 센다. 모델 클래스는 train에 객체가 있는 클래스라서 0개인 클래스는 없다.
     - Ultralytics는 학습에 넣은 목록에서 센다. train.txt를 주면 반복한 줄까지 세므로, 같은 cls_pw여도 원래 train으로 학습할 때보다 가중치 차이가 작다.
-      (v3, 0.5 기준: 원래 train 0.48~3.30, rfs 목록 0.50~1.96)
+      (v3, 0.5 기준: 원래 train 0.48~3.30, rfs 목록(seed 0) 0.51~1.91)
 
     Args:
         dataset_dir (str | Path): build_dataset이 만든 학습 폴더.

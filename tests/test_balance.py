@@ -3,6 +3,7 @@
 import collections
 import csv
 import json
+import math
 from types import SimpleNamespace
 
 import pytest
@@ -58,18 +59,28 @@ def test_missing_coco_or_idx_is_refused(tmp_path):
 
 
 def test_repeat_list_repeats_only_rare_images(tmp_path):
-    """기본 threshold(f_c의 중앙값 3/7)에서는 클래스 30(1/7)만 √3 ≈ 1.7 → 2번 들어가고, 나머지는 한 번씩 들어간다."""
+    """기본 threshold(f_c의 중앙값 3/7)에서는 클래스 30(1/7)만 r = √3 ≈ 1.73이라 a5만 1~2번이고, 나머지는 한 번씩 들어간다."""
     objects = bl.load_train_objects(make_dataset(tmp_path))
-    files = bl.repeat_list(objects)
-    assert collections.Counter(files) == {**dict.fromkeys(TOY_IMAGES, 1), "a5.png": 2}
-    assert files == sorted(files)
+    for seed in range(20):
+        files = bl.repeat_list(objects, seed=seed)
+        count = collections.Counter(files)
+        assert count["a5.png"] in (1, 2) and all(count[name] == 1 for name in TOY_IMAGES if name != "a5.png")
+        assert files == sorted(files)
+    assert bl.repeat_list(objects, seed=3) == bl.repeat_list(objects, seed=3)
 
 
-def test_repeat_list_threshold_and_image_max(tmp_path):
-    """threshold 1.0이면 r_30 = √7 → 3, r_20 = √(7/3) ≈ 1.53 → 2, r_10 = √1.4 ≈ 1.18 → 1. 이미지는 든 클래스의 최댓값을 쓴다."""
-    files = bl.repeat_list(bl.load_train_objects(make_dataset(tmp_path)), threshold=1.0)
-    assert collections.Counter(files) == {"k1.png": 2, "a1.png": 1, "a2.png": 1, "a3.png": 2, "a4.png": 2,
-                                          "a5.png": 3, "a6.png": 1}
+def test_repeat_list_rounds_by_probability(tmp_path):
+    """threshold 1.0이면 r_30 = √7 ≈ 2.65, r_20 = √(7/3) ≈ 1.53, r_10 = √1.4 ≈ 1.18이고, 이미지는 든 클래스의 최댓값을 쓴다.
+    반복 횟수는 r의 정수 부분이거나 그보다 1 많고, seed를 바꿔 가며 평균하면 r에 가깝다."""
+    objects = bl.load_train_objects(make_dataset(tmp_path))
+    r20, r10 = math.sqrt(7 / 3), math.sqrt(1.4)
+    expected = {"k1.png": r20, "a1.png": r10, "a2.png": r10, "a3.png": r20, "a4.png": r20, "a5.png": math.sqrt(7),
+                "a6.png": r10}
+    counts = [collections.Counter(bl.repeat_list(objects, threshold=1.0, seed=seed)) for seed in range(2000)]
+    for name, r in expected.items():
+        seen = [count[name] for count in counts]
+        assert set(seen) == {math.floor(r), math.floor(r) + 1}
+        assert abs(sum(seen) / len(seen) - r) < 0.05
 
 
 def test_undersample_keeps_kaggle_and_rare_classes(tmp_path):
@@ -81,7 +92,7 @@ def test_undersample_keeps_kaggle_and_rare_classes(tmp_path):
 def test_write_train_list(tmp_path):
     """train.txt는 절대경로를 반복 횟수만큼 적고, data.yaml은 train만 바꾼다. 개수는 반복한 줄까지 센다."""
     ds = make_dataset(tmp_path)
-    info = bl.write_train_list(ds, "rfs", bl.repeat_list(bl.load_train_objects(ds)))
+    info = bl.write_train_list(ds, "rfs", sorted([*TOY_IMAGES, "a5.png"]))
     out = ds / "sampling" / "rfs"
     lines = (out / "train.txt").read_text(encoding="utf-8").splitlines()
     assert lines.count(str(ds.resolve() / "images" / "train" / "a5.png")) == 2 and len(lines) == 8
