@@ -31,7 +31,7 @@ pill-object-detection/
 │   └── label_fix/             # 정제 목록(label_fixes.csv)과 변경 기록 CSV. git으로 관리함
 ├── notebooks/                 # 개인 탐색용 노트북
 │   ├── eda/                   # 개인 EDA 노트북
-│   └── modeling/              # 각자 맡은 모델링 노트북, 2차 실험 Colab 스모크 테스트
+│   └── modeling/              # 각자 맡은 모델링 노트북. 실험별 폴더(exp2/, exp3/)로 나눔
 ├── src/pill_detection/        # 공용 코드 패키지 (노트북·스크립트·데모 어디서든 import)
 │   ├── data.py                # 데이터 읽기, 정제 목록대로 학습 데이터 사본 만들기
 │   ├── balance.py             # 3차 실험 클래스 불균형 대응: 오버/언더샘플링 목록, 클래스별 손실 가중치, 불균형 지표

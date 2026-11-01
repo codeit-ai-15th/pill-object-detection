@@ -261,7 +261,7 @@ model.train(
 <details>
 <summary>Faster R-CNN(torchvision)일 때</summary>
 
-학습 코드는 [notebooks/modeling/exp2_colab_smoke_test.ipynb](notebooks/modeling/exp2_colab_smoke_test.ipynb)의 Torchvision 구역(준비, 스모크 테스트 셀)을 바탕으로 짭니다. Colab에서 학습, 채점, 제출까지 돌려 확인한 코드입니다. 아래는 꼭 지킬 것입니다.
+학습 코드는 [notebooks/modeling/exp2/exp2_colab_smoke_test.ipynb](notebooks/modeling/exp2/exp2_colab_smoke_test.ipynb)의 Torchvision 구역(준비, 스모크 테스트 셀)을 바탕으로 짭니다. Colab에서 학습, 채점, 제출까지 돌려 확인한 코드입니다. 아래는 꼭 지킬 것입니다.
 - **label**: COCO 파일의 category id(K-코드)를 그대로 쓰지 않고 categories의 `idx + 1`을 씁니다. (0은 배경) 예측 label은 `category_of`로 K-코드로 되돌립니다.
 - **bbox 형식**: COCO 파일의 bbox는 xywh이고 torchvision은 xyxy를 받습니다. 학습 때 `torchvision.ops.box_convert(boxes, 'xywh', 'xyxy')`로 바꾸고, 예측은 `xyxy_to_xywh`로 되돌려 채점합니다. 형식을 섞어도 에러 없이 점수만 떨어집니다.
 - **예측 점수 하한**: 모델을 만들 때 `box_score_thresh=0.001`을 줍니다. 기본값(0.05)으로 두면 YOLO 채점(`conf=0.001`)과 조건이 달라집니다.
@@ -315,7 +315,7 @@ with wandb.init(entity="codeit-prj1-team2", project="pill-object-detection", id=
 <details>
 <summary>Faster R-CNN일 때</summary>
 
-[노트북](notebooks/modeling/exp2_colab_smoke_test.ipynb) Torchvision 구역의 val 채점 셀을 씁니다.
+[노트북](notebooks/modeling/exp2/exp2_colab_smoke_test.ipynb) Torchvision 구역의 val 채점 셀을 씁니다.
 - `predict()`가 예측을 채점 형식(file_name, K-코드, xywh, score)으로 바꿉니다.
 - `save_scores()`(공용 셀)가 위 셀과 같은 일을 합니다. `scores.json`과 `dataset_info.json`을 저장하고, W&B Summary에 점수 3개를 붙입니다.
 - val 예측은 `val_predictions.json`으로 run 폴더에 남깁니다. `eval/val_gt.json`과 함께 confusion matrix를 그릴 때 씁니다.
@@ -376,7 +376,7 @@ n = write_submission(predictions_from_ultralytics(results), "submissions/exp2_v2
 print(n, "줄")
 ```
 - 대회 클래스 74개 밖의 예측(`others` 포함)은 CSV에서 자동으로 빠집니다. 만든 CSV를 Kaggle에 올립니다.
-- Faster R-CNN은 [노트북](notebooks/modeling/exp2_colab_smoke_test.ipynb) Torchvision 구역의 Kaggle 제출 셀을 씁니다. test 폴더에는 COCO 파일이 없어서 `TestImages`로 PNG를 직접 읽습니다. 점수 0.01 미만 예측은 위 `conf=0.01`처럼 뺍니다.
+- Faster R-CNN은 [노트북](notebooks/modeling/exp2/exp2_colab_smoke_test.ipynb) Torchvision 구역의 Kaggle 제출 셀을 씁니다. test 폴더에는 COCO 파일이 없어서 `TestImages`로 PNG를 직접 읽습니다. 점수 0.01 미만 예측은 위 `conf=0.01`처럼 뺍니다.
 
 **After**
 ```diff
@@ -396,7 +396,7 @@ Colab은 세션이 끝나면 `/content`가 모두 지워집니다. 그래서 2~4
 
 학습 과정과 정보 기록은 confusion matrix를 그릴 수 있는 정보들을 필수적으로 포함해야 합니다.
 
-[notebooks/modeling/exp2_colab_smoke_test.ipynb](notebooks/modeling/exp2_colab_smoke_test.ipynb)에 이 절의 2~8단계가 셀로 들어 있습니다. Ultralytics와 Torchvision(Faster R-CNN) 모두 있습니다. 본 학습 전에 노트북 맨 위 **각자 바꿀 값** 셀(`ZIP_DIR`, `SAVE_DIR`, `VARIANT`)을 채우고, 스모크 테스트로 W&B 기록과 Drive 저장이 되는지 먼저 확인합니다.
+[notebooks/modeling/exp2/exp2_colab_smoke_test.ipynb](notebooks/modeling/exp2/exp2_colab_smoke_test.ipynb)에 이 절의 2~8단계가 셀로 들어 있습니다. Ultralytics와 Torchvision(Faster R-CNN) 모두 있습니다. 본 학습 전에 노트북 맨 위 **각자 바꿀 값** 셀(`ZIP_DIR`, `SAVE_DIR`, `VARIANT`)을 채우고, 스모크 테스트로 W&B 기록과 Drive 저장이 되는지 먼저 확인합니다.
 
 | 언제 | 단계 |
 | --- | --- |
@@ -573,7 +573,7 @@ model.train(
 <details>
 <summary>Faster R-CNN(torchvision)일 때</summary>
 
-[노트북](notebooks/modeling/exp2_colab_smoke_test.ipynb)의 공용 구역과 Torchvision 구역을 씁니다. 위의 준비 셀과 학습 셀(Ultralytics)은 실행하지 않습니다. 꼭 지킬 것은 [로컬 5단계](#5-학습-실험마다)의 Faster R-CNN 안내와 같습니다.
+[노트북](notebooks/modeling/exp2/exp2_colab_smoke_test.ipynb)의 공용 구역과 Torchvision 구역을 씁니다. 위의 준비 셀과 학습 셀(Ultralytics)은 실행하지 않습니다. 꼭 지킬 것은 [로컬 5단계](#5-학습-실험마다)의 Faster R-CNN 안내와 같습니다.
 - `SAVE_DIR` 검사는 노트북 공용 셀(경로 확인과 기록 함수)에 있습니다.
 - Colab의 `DS`는 문자열이라 로컬 안내의 `DS.name`을 그대로 쓰면 `AttributeError`가 납니다. 노트북처럼 방법 이름(`VARIANT`)이나 `Path(DS).name`을 씁니다.
 - 체크포인트는 `RUN` 아래에 직접 저장하므로 Drive에 바로 남습니다.
@@ -628,7 +628,7 @@ with wandb.init(entity='codeit-prj1-team2', project='pill-object-detection', id=
 ```
 - 새 세션이면 2~4단계와 5단계 준비 셀을 먼저 실행합니다.
 - 점수 3개의 뜻과 W&B Summary에 붙는 이름은 [로컬 6단계](#6-val-채점-실험마다)와 같습니다.
-- Faster R-CNN은 [노트북](notebooks/modeling/exp2_colab_smoke_test.ipynb) Torchvision 구역의 val 채점 셀을 씁니다.
+- Faster R-CNN은 [노트북](notebooks/modeling/exp2/exp2_colab_smoke_test.ipynb) Torchvision 구역의 val 채점 셀을 씁니다.
 
 **After**
 ```text
