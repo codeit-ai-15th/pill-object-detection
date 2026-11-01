@@ -34,6 +34,7 @@ pill-object-detection/
 │   └── modeling/              # 각자 맡은 모델링 노트북, 2차 실험 Colab 스모크 테스트
 ├── src/pill_detection/        # 공용 코드 패키지 (노트북·스크립트·데모 어디서든 import)
 │   ├── data.py                # 데이터 읽기, 정제 목록대로 학습 데이터 사본 만들기
+│   ├── balance.py             # 3차 실험 클래스 불균형 대응: 오버/언더샘플링 목록, 클래스별 손실 가중치, 불균형 지표
 │   ├── datasets.py            # 2차 실험 목록 CSV와 방법별 학습 폴더(YOLO, COCO) 만들기
 │   ├── evaluate.py            # 2차 val 채점(mAP@[0.75:0.95])과 Kaggle 제출 CSV 변환
 │   └── utils.py               # 공용 보일러 플레이트 코드.(bbox 변환, 시각화 등) 
