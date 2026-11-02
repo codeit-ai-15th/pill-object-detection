@@ -45,6 +45,16 @@ pill-object-detection/
 │   ├── make_fixed_annotations.py  # AI Hub 없이 Kaggle 사본만 다시 만들기
 │   ├── make_dataset_lists.py  # 2차 실험 목록 CSV 만들기. 팀원은 --check로 내 데이터가 같은지만 확인
 │   └── build_dataset.py       # 목록 CSV대로 방법(v1~v4)별 학습 폴더 만들기
+├── demo/                      # 데모 웹페이지(Gradio). 실행·배포 방법은 아래 데모 절
+│   ├── app.py                 # 진입점: uv run demo/app.py
+│   ├── predict.py             # 환경 변수로 고른 가중치 로드(YOLO·RT-DETR·Faster R-CNN), 공통 예측 형식
+│   ├── drug_info.py           # 클래스 표·허가정보 캐시 읽기, 약학정보원 검색 URL
+│   ├── draw.py                # 한글 글꼴로 bbox·라벨 그리기
+│   ├── build_drug_info.py     # 허가정보 캐시(drug_info.json) 만들기. 식약처 공공 API를 한 번 호출
+│   ├── deploy_space.py        # HF Space에 코드·캐시·가중치 올리기
+│   ├── drug_info.json         # 118개 클래스의 효능효과·용법용량·주의사항 캐시. git으로 관리함
+│   ├── space/                 # HF Space용 README(설정 YAML), requirements.txt, packages.txt
+│   └── fonts/                 # 나눔고딕 Bold(OFL)
 ├── tests/                     # 공용 코드 테스트 (uv run pytest)
 ├── runs/                      # 학습 결과
 ├── submissions/               # 제출 CSV
@@ -229,6 +239,35 @@ AI Hub를 받고 풀고, [src/pill_detection/data.py](src/pill_detection/data.py
 uv run scripts/build_dataset.py --variant v2 --out data/processed/exp2/v2
 ```
 `<out>/data.yaml`(YOLO), `<out>/coco/`(COCO), `<out>/eval/val_gt.json`(채점 정답)이 생깁니다. 이미지는 원본에 하드링크합니다. 나머지 인자(`--link`, `--data-dir`)는 `--help`를 봅니다.
+
+## 💊 데모
+알약 사진 한 장을 올리면 알약마다 bbox·제품명·confidence를 그려 주고, 약학정보원 검색 바로가기와 식약처 허가정보(효능효과·용법용량·주의사항)를 보여 주는 Gradio 웹페이지입니다. 백엔드·DB 없이 돌아가고, 허가정보는 미리 받아 둔 `demo/drug_info.json`만 읽습니다.
+
+> 온라인 데모: [Hugging Face Space](https://huggingface.co/spaces/relukang/pill-object-detection) (ZeroGPU라 첫 요청은 모델 로드로 몇 초 걸립니다)
+
+1. **가중치 두기**: 학습한 `.pt`를 `runs/models/`에 둡니다(파일 이름은 실험을 알 수 있게 그대로. 여러 개 있어도 됩니다). `.env`에 데모에서 쓸 파일을 계열마다 하나씩 적습니다. 비운 계열은 화면에 나오지 않습니다.
+    ```bash
+    PILL_DEMO_YOLO=runs/models/exp2_v3_yolo26s_e10_s0_best.pt
+    PILL_DEMO_RTDETR=runs/models/exp2_v3_rtdetr-l_e10_s0_best.pt
+    PILL_DEMO_FRCNN=runs/models/exp2_v3_frcnn_e10_s0_best.pt
+    ```
+2. **실행**
+    ```bash
+    uv run demo/app.py
+    ```
+    브라우저에서 http://127.0.0.1:7860 을 엽니다. 화면 위에서 YOLO / RT-DETR / Faster R-CNN을 바꿔 가며 같은 사진의 결과를 볼 수 있습니다. 다른 버전의 가중치로 바꾸려면 `.env`의 경로를 고치고 다시 켭니다.
+3. **허가정보 캐시 다시 만들기**(클래스가 바뀌었을 때만): [공공데이터포털 의약품 제품 허가정보](https://www.data.go.kr/data/15095677/openapi.do)를 활용신청하고 일반 인증키(Decoding)를 `.env`의 `DATA_GO_API_KEY`에 넣은 뒤 실행합니다. 이미 받은 클래스는 건너뛰고, 전부 다시 받으려면 `--force`를 붙입니다.
+    ```bash
+    uv run demo/build_drug_info.py
+    ```
+4. **HF Space에 올리기**: write 권한 토큰을 `.env`의 `HF_TOKEN`에 넣고 실행합니다. Space는 Gradio SDK + ZeroGPU 하드웨어입니다(무료 플랜에서는 Streamlit·Docker SDK와 CPU basic을 쓸 수 없음). ZeroGPU가 torch 2.13 이하만 허용해서 Space용 `demo/space/requirements.txt`의 torch·torchvision만 로컬 lock과 버전이 다릅니다. 코드·캐시·글꼴과 `.env`가 가리키는 가중치를 Space 레포에 올리고, Space 변수 `PILL_DEMO_*`를 그 파일로 맞춥니다. 이전에 가리키던 가중치는 지워 계열당 하나만 남깁니다.
+    ```bash
+    uv run demo/deploy_space.py --repo <계정>/<Space 이름>
+    ```
+
+- 약학정보원은 세부 페이지 주소를 우리 데이터로 알 수 없어 제품명 검색 링크만 제공합니다.
+- 허가정보 캐시는 118개 클래스 중 111개가 채워져 있습니다. 나머지 7개(뉴로메드정, 타이레놀이알서방정(수출용), 리렉스펜정, 가바토파정, 마도파정, 바이오탑디캡슐, 바이오탑하이캡슐)는 허가 취소·수출용 등으로 식약처 허가정보 API에 없어 카드에 그 안내와 검색 링크만 나옵니다.
+- 사용 가능한 가중치 형식과 클래스 번호 규칙은 [demo/predict.py](demo/predict.py) 모듈 docstring에 있습니다.
 
 ## 🧠 Model Architecture 
 > TODO 최종 선정 모델 아키텍처 다이어그램

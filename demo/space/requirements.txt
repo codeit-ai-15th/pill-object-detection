@@ -1,0 +1,11 @@
+# HF Space(Gradio SDK, ZeroGPU)용. 로컬은 uv sync를 쓰므로 이 파일을 쓰지 않는다.
+# ZeroGPU는 torch 2.13.0 이하만 허용해서(2026-11 기준) 로컬 lock(2.14.1)과 torch·torchvision 버전이 다르다. 나머지는 uv.lock과 같다.
+torch==2.13.0
+torchvision==0.28.0
+spaces
+ultralytics==8.4.183
+gradio==6.31.0
+pillow==12.3.0
+numpy==2.5.4
+pyyaml==6.0.3
+python-dotenv==1.2.4
