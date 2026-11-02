@@ -145,28 +145,37 @@ def test_class_weights_count_the_training_list(tmp_path):
         bl.class_weights(ds, 0.5, ["x.png"])
 
 
-def test_fastrcnn_class_weights():
-    """가중치가 모두 1이면 원래 손실과 같고, 아니면 배경 1.0을 앞에 붙인 weighted CE다. box 손실은 그대로다. None이면 원래대로 돌린다."""
+def test_fastrcnn_class_weights(tmp_path):
+    """class_weights 앞에 배경 가중치를 붙인 weighted CE다. box 손실은 그대로다. power 0이면 원래대로 돌린다.
+    배경은 객체 수 [5, 3, 1]로 가중한 클래스 가중치 평균이라, 알약 RoI가 객체 수 비율대로 있으면 알약 전체와 배경의 비중이
+    가중치가 없을 때와 같다."""
     torch = pytest.importorskip("torch")
     roi_heads = pytest.importorskip("torchvision.models.detection.roi_heads")
     import torch.nn.functional as F
 
+    ds = make_dataset(tmp_path)
     original = roi_heads.fastrcnn_loss
     torch.manual_seed(0)
     logits, box_regression = torch.randn(6, 4), torch.randn(6, 16)
     labels, targets = [torch.tensor([0, 1, 2]), torch.tensor([3, 0, 1])], [torch.randn(3, 4), torch.randn(3, 4)]
     cls_loss, box_loss = original(logits, box_regression, labels, targets)
+    weights = bl.class_weights(ds, 0.5)
+    background = (5 * weights[0] + 3 * weights[1] + 1 * weights[2]) / 9
+    roi_labels = [1] * 5 + [2] * 3 + [3] + [0] * 27   # 알약 RoI 9개(객체 수 비율), 배경 27개
+    roi_weights = [([background, *weights])[label] for label in roi_labels]
+    assert sum(roi_weights[:9]) / sum(roi_weights) == pytest.approx(9 / 36)
     try:
-        bl.use_fastrcnn_class_weights([1.0, 1.0, 1.0])
-        assert torch.allclose(roi_heads.fastrcnn_loss(logits, box_regression, labels, targets)[0], cls_loss)
-        bl.use_fastrcnn_class_weights([2.0, 1.0, 0.5])  # 다시 불러도 원래 함수를 감싼다
+        bl.use_fastrcnn_class_weights(ds, 0.5)
+        bl.use_fastrcnn_class_weights(ds, 0.5)  # 다시 불러도 원래 함수를 감싼다
         weighted, weighted_box = roi_heads.fastrcnn_loss(logits, box_regression, labels, targets)
-        expected = F.cross_entropy(logits, torch.cat(labels), weight=torch.tensor([1.0, 2.0, 1.0, 0.5]))
+        expected = F.cross_entropy(logits, torch.cat(labels), weight=torch.tensor([background, *weights]))
         assert torch.allclose(weighted, expected) and torch.allclose(weighted_box, box_loss)
+        assert not torch.allclose(weighted, cls_loss)
         assert roi_heads.fastrcnn_loss.original is original
+        assert torch.allclose(roi_heads.fastrcnn_loss.weight, torch.tensor([background, *weights]))
         with pytest.raises(ValueError, match="클래스 수"):
             roi_heads.fastrcnn_loss(torch.randn(6, 5), torch.randn(6, 20), labels, targets)
-        bl.use_fastrcnn_class_weights(None)
+        bl.use_fastrcnn_class_weights(ds, 0)
         assert roi_heads.fastrcnn_loss is original
     finally:
         roi_heads.fastrcnn_loss = original

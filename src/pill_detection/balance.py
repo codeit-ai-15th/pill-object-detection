@@ -5,6 +5,7 @@
 - 언더샘플링 (undersample_list): 객체가 많은 클래스의 이미지를 덜 넣는다. 2차 v2를 고른 규칙(datasets.plan_uniform)과 같다.
 - 클래스별 손실 가중치 (class_weights): 객체 수가 적은 클래스의 분류 손실을 키운다. Ultralytics의 cls_pw와 같은 식이다.
   샘플링과 같이 쓰면 샘플링 후의 객체 수로 센다. 원래 분포로 세면 같은 불균형을 두 번 보정한다.
+  Faster R-CNN은 분류에 배경 클래스가 있어서 배경 가중치를 따로 맞춘다. (use_fastrcnn_class_weights 참고)
 
 불균형 지표 (class_ap_rows, imbalance_summary)
 - 클래스별 AP(evaluate.evaluate_val의 per_class)에 classes.csv의 train 객체 수를 붙이고, train 객체가 적은 절반과 많은 절반의 평균 AP를 비교한다.
@@ -15,6 +16,9 @@
 비교 기준: 총 학습량 맞춤
 - 샘플링하면 train 목록 길이가 원래 장수 N과 달라진다. epoch 수를 round(E × N ÷ 목록 길이)로 정해서 총 step 수를 2차 기준 run과 같게 한다.
   E는 기준 run의 epoch 수다. epoch 수를 그대로 두면 오버샘플링은 더 오래, 언더샘플링은 덜 학습해서 균형 효과와 학습량 효과가 섞인다.
+- epoch 단위로 정하는 설정도 같은 비율(N ÷ 목록 길이)로 바꾼다. Ultralytics의 close_mosaic(마지막 몇 epoch에 mosaic를 끔)과 warmup_epochs,
+  2차 Faster R-CNN 02 노트북의 warmup_epochs다. 그대로 두면 1 epoch 길이가 바뀐 만큼 mosaic 없이 학습하는 step과 warmup step이 기준 run과 달라진다.
+  (v3 under150: 4,616장이라 39 epoch. close_mosaic 10을 그대로 두면 mosaic 없이 학습하는 step이 기준 run의 절반이다)
 - write_train_list가 돌려주는 n_base(N)와 n_list(목록 길이)로 계산한다.
 
 학습 폴더 안에 생기는 것 (write_train_list)
@@ -28,7 +32,7 @@
     - RT-DETR는 cls_pw를 넘기면 "Class weights" 로그만 찍히고 손실(RTDETRDetectionLoss)에는 반영되지 않는다. 그래서 넘기지 않는다.
     - train.txt를 쓸 때 fraction을 주지 않는다. Ultralytics는 목록을 파일명 순서로 정렬해 앞부분만 남기므로 일부 알약 조합만 학습한다.
 - Faster R-CNN (torchvision): train.txt 각 줄의 파일 이름(Path(line).name)을 Dataset의 이미지 목록으로 쓴다. 중복된 줄도 그대로 둔다.
-    - 손실 가중치는 학습 전에 use_fastrcnn_class_weights(class_weights(DS, 0.5, files))를 한 번 부른다.
+    - 손실 가중치는 학습 전에 use_fastrcnn_class_weights(DS, 0.5, files)를 한 번 부른다.
       files는 학습에 쓰는 샘플링 목록이다. 샘플링하지 않으면 빼서 원래 train으로 센다. (class_weights 참고)
     - 2차 노트북을 복사해 쓸 때는 code_identity가 해시하는 공용 파일 목록에 balance.py를 넣는다. 그래야 이 파일이 바뀐 run을 이어서 학습하지 않는다.
 
@@ -36,8 +40,9 @@
     >>> from pill_detection.balance import load_train_objects, repeat_list, write_train_list
     >>> DS = "/content/exp2/v3"
     >>> info = write_train_list(DS, "rfs", repeat_list(load_train_objects(DS)))
-    >>> epochs = round(20 * info["n_base"] / info["n_list"])   # 기준 run이 20 epoch일 때
-    >>> YOLO("yolo26s.pt").train(data=f"{DS}/sampling/rfs/data.yaml", epochs=epochs, ...)
+    >>> scale = info["n_base"] / info["n_list"]   # 기준 run의 1 epoch ÷ 목록의 1 epoch
+    >>> YOLO("yolo26s.pt").train(data=f"{DS}/sampling/rfs/data.yaml", epochs=round(20 * scale),   # 기준 run이 20 epoch,
+    ...                          close_mosaic=round(10 * scale), warmup_epochs=3 * scale, ...)     # 나머지는 기본값일 때
 """
 
 import collections
@@ -207,6 +212,13 @@ def class_weights(dataset_dir, power, files=None):
     """
     if not 0 <= power <= 1:
         raise ValueError(f"power는 0~1이어야 합니다: {power}\n[해결] Ultralytics의 cls_pw와 같은 범위로 주세요.")
+    weights = [(1 / n) ** power for n in _class_counts(dataset_dir, files)]
+    mean = sum(weights) / len(weights)
+    return [w / mean for w in weights]
+
+
+def _class_counts(dataset_dir, files):
+    """학습에 쓰는 이미지의 객체 수. 모델 클래스 번호(idx) 순서이고, 반복한 줄까지 센다. (class_weights 참고)"""
     coco = _read_train_coco(dataset_dir)
     objects = _train_objects(coco)
     if files is None:
@@ -218,9 +230,7 @@ def class_weights(dataset_dir, power, files=None):
     if empty:
         raise ValueError(f"학습에 쓰는 이미지에 객체가 없는 모델 클래스가 있습니다: {empty[:5]}\n"
                          "[해결] build_dataset으로 만든 학습 폴더와 repeat_list()·undersample_list()의 목록을 고치지 말고 그대로 쓰세요.")
-    weights = [(1 / count[c["id"]]) ** power for c in categories]
-    mean = sum(weights) / len(weights)
-    return [w / mean for w in weights]
+    return [count[c["id"]] for c in categories]
 
 
 def class_ap_rows(per_class, classes_csv, variant):
@@ -272,35 +282,46 @@ def imbalance_summary(per_class, classes_csv, variant):
     return {"rare_ap": rare, "frequent_ap": frequent, "gap": frequent - rare, "n_classes": len(rows)}
 
 
-def use_fastrcnn_class_weights(weights):
+def use_fastrcnn_class_weights(dataset_dir, power, files=None):
     """torchvision Faster R-CNN의 RoI 분류 손실에 클래스 가중치를 건다. 학습 전에 한 번 부른다.
 
     - torchvision.models.detection.roi_heads.fastrcnn_loss를 바꿔 끼운다. 같은 커널의 모든 Faster R-CNN에 적용되므로,
-      가중치 없이 학습하거나 예측만 할 때는 None을 넣어 원래대로 돌린다.
-    - 분류 손실만 F.cross_entropy(weight=[1.0, *weights])로 바뀐다. 0번은 배경이라 1.0이다.
+      가중치 없이 학습하거나 예측만 할 때는 power 0으로 불러 원래대로 돌린다.
+    - 분류 손실만 F.cross_entropy(weight=[배경, *class_weights(dataset_dir, power, files)])로 바뀐다.
       box 손실과 RPN 손실(클래스를 구분하지 않음)은 그대로다.
     - PyTorch는 가중치를 곱한 손실을 가중치 합으로 나눠 평균을 낸다. 그래서 가중치는 RoI끼리의 상대적인 비중만 바꾼다.
+    - 배경(0번) 가중치는 클래스 가중치를 객체 수로 가중한 평균이다. 알약 RoI 수는 객체 수에 비례한다고 본다.
+      배경을 1.0으로 두면 객체가 많은 클래스의 가중치가 1보다 작아서 알약 RoI 전체가 배경보다 약해진다. (v3, 0.5 기준 0.887배)
+      이 평균으로 맞추면 알약 RoI 전체와 배경의 비중은 가중치가 없을 때와 같고, 클래스끼리의 비중만 바뀐다.
+      Ultralytics는 배경 클래스 없이 클래스마다 있다/없다를 따로 계산하므로 cls_pw가 이 비중을 바꾸지 않는다.
+    - 바꿔 끼운 함수에는 원래 함수(.original)와 건 가중치(.weight, [배경, 모델 클래스 번호 순서...])가 붙어 있다. 조건 적용 확인에 쓴다.
 
     Args:
-        weights (list[float] | None): class_weights()의 결과(모델 클래스 번호 순서). None이면 원래 손실로 돌린다.
+        dataset_dir (str | Path): 모델을 만든 학습 폴더.
+        power (float): class_weights()의 power. 0이면 원래 손실로 돌린다. (Ultralytics의 cls_pw=0과 같다)
+        files (list[str] | None): 학습에 쓰는 repeat_list()나 undersample_list()의 결과. None이면 원래 train. (class_weights 참고)
     """
     import torch
     import torch.nn.functional as F
     from torchvision.models.detection import roi_heads
 
     original = getattr(roi_heads.fastrcnn_loss, "original", roi_heads.fastrcnn_loss)
-    if weights is None:
+    if power == 0:
         roi_heads.fastrcnn_loss = original
         return
-    weight = torch.tensor([1.0, *weights])
+    weights = class_weights(dataset_dir, power, files)
+    counts = _class_counts(dataset_dir, files)
+    background = sum(w * n for w, n in zip(weights, counts)) / sum(counts)
+    weight = torch.tensor([background, *weights])
 
     def weighted_fastrcnn_loss(class_logits, box_regression, labels, regression_targets):
         if class_logits.shape[1] != len(weight):
             raise ValueError(f"가중치 수({len(weight) - 1})와 모델 클래스 수({class_logits.shape[1] - 1})가 다릅니다.\n"
-                             "[해결] 모델을 만든 학습 폴더로 class_weights를 다시 계산하세요.")
+                             "[해결] use_fastrcnn_class_weights에 모델을 만든 학습 폴더를 주세요.")
         _, box_loss = original(class_logits, box_regression, labels, regression_targets)
         loss = F.cross_entropy(class_logits, torch.cat(labels, dim=0), weight=weight.to(class_logits.device))
         return loss, box_loss
 
     weighted_fastrcnn_loss.original = original
+    weighted_fastrcnn_loss.weight = weight
     roi_heads.fastrcnn_loss = weighted_fastrcnn_loss
