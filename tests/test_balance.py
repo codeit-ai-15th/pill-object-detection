@@ -131,6 +131,20 @@ def test_class_weights_match_ultralytics(tmp_path):
     assert weights == pytest.approx((ultralytics / ultralytics.mean()).tolist())
 
 
+def test_class_weights_count_the_training_list(tmp_path):
+    """files를 주면 목록의 반복한 줄까지 센다(샘플링 후 분포). a5를 두 번 넣으면 객체 수가 [5, 3, 2]다.
+    목록에 없는 클래스가 생기거나, 학습 폴더에 없는 이미지가 든 목록은 거부한다."""
+    ds = make_dataset(tmp_path)
+    expected = [(1 / n) ** 0.5 for n in (5, 3, 2)]
+    weights = bl.class_weights(ds, 0.5, sorted([*TOY_IMAGES, "a5.png"]))
+    assert weights == pytest.approx([w / (sum(expected) / 3) for w in expected])
+    assert bl.class_weights(ds, 0.5, list(TOY_IMAGES)) == pytest.approx(bl.class_weights(ds, 0.5))
+    with pytest.raises(ValueError, match="객체가 없는"):
+        bl.class_weights(ds, 0.5, ["a1.png"])
+    with pytest.raises(ValueError, match="train에 없습니다"):
+        bl.class_weights(ds, 0.5, ["x.png"])
+
+
 def test_fastrcnn_class_weights():
     """가중치가 모두 1이면 원래 손실과 같고, 아니면 배경 1.0을 앞에 붙인 weighted CE다. box 손실은 그대로다. None이면 원래대로 돌린다."""
     torch = pytest.importorskip("torch")

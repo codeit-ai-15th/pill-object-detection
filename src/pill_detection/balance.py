@@ -4,6 +4,7 @@
 - 오버샘플링 (repeat_list): 모든 train 이미지를 한 번씩 넣고, 희소 클래스가 든 이미지를 더 반복한다. LVIS의 Repeat Factor Sampling이다.
 - 언더샘플링 (undersample_list): 객체가 많은 클래스의 이미지를 덜 넣는다. 2차 v2를 고른 규칙(datasets.plan_uniform)과 같다.
 - 클래스별 손실 가중치 (class_weights): 객체 수가 적은 클래스의 분류 손실을 키운다. Ultralytics의 cls_pw와 같은 식이다.
+  샘플링과 같이 쓰면 샘플링 후의 객체 수로 센다. 원래 분포로 세면 같은 불균형을 두 번 보정한다.
 
 불균형 지표 (class_ap_rows, imbalance_summary)
 - 클래스별 AP(evaluate.evaluate_val의 per_class)에 classes.csv의 train 객체 수를 붙이고, train 객체가 적은 절반과 많은 절반의 평균 AP를 비교한다.
@@ -27,7 +28,8 @@
     - RT-DETR는 cls_pw를 넘기면 "Class weights" 로그만 찍히고 손실(RTDETRDetectionLoss)에는 반영되지 않는다. 그래서 넘기지 않는다.
     - train.txt를 쓸 때 fraction을 주지 않는다. Ultralytics는 목록을 파일명 순서로 정렬해 앞부분만 남기므로 일부 알약 조합만 학습한다.
 - Faster R-CNN (torchvision): train.txt 각 줄의 파일 이름(Path(line).name)을 Dataset의 이미지 목록으로 쓴다. 중복된 줄도 그대로 둔다.
-    - 손실 가중치는 학습 전에 use_fastrcnn_class_weights(class_weights(DS, 0.5))를 한 번 부른다.
+    - 손실 가중치는 학습 전에 use_fastrcnn_class_weights(class_weights(DS, 0.5, files))를 한 번 부른다.
+      files는 학습에 쓰는 샘플링 목록이다. 샘플링하지 않으면 빼서 원래 train으로 센다. (class_weights 참고)
     - 2차 노트북을 복사해 쓸 때는 code_identity가 해시하는 공용 파일 목록에 balance.py를 넣는다. 그래야 이 파일이 바뀐 run을 이어서 학습하지 않는다.
 
 사용 예
@@ -74,12 +76,24 @@ def load_train_objects(dataset_dir):
         dict[str, dict]: 파일명 → {"source": "kaggle" 또는 "aihub", "classes": [category_id, ...]}.
             classes는 객체 순서 그대로이고 중복을 포함한다. others는 datasets.OTHERS_CATEGORY_ID다.
     """
-    coco = _read_train_coco(dataset_dir)
+    return _train_objects(_read_train_coco(dataset_dir))
+
+
+def _train_objects(coco):
+    """coco/train.json 내용으로 load_train_objects()의 결과를 만든다."""
     name_of = {image["id"]: image["file_name"] for image in coco["images"]}
     objects = {image["file_name"]: {"source": image["source"], "classes": []} for image in coco["images"]}
     for ann in coco["annotations"]:
         objects[name_of[ann["image_id"]]]["classes"].append(ann["category_id"])
     return objects
+
+
+def _check_listed(dataset_dir, objects, files):
+    """목록의 이미지가 모두 이 학습 폴더의 train에 있는지 확인한다."""
+    unknown = sorted(set(files) - set(objects))
+    if unknown:
+        raise ValueError(f"목록의 이미지 {len(unknown):,}장이 {dataset_dir}의 train에 없습니다. 예: {unknown[0]}\n"
+                         "[해결] 목록을 만들 때 쓴 학습 폴더(같은 방법)를 주세요.")
 
 
 def repeat_list(objects, threshold=None, seed=0):
@@ -158,10 +172,7 @@ def write_train_list(dataset_dir, name, files):
     """
     dataset_dir = Path(dataset_dir).resolve()
     objects = load_train_objects(dataset_dir)
-    unknown = sorted(set(files) - set(objects))
-    if unknown:
-        raise ValueError(f"목록의 이미지 {len(unknown):,}장이 {dataset_dir}의 train에 없습니다. 예: {unknown[0]}\n"
-                         "[해결] 목록을 만들 때 쓴 학습 폴더(같은 방법)를 주세요.")
+    _check_listed(dataset_dir, objects, files)
     out = dataset_dir / "sampling" / name
     out.mkdir(parents=True, exist_ok=True)
     image_dir = dataset_dir / "images" / "train"
@@ -177,17 +188,19 @@ def write_train_list(dataset_dir, name, files):
             "class_counts": {"base": dict(sorted(base.items())), "list": dict(sorted(listed.items()))}}
 
 
-def class_weights(dataset_dir, power):
+def class_weights(dataset_dir, power, files=None):
     """클래스별 손실 가중치. Ultralytics cls_pw와 같은 식이다. (ultralytics/models/yolo/detect/train.py의 compute_class_weights)
 
-    - 가중치 = (1 ÷ train 객체 수)^power를 평균이 1이 되게 나눈 값. power가 0이면 모두 1이고, 1이면 객체 수에 반비례한다.
-    - 객체 수는 원래 train(coco/train.json)에서 센다. 모델 클래스는 train에 객체가 있는 클래스라서 0개인 클래스는 없다.
-    - Ultralytics는 학습에 넣은 목록에서 센다. train.txt를 주면 반복한 줄까지 세므로, 같은 cls_pw여도 원래 train으로 학습할 때보다 가중치 차이가 작다.
+    - 가중치 = (1 ÷ 객체 수)^power를 평균이 1이 되게 나눈 값. power가 0이면 모두 1이고, 1이면 객체 수에 반비례한다.
+    - 객체 수는 학습에 쓰는 이미지에서 센다. files(샘플링 목록)를 주면 반복한 줄까지 세고(샘플링 후 분포), 주지 않으면 원래 train 전체다.
+    - 샘플링과 같이 쓸 때는 그 목록을 준다. 원래 train으로 세면 샘플링이 이미 줄인 불균형을 가중치가 한 번 더 보정해서,
+      power가 같아도 보정 세기가 샘플링 방법마다 달라진다. Ultralytics도 학습에 넣은 목록(train.txt)에서 센다.
       (v3, 0.5 기준: 원래 train 0.48~3.30, rfs 목록(seed 0) 0.51~1.91)
 
     Args:
         dataset_dir (str | Path): build_dataset이 만든 학습 폴더.
         power (float): 0~1. Ultralytics의 cls_pw 값과 같은 뜻이다.
+        files (list[str] | None): 학습에 쓰는 repeat_list()나 undersample_list()의 결과. None이면 원래 train.
 
     Returns:
         list[float]: 모델 클래스 번호(categories의 idx) 순서의 가중치.
@@ -195,12 +208,16 @@ def class_weights(dataset_dir, power):
     if not 0 <= power <= 1:
         raise ValueError(f"power는 0~1이어야 합니다: {power}\n[해결] Ultralytics의 cls_pw와 같은 범위로 주세요.")
     coco = _read_train_coco(dataset_dir)
-    count = collections.Counter(ann["category_id"] for ann in coco["annotations"])
+    objects = _train_objects(coco)
+    if files is None:
+        files = list(objects)
+    _check_listed(dataset_dir, objects, files)
+    count = collections.Counter(c for f in files for c in objects[f]["classes"])
     categories = sorted(coco["categories"], key=lambda c: c["idx"])
     empty = [c["id"] for c in categories if count[c["id"]] == 0]
     if empty:
-        raise ValueError(f"train에 객체가 없는 모델 클래스가 있습니다: {empty[:5]}\n"
-                         "[해결] build_dataset으로 만든 학습 폴더를 고치지 말고 그대로 쓰세요.")
+        raise ValueError(f"학습에 쓰는 이미지에 객체가 없는 모델 클래스가 있습니다: {empty[:5]}\n"
+                         "[해결] build_dataset으로 만든 학습 폴더와 repeat_list()·undersample_list()의 목록을 고치지 말고 그대로 쓰세요.")
     weights = [(1 / count[c["id"]]) ** power for c in categories]
     mean = sum(weights) / len(weights)
     return [w / mean for w in weights]
