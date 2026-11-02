@@ -23,7 +23,7 @@ AI 코딩 에이전트(Claude Code, Codex 등)가 이 레포에서 작업할 때
 | 2차 실험 진행: 학습 폴더, 학습(Colab 포함), val 채점, 제출 | [EXPERIMENTS.md](EXPERIMENTS.md), Colab 코드는 [notebooks/modeling/exp2/exp2_colab_smoke_test.ipynb](notebooks/modeling/exp2/exp2_colab_smoke_test.ipynb) |
 | 2차 실험 목록 CSV의 열, 방법 v1~v4, 학습 폴더 구성 | [data/datasets/README.md](data/datasets/README.md), [src/pill_detection/datasets.py](src/pill_detection/datasets.py) 모듈 docstring |
 | val 채점 규칙(점수 3개, 무시하는 예측)과 제출 CSV 변환 | [src/pill_detection/evaluate.py](src/pill_detection/evaluate.py) 모듈 docstring |
-| 3차 실험 클래스 불균형 대응: 샘플링 목록, 클래스 가중치, 모델별 연결, 비교 기준, 불균형 지표 | [src/pill_detection/balance.py](src/pill_detection/balance.py) 모듈 docstring, 모델 선정은 [notebooks/modeling/exp3/exp3_model_selection.ipynb](notebooks/modeling/exp3/exp3_model_selection.ipynb) |
+| 3차 실험 클래스 불균형 대응: 샘플링 목록, 클래스 가중치, 모델별 연결, 비교 기준, 불균형 지표 | [src/pill_detection/balance.py](src/pill_detection/balance.py) 모듈 docstring, 모델 선정은 [notebooks/modeling/exp3/exp3_model_selection.ipynb](notebooks/modeling/exp3/exp3_model_selection.ipynb), Colab 코드는 [exp3_ultralytics_smoke_test.ipynb](notebooks/modeling/exp3/exp3_ultralytics_smoke_test.ipynb)와 [exp3_frcnn_smoke_test.ipynb](notebooks/modeling/exp3/exp3_frcnn_smoke_test.ipynb) |
 | 테스트: 기준값과 노트북 결론 | [tests/helpers.py](tests/helpers.py) 모듈 docstring |
 | 환경 변수 이름 | [.env.example](.env.example) |
 | git에서 제외하는 파일 | [.gitignore](.gitignore) |
