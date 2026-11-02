@@ -3,6 +3,8 @@ name = "pill-object-detection"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "gradio>=6.31.0",
+    "huggingface-hub>=2.4.0",
     "kagglehub>=1.0.2",
     "matplotlib>=3.11.2",
     "numpy>=2.5.4",
@@ -10,7 +12,6 @@ dependencies = [
     "pycocotools>=2.0.11",
     "python-dotenv>=1.2.4",
     "pyyaml>=6.0.3",
-    "streamlit>=1.66.0",
     "torch>=2.14.1",
     "torchmetrics[image]>=1.9.0",
     "torchvision>=0.29.1",
