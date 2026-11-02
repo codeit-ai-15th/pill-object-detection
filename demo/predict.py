@@ -33,7 +33,7 @@ from drug_info import ROOT, load_classes, normalize_name
 from pill_detection.datasets import OTHERS_CATEGORY_ID, OTHERS_NAME
 from pill_detection.utils import xyxy_to_xywh
 
-FAMILIES = {"yolo": "YOLO", "rtdetr": "RT-DETR", "frcnn": "Faster R-CNN"}  # 표시 순서
+FAMILIES = {"yolo": "YOLOv26", "rtdetr": "RT-DETR", "frcnn": "Faster-RCNN"}  # 화면에 보이는 이름, 표시 순서
 ENV_VARS = {"yolo": "PILL_DEMO_YOLO", "rtdetr": "PILL_DEMO_RTDETR", "frcnn": "PILL_DEMO_FRCNN"}
 VARIANT_BY_N_CLASSES = {118: "v1", 96: "v3", 75: "v4"}  # v1과 v2는 클래스 수와 순서가 같다
 RAW_CONF = 0.05  # 모델에서 받아 두는 최저 점수. 화면의 기준값은 이 위에서 거른다

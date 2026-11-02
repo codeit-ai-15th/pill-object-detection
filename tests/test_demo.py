@@ -179,7 +179,11 @@ def test_card_html():
                                                      "entp_name": "보령", "storage": "실온"}})
     out = app.card_html(card, dets)
     assert "보령부스파정 5mg ×2" in out and "0.93" in out and "&lt;효능&gt;" in out and "target='_blank'" in out
-    assert "<details open><summary>효능효과" in out and "사용상 주의사항" not in out and "실온" in out
+    assert "<details class='sec' open><summary>효능효과" in out and "사용상 주의사항" not in out and "실온" in out
+    caution = app.card_html(drug_info.describe(1900, CLASSES, {1900: {"efficacy": [], "usage": [], "caution": ["■ 1. 금기", "■", "본문"]}}),
+                            dets[:1])
+    assert "<details class='sec caution'><summary>사용상 주의사항" in caution  # 주의사항은 접힌 채 경고색 박스
+    assert "<p class='sub'>1. 금기</p><p>본문</p>" in caution  # ■ 줄은 기호 없이 소제목, 기호만 있는 줄은 버림
     others = app.card_html(drug_info.describe(OTHERS_CATEGORY_ID, CLASSES, {}), dets[:1])
     assert "미등록 알약" in others and "약학정보원" not in others
     missing = app.card_html(drug_info.describe(1900, CLASSES, {1900: {"efficacy": [], "usage": [], "caution": [], "missing": True}}), dets[:1])

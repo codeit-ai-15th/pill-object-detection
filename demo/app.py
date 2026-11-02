@@ -9,7 +9,7 @@
 - 허가정보 캐시 demo/drug_info.json은 git에 있다. 없으면 demo/build_drug_info.py로 만든다(DATA_GO_API_KEY 필요).
 
 화면
-- 위: 모델 선택(환경 변수로 정해진 계열별 하나. 파일 이름을 같이 보여 준다), confidence 기준값 슬라이더.
+- 위: 모델 선택(환경 변수로 정해진 계열별 하나. 계열 이름만 보여 주고 파일 이름은 숨긴다), confidence 기준값 슬라이더.
 - 왼쪽: 사진 업로드와 결과 이미지. 오른쪽: 검출된 알약 종류마다 카드(이름, confidence, 약학정보원 검색, 효능효과·용법용량·주의사항).
 - 모델이나 기준값을 바꾸면 올린 사진으로 바로 다시 그린다. 모델은 한 번만 불러오고, 같은 사진·모델의 예측은 다시 돌리지 않는다.
 
@@ -57,16 +57,50 @@ if spaces is not None:
     infer = spaces.GPU(infer)
 
 DEFAULT_CONF = 0.5
-TITLE = "💊 알약 검출 데모"
+TITLE = "💊 Pill Detection"
 CSS = """
-.pill-card { border: 1px solid var(--border-color-primary); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
-.pill-card h4 { margin: 0 0 4px 0; font-size: 1.1em; }
-.pill-card .meta { color: var(--body-text-color-subdued); font-size: 0.9em; margin-bottom: 6px; }
-.pill-card a.search { display: inline-block; padding: 4px 10px; border: 1px solid var(--border-color-primary);
-                      border-radius: 6px; text-decoration: none; font-size: 0.9em; margin-bottom: 6px; }
-.pill-card details { margin-top: 6px; } .pill-card summary { cursor: pointer; font-weight: 600; }
-.pill-card details p { margin: 4px 0; font-size: 0.92em; line-height: 1.45; }
+/* 의약품 정보 카드. NHS 의약품 페이지처럼 항목마다 박스를 나누고 주의사항만 경고색으로 구분한다.
+   한글 본문은 16px·행간 1.75, 줄바꿈은 단어 단위(keep-all) */
+.pill-card { --pill-caution: #b45309; --pill-caution-text: #92400e; --pill-caution-band: #fef3c7; --pill-caution-tint: #fffbeb;
+             border: 1px solid var(--border-color-primary); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;
+             font-size: 1rem; line-height: 1.7; color: var(--body-text-color); word-break: keep-all; overflow-wrap: anywhere; }
+.dark .pill-card { --pill-caution: #d97706; --pill-caution-text: #fbbf24; --pill-caution-band: rgba(217, 119, 6, 0.18);
+                   --pill-caution-tint: rgba(217, 119, 6, 0.06); }
+.pill-card h4 { margin: 0 0 0.375rem 0; font-size: 1.25rem; font-weight: 700; line-height: 1.35; }
+.pill-card .meta { color: var(--body-text-color-subdued); font-size: 0.9375rem; line-height: 1.6; margin-bottom: 0.75rem; }
+.pill-card .meta b { color: var(--body-text-color); }
+.pill-card a.search { display: inline-block; padding: 0.375rem 0.75rem; border: 1px solid var(--border-color-primary);
+                      border-radius: 8px; text-decoration: none; font-size: 0.9375rem; }
+.pill-card details.sec { margin-top: 0.75rem; border: 1px solid var(--border-color-primary); border-radius: 8px; overflow: hidden;
+                         background: var(--background-fill-primary); }
+.pill-card details.sec > summary { cursor: pointer; padding: 0.625rem 0.875rem; font-size: 1rem; font-weight: 700;
+                                   background: var(--background-fill-secondary); }
+.pill-card details.sec[open] > summary { border-bottom: 1px solid var(--border-color-primary); }
+.pill-card details.sec > summary:focus-visible { outline: 2px solid var(--color-accent); outline-offset: -2px; }
+.pill-card .sec-body { padding: 0.75rem 0.875rem 0.25rem; }
+.pill-card .sec-body p { margin: 0 0 0.625rem 0; font-size: 1rem; line-height: 1.75; }
+.pill-card .sec-body p.sub { margin: 1.125rem 0 0.375rem 0; font-weight: 700; }
+.pill-card .sec-body p.sub:first-child { margin-top: 0; }
+.pill-card details.caution { border-color: var(--pill-caution); background: var(--pill-caution-tint); }
+.pill-card details.caution > summary { background: var(--pill-caution-band); color: var(--pill-caution-text); }
+.pill-card details.caution[open] > summary { border-bottom-color: var(--pill-caution); }
+.pill-card .storage { margin: 0.75rem 0 0 0; color: var(--body-text-color-subdued); font-size: 0.9375rem; }
 """
+
+
+def paragraph_html(line):
+    """허가정보 문단 한 줄의 HTML. ■로 시작하는 줄은 항목 안의 소제목이라 기호를 빼고 굵게 보여 준다.
+
+    Args:
+        line (str): 효능효과·용법용량·주의사항 문단 한 줄.
+
+    Returns:
+        str: <p> 하나. 기호만 있는 줄은 빈 문자열.
+    """
+    if line.startswith("■"):
+        text = line[1:].strip()
+        return f"<p class='sub'>{html.escape(text)}</p>" if text else ""
+    return f"<p>{html.escape(line)}</p>"
 
 
 def card_html(card, dets):
@@ -94,13 +128,14 @@ def card_html(card, dets):
                 else "허가정보 캐시에 없음 (<code>uv run demo/build_drug_info.py</code>로 만듭니다)")
         parts.append(f"<div class='meta'>{note}</div></div>")
         return "".join(parts)
-    for title, lines, open_ in (("효능효과", card["efficacy"], True), ("용법용량", card["usage"], True),
-                                ("사용상 주의사항", card["caution"], False)):
+    for title, lines, open_, kind in (("효능효과", card["efficacy"], True, "sec"), ("용법용량", card["usage"], True, "sec"),
+                                      ("사용상 주의사항", card["caution"], False, "sec caution")):
         if lines:
-            body = "".join(f"<p>{esc(line)}</p>" for line in lines)
-            parts.append(f"<details{' open' if open_ else ''}><summary>{title}</summary>{body}</details>")
+            body = "".join(paragraph_html(line) for line in lines)
+            parts.append(f"<details class='{kind}'{' open' if open_ else ''}><summary>{title}</summary>"
+                         f"<div class='sec-body'>{body}</div></details>")
     if card["storage"]:
-        parts.append(f"<div class='meta'>저장방법: {esc(card['storage'])}</div>")
+        parts.append(f"<p class='storage'>저장방법: {esc(card['storage'])}</p>")
     parts.append("</div>")
     return "".join(parts)
 
@@ -127,7 +162,7 @@ class Demo:
 
     @staticmethod
     def label_for(slot):
-        return f"{slot.label} · {slot.path.name}"
+        return slot.label
 
     def notes(self):
         """쓸 수 없는 계열의 안내 문구(마크다운)."""
@@ -176,7 +211,7 @@ class Demo:
         if not shown:
             cards = "<div class='pill-card'>검출된 알약이 없습니다. confidence 기준값을 낮춰 보세요.</div>"
         variant = f" · {detector.variant}" if detector.variant else ""
-        status = (f"**검출된 알약 {len(shown)}개** · {slot.label} `{slot.path.name}` · 클래스 {detector.n_classes}개{variant} · "
+        status = (f"**검출된 알약 {len(shown)}개** · {slot.label} · 클래스 {detector.n_classes}개{variant} · "
                   f"추론 {elapsed:.2f}초")
         return annotated, cards, status
 
@@ -186,30 +221,27 @@ def build():
     try:
         slots = predict.configured_weights()
     except predict.DemoError as e:
-        with gr.Blocks(title="알약 검출 데모") as app:
+        with gr.Blocks(title="Pill Detection") as app:
             gr.Markdown(f"# {TITLE}\n\n⚠️ {html.escape(str(e))}".replace("\n[해결]", "\n\n[해결]"))
         return app
     demo = Demo(slots, drug_info.load_classes(), drug_info.load_drug_info())
-    n_info = sum(1 for v in demo.info.values() if not v.get("missing"))
-    with gr.Blocks(title="알약 검출 데모") as app:
-        gr.Markdown(f"# {TITLE}\n알약 사진 한 장을 올리면 알약마다 박스·제품명·confidence를 그리고, 약학정보원 검색 링크와 "
-                    f"식약처 허가정보를 보여 줍니다. 허가정보 캐시 {n_info}/{len(demo.classes) - 1}개.")
+    with gr.Blocks(title="Pill Detection") as app:
+        gr.Markdown(f"# {TITLE}")
         if not demo.usable:
             gr.Markdown("⚠️ 쓸 수 있는 모델이 없습니다. 아래 안내를 보고 .env를 고친 뒤 다시 켜세요.\n" + demo.notes())
             return app
         labels = list(demo.by_label)
         with gr.Row():
-            model = gr.Radio(choices=labels, value=labels[0], label="모델", info="환경 변수(PILL_DEMO_*)가 정한 가중치. 바꾸면 바로 다시 예측합니다",
-                             scale=3)
+            model = gr.Radio(choices=labels, value=labels[0], label="모델", scale=3)
             conf = gr.Slider(0.0, 1.0, value=DEFAULT_CONF, step=0.05, label="confidence 기준값", info="이 값보다 낮은 예측은 숨깁니다", scale=2)
         if demo.notes():
             gr.Markdown(demo.notes())
         with gr.Row():
-            with gr.Column(scale=3):
+            with gr.Column(scale=1):
                 image_in = gr.Image(type="pil", sources=["upload"], label="알약 사진 한 장을 올리세요", height=260)
                 status = gr.Markdown("사진을 올리면 알약마다 박스, 제품명, confidence가 표시됩니다.")
                 image_out = gr.Image(type="pil", label="검출 결과", interactive=False)
-            with gr.Column(scale=2):
+            with gr.Column(scale=1):  # 카드 본문이 16px라 한 줄 글자 수를 확보하려고 사진 쪽과 같은 폭
                 cards = gr.HTML(label="검출된 알약")
         for component in (image_in, model, conf):
             component.change(demo.run, inputs=[image_in, model, conf], outputs=[image_out, cards, status])
