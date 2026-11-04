@@ -14,7 +14,7 @@ val을 정할 때 한 번 실행하고 결과를 커밋한다. 커밋한 뒤에�
 입력
 - 정제한 학습 데이터 (uv run scripts/prepare_train_data.py, 또는 Drive zip을 레포 최상위에 푼 것)
 - 1차 split.csv: Kaggle 232장의 1차 train/val (file_name, split 열). 없으면 이미 쓴 images.csv의 exp1_split 열을 읽는다.
-- test 알약 검수표: notebooks/eda/02_raewoo_test_crops.csv (노트북 02). 대회 클래스와 클래스별 test 객체 수를 센다.
+- test 알약 검수표: notebooks/eda/02_test_crops.csv (노트북 02). 대회 클래스와 클래스별 test 객체 수를 센다.
 
 출력 (pill_detection.datasets 모듈 docstring 참고. 열과 줄 설명: data/datasets/README.md)
 - data/datasets/images.csv: 이미지 1장 = 1줄. split(2차 train/val), exp1_split, v1~v4, 객체 수
@@ -31,7 +31,7 @@ from pill_detection import datasets as ds
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUT = PROJECT_ROOT / "data" / "datasets"
-DEFAULT_TEST_CROPS = PROJECT_ROOT / "notebooks" / "eda" / "02_raewoo_test_crops.csv"
+DEFAULT_TEST_CROPS = PROJECT_ROOT / "notebooks" / "eda" / "02_test_crops.csv"
 
 
 def print_table(header, rows):
@@ -119,7 +119,7 @@ def main(argv=None):
                              "[해결] Drive의 1차 split.csv를 받아 --exp1-split <경로>로 주세요.")
         if not args.test_crops.is_file():
             raise FileNotFoundError(f"test 알약 검수표가 없습니다: {args.test_crops}\n"
-                                    "[해결] notebooks/eda/02_raewoo_test_class_freq.ipynb를 실행해 검수표를 만드세요.")
+                                    "[해결] notebooks/eda/02_test_class_freq_eda.ipynb를 실행해 검수표를 만드세요.")
         test_counts = ds.read_test_counts(args.test_crops)
         result = ds.make_lists(images, names, exp1_split, test_counts)
     except (FileNotFoundError, ValueError) as error:

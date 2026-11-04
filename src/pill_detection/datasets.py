@@ -199,7 +199,7 @@ def read_test_counts(csv_path):
     """노트북 02의 test 알약 검수표에서 클래스별 test 객체 수를 센다.
 
     Args:
-        csv_path (str | Path): notebooks/eda/02_raewoo_test_crops.csv. final_category_id 열을 읽는다.
+        csv_path (str | Path): notebooks/eda/02_test_crops.csv. final_category_id 열을 읽는다.
             빈칸(학습 데이터 어디에도 없는 알약)은 세지 않는다.
 
     Returns:

@@ -54,7 +54,7 @@ N_CLASSES = 118
 V3_N_CLASSES = 96
 # 2차 val을 뗀 뒤 방법별 모델 클래스 수 (make_dataset_lists.py 보고표 [4])
 VARIANT_N_CLASSES = {"v1": 118, "v2": 118, "v3": 96, "v4": 75}
-TEST_CROPS_CSV = PROJECT_ROOT / "notebooks" / "eda" / "02_raewoo_test_crops.csv"  # 노트북 02의 test 알약 검수표
+TEST_CROPS_CSV = PROJECT_ROOT / "notebooks" / "eda" / "02_test_crops.csv"  # 노트북 02의 test 알약 검수표
 
 # 2-6 이름 표: 원래 이름 → 정제 라벨로 다시 만든 이름
 EXPECTED_RENAMES = {
