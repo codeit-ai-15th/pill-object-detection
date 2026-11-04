@@ -30,7 +30,7 @@ annotation 폴더 구조
       이미지는 복사하지 않고 원본(data/raw/train_images)에서 읽는다.
     - AI Hub: data/external/aihub/raw → data/processed/ai_hub/train_annotations, train_images.
       정제한 JSON을 Kaggle 형식으로 새로 쓴다. 파일명을 정제 라벨에 맞게 고치므로, 이미지는 새 이름의 하드링크로 둔다. (다른 디스크면 복사)
-- 정제 목록은 어떻게 고칠지만 적은 CSV 하나다. 지금 위치: data/label_fix/label_fixes.csv (01 AI Hub EDA 노트북 2-4가 aihub 줄을 만든다)
+- 정제 목록은 어떻게 고칠지만 적은 CSV 하나다. 지금 위치: data/label_fix/label_fixes.csv (aihub 줄은 notebooks/eda/label_fix/01_aihub_label_fix.ipynb 2-4가 만든다)
     - source: kaggle 또는 aihub. 어느 원본의 줄인지 나타낸다.
     - file_name: 원본 이미지 파일명.
     - category_id: 원본 클래스. K-코드 숫자다. (K-003351 → 3351)

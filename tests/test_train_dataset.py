@@ -1,7 +1,7 @@
 """학습 데이터 만들기(make_train_dataset)가 01 노트북의 결론을 그대로 지키는지 본다.
 
 - test_run_*: 래퍼를 한 번 실행한 결과. Kaggle 사본, 원본을 건드리지 않았는지, 변경 기록 v2, 다시 실행
-- test_aihub_*: AI Hub 결과 폴더. 노트북 2-5(정제 라벨), 2-6(이름 표), 2-7(내보낸 결과), 2-8(다시 점검)의 결론
+- test_aihub_*: AI Hub 결과 폴더. 정제 노트북(notebooks/eda/label_fix/01_aihub_label_fix.ipynb) 2-5(정제 라벨), 2-6(이름 표), 2-7(내보낸 결과), 2-8(다시 점검)의 결론
     - PILL_TEST_AIHUB_EXPORT로 이미 만든 폴더를 줄 수 있다. (conftest.py 참고)
 - 같은 장면 검사(2-8 표 C의 RMS)는 이미지 통계가 필요해서 넣지 않았다. 노트북 2-8에서 본다.
 """

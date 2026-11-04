@@ -142,7 +142,7 @@ pill-object-detection/
     ```bash
     uv run pytest
     ```
-    - 기존 Kaggle 라벨 수정 결과와 EDA 노트북의 정제 결론(이미지 수, 형식, 라벨 누락·좌표 오류 없음, 이름 변경)이 그대로 반영되는 지 확인합니다.
+    - 기존 Kaggle 라벨 수정 결과와 AI Hub 정제 노트북(`notebooks/eda/label_fix/01_aihub_label_fix.ipynb`)의 결론(이미지 수, 형식, 라벨 누락·좌표 오류 없음, 이름 변경)이 그대로 반영되는 지 확인합니다.
     - 실제 데이터가 없는 테스트는 이유를 적고 건너뜁니다. 전체 실행은 약 3분 걸립니다.
 
 ## 🛠️ Scripts
