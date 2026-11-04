@@ -3,6 +3,7 @@
 기준값은 코드를 고치기 전의 결과에서 잡았다. 기준값이 바뀌면 그 이유가 의도한 변경인지 먼저 확인한다.
 - KAGGLE_FIXED_HASH: main(e9100f9)의 make_fixed_annotations가 옛 label_fixes.csv(21줄)로 만든 사본 JSON 771개
 - AIHUB_EXPORT_HASH: 01 노트북(eda/raewoo-external-eda 317cd30) 2-7이 내보낸 JSON 45,819개. 2-8에서 점검을 마친 결과다.
+    (2-x 절은 지금 notebooks/eda/label_fix/01_aihub_label_fix.ipynb에 있다. EDA 노트북 01_aihub_eda.ipynb는 같은 정제 목록을 2-3에서 적용한다)
     노트북은 annotation id를 5692부터 매겼다. Kaggle 사본(add 줄 5692~5699)과 겹쳐서, 그 결과의 annotation id만 +8(5700부터) 한 해시다.
 - AIHUB_FIX_ROWS_SHA: AIHUB_EXPORT_HASH를 만든 정제 목록의 aihub 줄. 이 줄이 바뀌면 AI Hub 결과도 바뀌므로 해시 비교를 건너뛴다.
 - SELECT_*: 01 노트북(eda/raewoo-external-eda) 4-5, 5-4~5-6의 이미지 선택 결과. pill_detection.datasets가 같은 수를 내는지 본다.
@@ -53,7 +54,7 @@ N_CLASSES = 118
 V3_N_CLASSES = 96
 # 2차 val을 뗀 뒤 방법별 모델 클래스 수 (make_dataset_lists.py 보고표 [4])
 VARIANT_N_CLASSES = {"v1": 118, "v2": 118, "v3": 96, "v4": 75}
-TEST_CROPS_CSV = PROJECT_ROOT / "notebooks" / "eda" / "02_raewoo_test_crops.csv"  # 노트북 02의 test 알약 검수표
+TEST_CROPS_CSV = PROJECT_ROOT / "notebooks" / "eda" / "02_test_crops.csv"  # 노트북 02의 test 알약 검수표
 
 # 2-6 이름 표: 원래 이름 → 정제 라벨로 다시 만든 이름
 EXPECTED_RENAMES = {
