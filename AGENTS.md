@@ -19,6 +19,7 @@ AI 코딩 에이전트(Claude Code, Codex 등)가 이 레포에서 작업할 때
 | PR 본문 양식 | [.github/pull_request_template.md](.github/pull_request_template.md) |
 | bbox 형식 세 가지와 변환 함수 | [src/pill_detection/utils.py](src/pill_detection/utils.py) 모듈 docstring |
 | 학습 데이터 준비: AI Hub 받기, 정제 목록 CSV 형식, 실행 방법 | [README.md](README.md) 학습 데이터 준비, [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring |
+| AI Hub 데이터를 왜 어떻게 쓰기로 했나(EDA), 정제 목록 aihub 줄을 만든 과정 | [notebooks/eda/01_aihub_eda.ipynb](notebooks/eda/01_aihub_eda.ipynb) 7절 결정 표, 정제 과정은 [notebooks/eda/label_fix/01_aihub_label_fix.ipynb](notebooks/eda/label_fix/01_aihub_label_fix.ipynb) |
 | Kaggle 사본만 다시 만들기(AI Hub 없이) | [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring, [README.md](README.md) Scripts |
 | 2차 실험 진행: 학습 폴더, 학습(Colab 포함), val 채점, 제출 | [EXPERIMENTS.md](EXPERIMENTS.md), Colab 코드는 [notebooks/modeling/exp2/exp2_colab_smoke_test.ipynb](notebooks/modeling/exp2/exp2_colab_smoke_test.ipynb) |
 | 2차 실험 목록 CSV의 열, 방법 v1~v4, 학습 폴더 구성 | [data/datasets/README.md](data/datasets/README.md), [src/pill_detection/datasets.py](src/pill_detection/datasets.py) 모듈 docstring |
