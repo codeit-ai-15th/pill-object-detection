@@ -1,0 +1,7 @@
+run,방법,모델,val,kaggle,test_only,commit,학습 설정,best.pt 위치
+v2_rtdetr-l_e5,v2,rtdetr-l,0.98,0.9839,0.9783,4fdae56,"optimizer=AdamW, lr0=0.000167, momentum=0.9, warmup_bias_lr=0.0, epochs=5, warmup_epochs=0.15, close_mosaic=1, imgsz=640, batch=16, seed=0",pill data/jw_runs/v2_rtdetr-l_e5/weights/best.pt
+v3_rtdetr-l_e5,v3,rtdetr-l,0.9785,0.981,0.9722,4fdae56,"optimizer=AdamW, lr0=0.000167, momentum=0.9, warmup_bias_lr=0.0, epochs=5, warmup_epochs=0.15, close_mosaic=1, imgsz=640, batch=16, seed=0",pill data/jw_runs/v3_rtdetr-l_e5/weights/best.pt
+v4_rtdetr-l_e5,v4,rtdetr-l,0.9858,0.9866,0.9812,4fdae56,"optimizer=AdamW, lr0=0.000167, momentum=0.9, warmup_bias_lr=0.0, epochs=5, warmup_epochs=0.15, close_mosaic=1, imgsz=640, batch=16, seed=0",pill data/jw_runs/v4_rtdetr-l_e5/weights/best.pt
+v2_rtdetr-l_e10,v2,rtdetr-l,0.9809,0.9844,0.9783,4fdae56,"optimizer=AdamW, lr0=0.000167, momentum=0.9, warmup_bias_lr=0.0, epochs=10, warmup_epochs=0.3, close_mosaic=1, imgsz=640, batch=16, seed=0",pill data/jw_runs/v2_rtdetr-l_e10/weights/best.pt
+v3_rtdetr-l_e10,v3,rtdetr-l,0.9882,0.9971,0.9861,4fdae56,"optimizer=AdamW, lr0=0.000167, momentum=0.9, warmup_bias_lr=0.0, epochs=10, warmup_epochs=0.3, close_mosaic=1, imgsz=640, batch=16, seed=0",pill data/jw_runs/v3_rtdetr-l_e10/weights/best.pt
+v4_rtdetr-l_e10,v4,rtdetr-l,0.9902,0.9908,0.9875,4fdae56,"optimizer=AdamW, lr0=0.000167, momentum=0.9, warmup_bias_lr=0.0, epochs=10, warmup_epochs=0.3, close_mosaic=1, imgsz=640, batch=16, seed=0",pill data/jw_runs/v4_rtdetr-l_e10/weights/best.pt
