@@ -18,7 +18,7 @@
 
 ### 1.1 Loss 곡선 시각화
 
-![Seed별 train loss·validation loss·validation mAP 곡선](Faster-R-CNN_exp1_assets/learning_curves_01.png)
+![Seed별 train loss·validation loss·validation mAP 곡선](frcnn-exp1-assets/learning_curves_01.png)
 
 *그림 1. 왼쪽부터 train loss, validation loss, validation mAP. 가로축은 metrics.csv에 기록된 epoch이며, 점과 점선은 각 seed의 best epoch다.*
 
@@ -64,31 +64,31 @@ Best는 해당 seed의 validation mAP가 가장 높은 checkpoint를 뜻한다. 
 
 #### Seed 0
 
-![Seed 0 전체 혼동행렬](Faster-R-CNN_exp1_assets/03_seed0_full_confusion_score030.png)
+![Seed 0 전체 혼동행렬](frcnn-exp1-assets/03_seed0_full_confusion_score030.png)
 
 *그림 2. Seed 0, best epoch 91. 정답 대각선을 포함한 전체 혼동행렬. score ≥ 0.30, IoU ≥ 0.75.*
 
-![Seed 0 오류 중심 혼동행렬](Faster-R-CNN_exp1_assets/03_seed0_error_confusion_score030.png)
+![Seed 0 오류 중심 혼동행렬](frcnn-exp1-assets/03_seed0_error_confusion_score030.png)
 
 *그림 3. Seed 0. 정답 대각선을 제외한 오류 중심 혼동행렬. 비율의 분모는 해당 클래스 전체 GT 객체 수다.*
 
 #### Seed 1
 
-![Seed 1 전체 혼동행렬](Faster-R-CNN_exp1_assets/03_seed1_full_confusion_score030.png)
+![Seed 1 전체 혼동행렬](frcnn-exp1-assets/03_seed1_full_confusion_score030.png)
 
 *그림 4. Seed 1, best epoch 90. 정답 대각선을 포함한 전체 혼동행렬. score ≥ 0.30, IoU ≥ 0.75.*
 
-![Seed 1 오류 중심 혼동행렬](Faster-R-CNN_exp1_assets/03_seed1_error_confusion_score030.png)
+![Seed 1 오류 중심 혼동행렬](frcnn-exp1-assets/03_seed1_error_confusion_score030.png)
 
 *그림 5. Seed 1. 정답 대각선을 제외한 오류 중심 혼동행렬. 비율의 분모는 해당 클래스 전체 GT 객체 수다.*
 
 #### Seed 2
 
-![Seed 2 전체 혼동행렬](Faster-R-CNN_exp1_assets/03_seed2_full_confusion_score030.png)
+![Seed 2 전체 혼동행렬](frcnn-exp1-assets/03_seed2_full_confusion_score030.png)
 
 *그림 6. Seed 2, best epoch 81. 정답 대각선을 포함한 전체 혼동행렬. score ≥ 0.30, IoU ≥ 0.75.*
 
-![Seed 2 오류 중심 혼동행렬](Faster-R-CNN_exp1_assets/03_seed2_error_confusion_score030.png)
+![Seed 2 오류 중심 혼동행렬](frcnn-exp1-assets/03_seed2_error_confusion_score030.png)
 
 *그림 7. Seed 2. 정답 대각선을 제외한 오류 중심 혼동행렬. 비율의 분모는 해당 클래스 전체 GT 객체 수다.*
 
@@ -128,21 +128,21 @@ Validation GT가 있는 **30개 클래스 전체**를 표시한다. 학습 클�
 
 #### Seed 0
 
-![Seed 0 전체 클래스별 AP와 학습 객체 빈도](Faster-R-CNN_exp1_assets/class_ap_01.png)
+![Seed 0 전체 클래스별 AP와 학습 객체 빈도](frcnn-exp1-assets/class_ap_01.png)
 
 *그림 8. Seed 0, best epoch 91. Validation 47장·30개 GT 클래스의 AP와 Train 객체 수.*
 
 
 #### Seed 1
 
-![Seed 1 전체 클래스별 AP와 학습 객체 빈도](Faster-R-CNN_exp1_assets/class_ap_02.png)
+![Seed 1 전체 클래스별 AP와 학습 객체 빈도](frcnn-exp1-assets/class_ap_02.png)
 
 *그림 9. Seed 1, best epoch 90. Validation 47장·30개 GT 클래스의 AP와 Train 객체 수.*
 
 
 #### Seed 2
 
-![Seed 2 전체 클래스별 AP와 학습 객체 빈도](Faster-R-CNN_exp1_assets/class_ap_03.png)
+![Seed 2 전체 클래스별 AP와 학습 객체 빈도](frcnn-exp1-assets/class_ap_03.png)
 
 *그림 10. Seed 2, best epoch 81. Validation 47장·30개 GT 클래스의 AP와 Train 객체 수.*
 
@@ -620,7 +620,7 @@ score ≥ 0.30의 예측과 GT를 클래스와 무관하게 일대일 연결했�
 | 2 | 0.9 | 159 | 148 | 139 | 0.930818 |
 | 2 | 0.95 | 159 | 127 | 123 | 0.798742 |
 
-![IoU별 클래스 무관 위치 매칭 비율](Faster-R-CNN_exp1_assets/bbox_iou_matching_01.png)
+![IoU별 클래스 무관 위치 매칭 비율](frcnn-exp1-assets/bbox_iou_matching_01.png)
 
 *그림 53. 각 IoU 기준에서 연결된 GT 객체 수를 전체 159개 GT 객체 수로 나눈 값. score ≥ 0.30.*
 
@@ -704,7 +704,7 @@ score ≥ 0.30의 예측과 GT를 클래스와 무관하게 일대일 연결했�
 
 아래 세 이미지는 클래스가 맞고 IoU ≥ 0.75로 연결된 사례 중 seed별 IoU가 가장 낮은 사례다. 모두 IoU 0.95 미만이다. 왼쪽은 GT(초록), 가운데는 예측(빨강), 오른쪽은 두 박스를 겹친 확대 장면이다.
 
-![Seed 0 GT·예측 bbox 비교](Faster-R-CNN_exp1_assets/bbox_examples_01.png)
+![Seed 0 GT·예측 bbox 비교](frcnn-exp1-assets/bbox_examples_01.png)
 
 *그림 54. Validation / GT 있음 / seed 0. score ≥ 0.30. 사례의 score·IoU는 아래 표에 표시했다.*
 
@@ -712,7 +712,7 @@ score ≥ 0.30의 예측과 GT를 클래스와 무관하게 일대일 연결했�
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 0 | 91 | validation / GT 있음 | K-003351-013900-022074_0_2_0_2_70_000_200.png | score 0.30 / IoU 0.75 | 정답 | 0.87759 | 0.900985 | K-013900 에빅사정(메만틴염산염)(비매품) | K-013900 에빅사정(메만틴염산염)(비매품) |
 
-![Seed 1 GT·예측 bbox 비교](Faster-R-CNN_exp1_assets/bbox_examples_02.png)
+![Seed 1 GT·예측 bbox 비교](frcnn-exp1-assets/bbox_examples_02.png)
 
 *그림 55. Validation / GT 있음 / seed 1. score ≥ 0.30. 사례의 score·IoU는 아래 표에 표시했다.*
 
@@ -720,7 +720,7 @@ score ≥ 0.30의 예측과 GT를 클래스와 무관하게 일대일 연결했�
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | 90 | validation / GT 있음 | K-003351-016688-020014_0_2_0_2_90_000_200.png | score 0.30 / IoU 0.75 | 정답 | 0.955032 | 0.852143 | K-016688 오마코연질캡슐(오메가-3-산에틸에스테르90) | K-016688 오마코연질캡슐(오메가-3-산에틸에스테르90) |
 
-![Seed 2 GT·예측 bbox 비교](Faster-R-CNN_exp1_assets/bbox_examples_03.png)
+![Seed 2 GT·예측 bbox 비교](frcnn-exp1-assets/bbox_examples_03.png)
 
 *그림 56. Validation / GT 있음 / seed 2. score ≥ 0.30. 사례의 score·IoU는 아래 표에 표시했다.*
 
@@ -738,14 +738,13 @@ score ≥ 0.30의 예측과 GT를 클래스와 무관하게 일대일 연결했�
 | 1 | 90 | 0.928546 | 0.3775 | 55.104559 |
 | 2 | 81 | 0.917819 | 0.39476 | 52.305938 |
 
-![Seed별 validation mAP와 실제 Kaggle 제출 점수](Faster-R-CNN_exp1_assets/kaggle_scores_01.png)
+![Seed별 validation mAP와 실제 Kaggle 제출 점수](frcnn-exp1-assets/kaggle_scores_01.png)
 
 *그림 57. 각 seed의 best validation mAP와 실제 Kaggle 제출 점수. 점수 차이의 원인 해석은 포함하지 않았다.*
 
 
 ## 분석 근거
 
-Score 0.001 기준의 seed별 전체 혼동행렬·오류 건수 그래프는 [별도 참고 문서](frcnn-exp1-참고-그래프.md)에 모았다.
 
 - 수치: 각 run의 config.json, result.json, metrics.csv 및 class_support.csv.
 - 예측: 각 run의 validation_predictions.pt와 comparison_manifest.json. 모델 학습·추론 없이 저장된 예측을 사용했다.
@@ -761,4 +760,4 @@ Score 0.001 기준의 seed별 전체 혼동행렬·오류 건수 그래프는 [�
 
 결과 폴더는 공유 결과의 cj_runs/exp1_b16_e100/84c1a9494dfd 아래에 있다.
 
-이미지는 같은 위치의 **Faster-R-CNN_exp1_assets/** 및 **frcnn-exp1-assets/** 폴더를 상대 경로로 참조한다. GitHub에 올릴 때 문서와 두 이미지 폴더를 함께 포함한다.
+이미지는 같은 위치의 **frcnn-exp1-assets/** 및 **frcnn-exp1-assets/** 폴더를 상대 경로로 참조한다. GitHub에 올릴 때 문서와 두 이미지 폴더를 함께 포함한다.
