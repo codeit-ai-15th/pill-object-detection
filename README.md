@@ -41,7 +41,7 @@
 >
 > <img width="3360" height="2028" alt="image" src="https://github.com/user-attachments/assets/7c8541c4-37f8-482d-95bc-3dcead92821f" />
 
-## 📖 Results
+## 🧠 Results
 | 계열 | 최종 run | val mAP@[0.75:0.95] | Kaggle public | 추론 시간 (ms/장) | 파라미터 |
 | --- | --- | ---: | ---: | ---: | ---: |
 | YOLO26s | 2차 v3 e20 (`v3_yolo26s_e20_s0`) | 0.9918 | **0.6339** | 16.0 ± 0.3 ms/장 (62 FPS)| 948만 |
