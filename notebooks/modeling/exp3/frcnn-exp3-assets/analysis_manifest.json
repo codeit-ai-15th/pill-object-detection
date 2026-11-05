@@ -1,0 +1,1370 @@
+{
+  "date": "2026-11-05",
+  "training_executed": false,
+  "model_inference_executed": false,
+  "checkpoint_weights_loaded": false,
+  "packages_installed": false,
+  "evaluation": "saved best validation predictions -> shared evaluate_val and COCOeval",
+  "thresholds": {
+    "prediction_score_floor": 0.001,
+    "diagnostic_score": 0.3,
+    "matching_iou": 0.75,
+    "ap_ious": [
+      0.75,
+      0.8,
+      0.85,
+      0.8999999999999999,
+      0.95
+    ]
+  },
+  "matching": "class-agnostic IoU-descending greedy one-to-one",
+  "checks": [
+    {
+      "condition": "baseline",
+      "signature": "78e237b63cb002ed8fe5582cdad501cf5142e5b5826be597bfd5260d22d516c7",
+      "best_epoch": 10,
+      "source_cache_verified": true,
+      "scores_recomputed": true,
+      "common_GT_manifest_classes_fingerprint": true
+    },
+    {
+      "condition": "rfs",
+      "signature": "70d96bebde7b536daf86f0112b74171cb69f8c2347760c3a3033eab1298d8c89",
+      "best_epoch": 9,
+      "source_cache_verified": true,
+      "scores_recomputed": true,
+      "common_GT_manifest_classes_fingerprint": true
+    },
+    {
+      "condition": "weight",
+      "signature": "d03d80ef5807c7019ee995407fedb53dbd336578978e17e108cded485818a7b6",
+      "best_epoch": 10,
+      "source_cache_verified": true,
+      "scores_recomputed": true,
+      "common_GT_manifest_classes_fingerprint": true
+    },
+    {
+      "condition": "both",
+      "signature": "4c3800725973ddef778aaf3206539801f280ed433d1d501d48377a298324bc34",
+      "best_epoch": 9,
+      "source_cache_verified": true,
+      "scores_recomputed": true,
+      "common_GT_manifest_classes_fingerprint": true
+    }
+  ],
+  "summary": [
+    {
+      "condition": "baseline",
+      "best_epoch": 10,
+      "last_epoch": 10,
+      "val": 0.9949269996452687,
+      "kaggle": 0.9968844320329469,
+      "test_only": 0.9949734692969017,
+      "train_loss": 0.012013229065167606,
+      "val_loss": 0.012252474761063923,
+      "updates": 5608,
+      "amp_skips": 2,
+      "training_seconds": 2115.5372603020005,
+      "mean_epoch_seconds": 201.1811903415004,
+      "first_epoch_seconds": 206.68223309400128,
+      "peak_gpu_gb": 8.816189765930176,
+      "TP": 3053,
+      "FP": 0,
+      "FN": 0,
+      "precision": 1,
+      "recall": 1,
+      "confusions": 0,
+      "missed": 0,
+      "extra": 0,
+      "rare_ap": 0.9951881487525053,
+      "frequent_ap": 0.9946658505380318,
+      "gap": -0.0005222982144734711,
+      "n_classes": 74,
+      "mean_AP75": 1,
+      "mean_AP95": 0.977110599711845,
+      "actual_kaggle_public": 0.5975,
+      "delta_kaggle_public_pp": 0,
+      "val_minus_kaggle_public_pp": 39.742699964526864
+    },
+    {
+      "condition": "rfs",
+      "best_epoch": 9,
+      "last_epoch": 9,
+      "val": 0.996249899178827,
+      "kaggle": 0.9985148514851485,
+      "test_only": 0.9948590735784587,
+      "train_loss": 0.01152526320671026,
+      "val_loss": 0.011966922684952351,
+      "updates": 5713,
+      "amp_skips": 2,
+      "training_seconds": 5265.230880769001,
+      "mean_epoch_seconds": 575.4454484071113,
+      "first_epoch_seconds": 583.5759216380002,
+      "peak_gpu_gb": 8.655166625976562,
+      "TP": 3053,
+      "FP": 1,
+      "FN": 0,
+      "precision": 0.9996725605762934,
+      "recall": 1,
+      "confusions": 0,
+      "missed": 0,
+      "extra": 1,
+      "rare_ap": 0.9968734299427369,
+      "frequent_ap": 0.9956263684149173,
+      "gap": -0.001247061527819615,
+      "n_classes": 74,
+      "mean_AP75": 1,
+      "mean_AP95": 0.9839091569696381,
+      "actual_kaggle_public": 0.61409,
+      "delta_kaggle_public_pp": 1.6589999999999994,
+      "val_minus_kaggle_public_pp": 38.215989917882695
+    },
+    {
+      "condition": "weight",
+      "best_epoch": 10,
+      "last_epoch": 10,
+      "val": 0.9948301650287624,
+      "kaggle": 0.995616706498236,
+      "test_only": 0.995692665645886,
+      "train_loss": 0.0115927408050459,
+      "val_loss": 0.012467819803460315,
+      "updates": 5608,
+      "amp_skips": 2,
+      "training_seconds": 5267.617618116999,
+      "mean_epoch_seconds": 517.2801569393001,
+      "first_epoch_seconds": 523.5514641219997,
+      "peak_gpu_gb": 8.655166625976562,
+      "TP": 3053,
+      "FP": 0,
+      "FN": 0,
+      "precision": 1,
+      "recall": 1,
+      "confusions": 0,
+      "missed": 0,
+      "extra": 0,
+      "rare_ap": 0.994621239949981,
+      "frequent_ap": 0.9950390901075442,
+      "gap": 0.0004178501575632376,
+      "n_classes": 74,
+      "mean_AP75": 1,
+      "mean_AP95": 0.9757365693038142,
+      "actual_kaggle_public": 0.60788,
+      "delta_kaggle_public_pp": 1.0379999999999945,
+      "val_minus_kaggle_public_pp": 38.69501650287624
+    },
+    {
+      "condition": "both",
+      "best_epoch": 9,
+      "last_epoch": 9,
+      "val": 0.9967123314903084,
+      "kaggle": 0.9988778877887788,
+      "test_only": 0.9955640687695144,
+      "train_loss": 0.01141691107934793,
+      "val_loss": 0.011680900245458816,
+      "updates": 5713,
+      "amp_skips": 2,
+      "training_seconds": 5286.564958626001,
+      "mean_epoch_seconds": 575.880511710889,
+      "first_epoch_seconds": 583.4908932779999,
+      "peak_gpu_gb": 8.655166625976562,
+      "TP": 3053,
+      "FP": 0,
+      "FN": 0,
+      "precision": 1,
+      "recall": 1,
+      "confusions": 0,
+      "missed": 0,
+      "extra": 0,
+      "rare_ap": 0.9978866666724926,
+      "frequent_ap": 0.9955379963081239,
+      "gap": -0.002348670364368699,
+      "n_classes": 74,
+      "mean_AP75": 1,
+      "mean_AP95": 0.9856464862690434,
+      "actual_kaggle_public": 0.61033,
+      "delta_kaggle_public_pp": 1.2830000000000008,
+      "val_minus_kaggle_public_pp": 38.63823314903083
+    }
+  ],
+  "monitors": [
+    {
+      "category_id": 2483,
+      "k_code": "K-002483",
+      "name": "뮤테란캡슐 100mg",
+      "baseline_AP75": 1,
+      "baseline_AP95": 0.9634763476347634,
+      "baseline_AP75_95": 0.9926952695269528,
+      "rfs_AP75": 1,
+      "rfs_AP95": 0.9595159515951596,
+      "rfs_AP75_95": 0.9919031903190318,
+      "weight_AP75": 1,
+      "weight_AP95": 0.9665566556655666,
+      "weight_AP75_95": 0.9933113311331133,
+      "both_AP75": 1,
+      "both_AP95": 1,
+      "both_AP75_95": 1
+    },
+    {
+      "category_id": 19552,
+      "k_code": "K-019552",
+      "name": "트루비타정 60mg/병",
+      "baseline_AP75": 1,
+      "baseline_AP95": 0.8562376237623763,
+      "baseline_AP75_95": 0.9712475247524753,
+      "rfs_AP75": 1,
+      "rfs_AP95": 0.9207920792079208,
+      "rfs_AP75_95": 0.9841584158415841,
+      "weight_AP75": 1,
+      "weight_AP95": 0.8925559222588926,
+      "weight_AP75_95": 0.9785111844517785,
+      "both_AP75": 1,
+      "both_AP95": 0.9057048561999056,
+      "both_AP75_95": 0.9811409712399811
+    },
+    {
+      "category_id": 12778,
+      "k_code": "K-012778",
+      "name": "다보타민큐정 10mg/병",
+      "baseline_AP75": 1,
+      "baseline_AP95": 0.8553135313531353,
+      "baseline_AP75_95": 0.9710627062706271,
+      "rfs_AP75": 1,
+      "rfs_AP95": 0.9678217821782178,
+      "rfs_AP75_95": 0.9935643564356436,
+      "weight_AP75": 1,
+      "weight_AP95": 0.8787128712871287,
+      "weight_AP75_95": 0.9757425742574257,
+      "both_AP75": 1,
+      "both_AP95": 0.9167845355964168,
+      "both_AP75_95": 0.9833569071192834
+    },
+    {
+      "category_id": 18147,
+      "k_code": "K-018147",
+      "name": "리리카캡슐 150mg",
+      "baseline_AP75": 1,
+      "baseline_AP95": 1,
+      "baseline_AP75_95": 1,
+      "rfs_AP75": 1,
+      "rfs_AP95": 1,
+      "rfs_AP75_95": 1,
+      "weight_AP75": 1,
+      "weight_AP95": 0.8935643564356435,
+      "weight_AP75_95": 0.9787128712871287,
+      "both_AP75": 1,
+      "both_AP95": 1,
+      "both_AP75_95": 1
+    }
+  ],
+  "monitor_exposure": [
+    {
+      "category_id": 2483,
+      "k_code": "K-002483",
+      "original_objects_per_epoch": 189,
+      "rfs_objects_per_epoch": 253,
+      "weight_class_weight": 1.2460966759314083,
+      "both_class_weight": 1.1806075401631781,
+      "rfs_forwarded": 2277,
+      "rfs_successful": 2275,
+      "weight_forwarded": 1890,
+      "weight_successful": 1888,
+      "both_forwarded": 2277,
+      "both_successful": 2275
+    },
+    {
+      "category_id": 19552,
+      "k_code": "K-019552",
+      "original_objects_per_epoch": 414,
+      "rfs_objects_per_epoch": 448,
+      "weight_class_weight": 0.8419425706056901,
+      "both_class_weight": 0.8872107721174144,
+      "rfs_forwarded": 4032,
+      "rfs_successful": 4031,
+      "weight_forwarded": 4140,
+      "weight_successful": 4138,
+      "both_forwarded": 4032,
+      "both_successful": 4031
+    },
+    {
+      "category_id": 12778,
+      "k_code": "K-012778",
+      "original_objects_per_epoch": 417,
+      "rfs_objects_per_epoch": 450,
+      "weight_class_weight": 0.8389085334564459,
+      "both_class_weight": 0.8852369970982762,
+      "rfs_forwarded": 4050,
+      "rfs_successful": 4047,
+      "weight_forwarded": 4170,
+      "weight_successful": 4168,
+      "both_forwarded": 4050,
+      "both_successful": 4047
+    },
+    {
+      "category_id": 18147,
+      "k_code": "K-018147",
+      "original_objects_per_epoch": 259,
+      "rfs_objects_per_epoch": 346,
+      "weight_class_weight": 1.0644683610968162,
+      "both_class_weight": 1.0095498388213358,
+      "rfs_forwarded": 3114,
+      "rfs_successful": 3112,
+      "weight_forwarded": 2590,
+      "weight_successful": 2589,
+      "both_forwarded": 3114,
+      "both_successful": 3112
+    }
+  ],
+  "locations": {
+    "baseline": [
+      {
+        "iou": 0.75,
+        "matched": 3053,
+        "total": 3053,
+        "ratio": 1
+      },
+      {
+        "iou": 0.8,
+        "matched": 3053,
+        "total": 3053,
+        "ratio": 1
+      },
+      {
+        "iou": 0.85,
+        "matched": 3052,
+        "total": 3053,
+        "ratio": 0.9996724533245988
+      },
+      {
+        "iou": 0.8999999999999999,
+        "matched": 3051,
+        "total": 3053,
+        "ratio": 0.9993449066491975
+      },
+      {
+        "iou": 0.95,
+        "matched": 3016,
+        "total": 3053,
+        "ratio": 0.987880773010154
+      }
+    ],
+    "rfs": [
+      {
+        "iou": 0.75,
+        "matched": 3053,
+        "total": 3053,
+        "ratio": 1
+      },
+      {
+        "iou": 0.8,
+        "matched": 3053,
+        "total": 3053,
+        "ratio": 1
+      },
+      {
+        "iou": 0.85,
+        "matched": 3052,
+        "total": 3053,
+        "ratio": 0.9996724533245988
+      },
+      {
+        "iou": 0.8999999999999999,
+        "matched": 3051,
+        "total": 3053,
+        "ratio": 0.9993449066491975
+      },
+      {
+        "iou": 0.95,
+        "matched": 3024,
+        "total": 3053,
+        "ratio": 0.990501146413364
+      }
+    ],
+    "weight": [
+      {
+        "iou": 0.75,
+        "matched": 3053,
+        "total": 3053,
+        "ratio": 1
+      },
+      {
+        "iou": 0.8,
+        "matched": 3053,
+        "total": 3053,
+        "ratio": 1
+      },
+      {
+        "iou": 0.85,
+        "matched": 3052,
+        "total": 3053,
+        "ratio": 0.9996724533245988
+      },
+      {
+        "iou": 0.8999999999999999,
+        "matched": 3052,
+        "total": 3053,
+        "ratio": 0.9996724533245988
+      },
+      {
+        "iou": 0.95,
+        "matched": 3011,
+        "total": 3053,
+        "ratio": 0.9862430396331477
+      }
+    ],
+    "both": [
+      {
+        "iou": 0.75,
+        "matched": 3053,
+        "total": 3053,
+        "ratio": 1
+      },
+      {
+        "iou": 0.8,
+        "matched": 3053,
+        "total": 3053,
+        "ratio": 1
+      },
+      {
+        "iou": 0.85,
+        "matched": 3052,
+        "total": 3053,
+        "ratio": 0.9996724533245988
+      },
+      {
+        "iou": 0.8999999999999999,
+        "matched": 3051,
+        "total": 3053,
+        "ratio": 0.9993449066491975
+      },
+      {
+        "iou": 0.95,
+        "matched": 3026,
+        "total": 3053,
+        "ratio": 0.9911562397641664
+      }
+    ]
+  },
+  "confusion_events": {
+    "baseline": [],
+    "rfs": [
+      {
+        "kind": "unmatched_prediction",
+        "file_name": "K-016548-027926-027993-033208_0_2_0_2_70_000_200.png",
+        "source": "aihub",
+        "pred_category": 30308,
+        "score": 0.32169675827026367,
+        "pred_bbox": [
+          11.62884521484375,
+          832.649658203125,
+          435.7122802734375,
+          344.3017578125
+        ]
+      }
+    ],
+    "weight": [],
+    "both": []
+  },
+  "class_order": [
+    3483,
+    6192,
+    10224,
+    12778,
+    19552,
+    29345,
+    38162,
+    24850,
+    1900,
+    33208,
+    16688,
+    12247,
+    27926,
+    2483,
+    30308,
+    31885,
+    27653,
+    27777,
+    36637,
+    16232,
+    34597,
+    16551,
+    3351,
+    3544,
+    3743,
+    3832,
+    4378,
+    4543,
+    5094,
+    5886,
+    6563,
+    10221,
+    12081,
+    12420,
+    13395,
+    13900,
+    16262,
+    16548,
+    18110,
+    18147,
+    18357,
+    19232,
+    19607,
+    19861,
+    20014,
+    20238,
+    20877,
+    21026,
+    21325,
+    21771,
+    22074,
+    22347,
+    22362,
+    22627,
+    23203,
+    23223,
+    25367,
+    25438,
+    25469,
+    27733,
+    27993,
+    28763,
+    29451,
+    29667,
+    29871,
+    31705,
+    31863,
+    32310,
+    33009,
+    33878,
+    33880,
+    35206,
+    41768,
+    44199
+  ],
+  "sources": [
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/config.json",
+      "copy": "sources/baseline/config.json",
+      "sha256": "17b91b5be8fbb36a906c3f9d246ed129dd68fb49382c7ecbc40a26916600fb41",
+      "bytes": 5601
+    },
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/result.json",
+      "copy": "sources/baseline/result.json",
+      "sha256": "4c503738e75069e7c15c945e96aba3981e3cf64ca53491193d41ec1aa135fa69",
+      "bytes": 374
+    },
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/metrics.csv",
+      "copy": "sources/baseline/metrics.csv",
+      "sha256": "c9e1089e331a4a67ffee255de911aa2ab04af8e857b3b42b8fe2758015cfadf5",
+      "bytes": 4660
+    },
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/scores.json",
+      "copy": "sources/baseline/scores.json",
+      "sha256": "438e9c0bafd4230313f753c33085848f97a952a029cb5e2a5f7e00ddb0e42f9b",
+      "bytes": 1792
+    },
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/classes.csv",
+      "copy": "sources/baseline/classes.csv",
+      "sha256": "7181dec890243416133cfc0ea76e8b876b830734ad916996723fbf6a4b60c3f7",
+      "bytes": 10277
+    },
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/class_map.csv",
+      "copy": "sources/baseline/class_map.csv",
+      "sha256": "500b64fad7fd51adf7c0e6c99ad9e3bb9f85fbec36a512bad5433eef54304d3d",
+      "bytes": 4453
+    },
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/dataset_info.json",
+      "copy": "sources/baseline/dataset_info.json",
+      "sha256": "6b38873bb187cdd5c0e352074693ba877c07f2897ff610448c1ffe4a94a88ae8",
+      "bytes": 568
+    },
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/environment_history.json",
+      "copy": "sources/baseline/environment_history.json",
+      "sha256": "6ff1ff511622d5a27ee0f06e31ed5e7922ddaa5dce69e3cd686cc47d0ce696f6",
+      "bytes": 683
+    },
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/data_fingerprint.json",
+      "copy": "sources/baseline/data_fingerprint.json",
+      "sha256": "8f4ae6539a258cc245353aef812609172abe825dfcdc236c33f81922d64f7787",
+      "bytes": 1281437
+    },
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/val_gt.json",
+      "copy": "sources/baseline/val_gt.json",
+      "sha256": "5838ad9e3f20b0b74360d466ea0f54788b4b79528fadd3052b4e6168d899d461",
+      "bytes": 580421
+    },
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/val_predictions.json",
+      "copy": "sources/baseline/val_predictions.json",
+      "sha256": "e4581523227119e2f271e4dbb60a83128f059dbbc2610389ee517953d4587ce0",
+      "bytes": 1444830
+    },
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/val_prediction_identity.json",
+      "copy": "sources/baseline/val_prediction_identity.json",
+      "sha256": "c7c888945a8880fdb07d806ef51375f5b8d7fff38a2a6622182ce18fa5ef5be8",
+      "bytes": 432
+    },
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/val_manifest.csv",
+      "copy": "sources/baseline/val_manifest.csv",
+      "sha256": "1728ae942161957e3ea5346a20cd5491cfc7ff628c4b00474cbfee9c13404128",
+      "bytes": 71920
+    },
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/analysis_complete.json",
+      "copy": "sources/baseline/analysis_complete.json",
+      "sha256": "156a25f9c87ddc776798057796d302a240ab71148160a1c8ddc694956b501414",
+      "bytes": 2260
+    },
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/test_prediction_identity.json",
+      "copy": "sources/baseline/test_prediction_identity.json",
+      "sha256": "bbd3938f617b6c871306498ce4c4e2298fc98561bd27d4176475fca9e8541e84",
+      "bytes": 429
+    },
+    {
+      "condition": "baseline",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/rw_runs/v3_frcnn_e10_s0/test_manifest.csv",
+      "copy": "sources/baseline/test_manifest.csv",
+      "sha256": "14c6dd89869efed5902e1b6874cfde215b2bdc31c30b7eca0d9ff93e3391eb01",
+      "bytes": 18148
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/config.json",
+      "copy": "sources/rfs/config.json",
+      "sha256": "7075edf5f657ac517d0596f6f64d8f4a2c5d474ca4f7d52bc5f9d00ed973bd70",
+      "bytes": 48141
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/result.json",
+      "copy": "sources/rfs/result.json",
+      "sha256": "a8922da4ae16d278df2e13136ade202d890ab66074c517457e58d677d3231d51",
+      "bytes": 532
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/metrics.csv",
+      "copy": "sources/rfs/metrics.csv",
+      "sha256": "44fdf3db1cb1103ca279f1c97b2ed8ea912816e9f290362f1da57d4a5573c6e5",
+      "bytes": 4976
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/scores.json",
+      "copy": "sources/rfs/scores.json",
+      "sha256": "fb78e43e1b6e448246d3e87289131835bdcbf7bf24c462f35b272bacd2e5cbe0",
+      "bytes": 1789
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/classes.csv",
+      "copy": "sources/rfs/classes.csv",
+      "sha256": "7181dec890243416133cfc0ea76e8b876b830734ad916996723fbf6a4b60c3f7",
+      "bytes": 10277
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/class_map.csv",
+      "copy": "sources/rfs/class_map.csv",
+      "sha256": "500b64fad7fd51adf7c0e6c99ad9e3bb9f85fbec36a512bad5433eef54304d3d",
+      "bytes": 4453
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/dataset_info.json",
+      "copy": "sources/rfs/dataset_info.json",
+      "sha256": "f0b55b4a20e4412eca4e0174397e7ed5be2bcf0a3f6d4c71d5d1ade92e220f4f",
+      "bytes": 568
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/environment_history.json",
+      "copy": "sources/rfs/environment_history.json",
+      "sha256": "1a2d0a363ab7fadb67727094b7c559f3364d8a8bbc6781f22a255b63549993a3",
+      "bytes": 1189
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/data_fingerprint.json",
+      "copy": "sources/rfs/data_fingerprint.json",
+      "sha256": "8f4ae6539a258cc245353aef812609172abe825dfcdc236c33f81922d64f7787",
+      "bytes": 1281437
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/val_gt.json",
+      "copy": "sources/rfs/val_gt.json",
+      "sha256": "5838ad9e3f20b0b74360d466ea0f54788b4b79528fadd3052b4e6168d899d461",
+      "bytes": 580421
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/val_predictions.json",
+      "copy": "sources/rfs/val_predictions.json",
+      "sha256": "8424d58ca7249778107599d8528a1a0bf4f4dba5f5a962391697fccdcb4a0af0",
+      "bytes": 1244616
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/val_prediction_identity.json",
+      "copy": "sources/rfs/val_prediction_identity.json",
+      "sha256": "72da5d342668cf49301790cae39d2a071137825b2b9b54625fa7ea4b9ed7f372",
+      "bytes": 453
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/val_manifest.csv",
+      "copy": "sources/rfs/val_manifest.csv",
+      "sha256": "1728ae942161957e3ea5346a20cd5491cfc7ff628c4b00474cbfee9c13404128",
+      "bytes": 71920
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/analysis_complete.json",
+      "copy": "sources/rfs/analysis_complete.json",
+      "sha256": "8fc535dcc199f375b57d251ab68cb6c9b268eca10d698b95a678677681a7f62a",
+      "bytes": 265
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/sampling.json",
+      "copy": "sources/rfs/sampling.json",
+      "sha256": "6dc298e9465a396054cfbe6b8e8f727942ea55cf5fe6dc58738c43111f0c3e9f",
+      "bytes": 660
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/class_ap.csv",
+      "copy": "sources/rfs/class_ap.csv",
+      "sha256": "0a23ac663de0dc8281ede52daae46fccf300526c76d3d79fea062ee307d07c34",
+      "bytes": 5080
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/class_frequency.csv",
+      "copy": "sources/rfs/class_frequency.csv",
+      "sha256": "cdb0a98fc2fe586d0cd3c56d7992e7a735da1b9f7ed4dd5513928729b9cb9cfc",
+      "bytes": 8736
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/class_exposure.csv",
+      "copy": "sources/rfs/class_exposure.csv",
+      "sha256": "72b12a882c9a9772d119020d1d9e6e0334a2d6a272869f7fb4704d128e852e49",
+      "bytes": 17191
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/train_files.json",
+      "copy": "sources/rfs/train_files.json",
+      "sha256": "c27bf6282577d7517a12f08d82faca610f2b3f12e86bf99783ac76a68b38794e",
+      "bytes": 569063
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/imbalance.json",
+      "copy": "sources/rfs/imbalance.json",
+      "sha256": "76b6a8bcb5c03527a5479af688d002c6bdc67c40b8af9d0cd86612348348cb18",
+      "bytes": 123
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/baseline_snapshot.json",
+      "copy": "sources/rfs/baseline_snapshot.json",
+      "sha256": "76bd168cc92bfda3e0b9e9613c2e708c84f82ccabe84d6f95dfcb7a6c1235d91",
+      "bytes": 10717
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/condition_applied.json",
+      "copy": "sources/rfs/condition_applied.json",
+      "sha256": "d9ae6245aada05a8bfd927220b8d63f90c4bb86382439d06a414ac5c30c8de16",
+      "bytes": 304
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/test_prediction_identity.json",
+      "copy": "sources/rfs/test_prediction_identity.json",
+      "sha256": "80e6cacc35970e9d67e1975be9c753e778e6042a21a8279888b2554b18a8fe6f",
+      "bytes": 452
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/test_manifest.csv",
+      "copy": "sources/rfs/test_manifest.csv",
+      "sha256": "14c6dd89869efed5902e1b6874cfde215b2bdc31c30b7eca0d9ff93e3391eb01",
+      "bytes": 18148
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/submissions/exp3_v3_frcnn_exp3_rfs_e9_s0.manifest.json",
+      "copy": "sources/rfs/submissions/exp3_v3_frcnn_exp3_rfs_e9_s0.manifest.json",
+      "sha256": "0cf9dc985097df7a97a6cbd8d339fec980836836268276b1ef92dda6d83ab885",
+      "bytes": 344
+    },
+    {
+      "condition": "rfs",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_rfs_e9_s0/submissions/exp3_v3_frcnn_exp3_rfs_e9_s0.csv",
+      "copy": "sources/rfs/submissions/exp3_v3_frcnn_exp3_rfs_e9_s0.csv",
+      "sha256": "a48e60aab72f67b2fddc16293f7fcd7c01556c978d6d3f2af8bfa80e8e1afcbe",
+      "bytes": 159193
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/config.json",
+      "copy": "sources/weight/config.json",
+      "sha256": "3e971ec76281538ca2af96141cc54889588c64cfbbc45d4a4ed59b638b1c8195",
+      "bytes": 47427
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/result.json",
+      "copy": "sources/weight/result.json",
+      "sha256": "85fd39ac1ffcd68c7e9db9ffc071aff3b4b19636f5486306fc808ac7d1b5f907",
+      "bytes": 543
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/metrics.csv",
+      "copy": "sources/weight/metrics.csv",
+      "sha256": "5c583bacaeb8b85b68af9acda5d8057ce3d13dc4707832028d3d17a2971ed955",
+      "bytes": 5485
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/scores.json",
+      "copy": "sources/weight/scores.json",
+      "sha256": "cc1906b80d125a0d0ac053eb4efea79c66384afa31bedd46bc324062c08f2d4e",
+      "bytes": 1834
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/classes.csv",
+      "copy": "sources/weight/classes.csv",
+      "sha256": "7181dec890243416133cfc0ea76e8b876b830734ad916996723fbf6a4b60c3f7",
+      "bytes": 10277
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/class_map.csv",
+      "copy": "sources/weight/class_map.csv",
+      "sha256": "500b64fad7fd51adf7c0e6c99ad9e3bb9f85fbec36a512bad5433eef54304d3d",
+      "bytes": 4453
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/dataset_info.json",
+      "copy": "sources/weight/dataset_info.json",
+      "sha256": "f0b55b4a20e4412eca4e0174397e7ed5be2bcf0a3f6d4c71d5d1ade92e220f4f",
+      "bytes": 568
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/environment_history.json",
+      "copy": "sources/weight/environment_history.json",
+      "sha256": "345e16c65dc29daf9882fb2c8edff0ad73c4b89399085098ee58f9ebe88223e3",
+      "bytes": 1189
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/data_fingerprint.json",
+      "copy": "sources/weight/data_fingerprint.json",
+      "sha256": "8f4ae6539a258cc245353aef812609172abe825dfcdc236c33f81922d64f7787",
+      "bytes": 1281437
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/val_gt.json",
+      "copy": "sources/weight/val_gt.json",
+      "sha256": "5838ad9e3f20b0b74360d466ea0f54788b4b79528fadd3052b4e6168d899d461",
+      "bytes": 580421
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/val_predictions.json",
+      "copy": "sources/weight/val_predictions.json",
+      "sha256": "1e4336f488e6484f9edd4e43bcc6984aed77136834c4d927b78653458d313dc7",
+      "bytes": 1327223
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/val_prediction_identity.json",
+      "copy": "sources/weight/val_prediction_identity.json",
+      "sha256": "b48d9d7807446acbefbcac05ccc9841676062fc92cc520212181bb7e24cd91ed",
+      "bytes": 455
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/val_manifest.csv",
+      "copy": "sources/weight/val_manifest.csv",
+      "sha256": "1728ae942161957e3ea5346a20cd5491cfc7ff628c4b00474cbfee9c13404128",
+      "bytes": 71920
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/analysis_complete.json",
+      "copy": "sources/weight/analysis_complete.json",
+      "sha256": "5bd0120da42cacbf17880491d91c07d4d6f35123c894c29a97cb664d91090b63",
+      "bytes": 265
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/sampling.json",
+      "copy": "sources/weight/sampling.json",
+      "sha256": "4e38cb8aa3ee78162862b9edaff642c93ea31bd024577b331fdf137da2a12232",
+      "bytes": 614
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/class_ap.csv",
+      "copy": "sources/weight/class_ap.csv",
+      "sha256": "4c89fb6eb557bf279f255357c7f1bb3f91ed034b6284c267359a05d37a634389",
+      "bytes": 5126
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/class_frequency.csv",
+      "copy": "sources/weight/class_frequency.csv",
+      "sha256": "e7b9a5bb316ddf4591eb33dd862a2eb50eb8dd8d4a82fc0c62e39f0ef89773f9",
+      "bytes": 8122
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/class_exposure.csv",
+      "copy": "sources/weight/class_exposure.csv",
+      "sha256": "913121b3b0b78bec5231a1c8b1207e8740e306f0f1efa53946b79f788a2f1796",
+      "bytes": 19188
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/train_files.json",
+      "copy": "sources/weight/train_files.json",
+      "sha256": "6bd4a535f0cd9d315e9764282c064a777f6dfa01266c3f82386e3c731126e7f5",
+      "bytes": 506326
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/imbalance.json",
+      "copy": "sources/weight/imbalance.json",
+      "sha256": "9ba8e47705164211286e7ad582a72f46efc5d1240d3a4006f141751b559062be",
+      "bytes": 122
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/baseline_snapshot.json",
+      "copy": "sources/weight/baseline_snapshot.json",
+      "sha256": "76bd168cc92bfda3e0b9e9613c2e708c84f82ccabe84d6f95dfcb7a6c1235d91",
+      "bytes": 10717
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/condition_applied.json",
+      "copy": "sources/weight/condition_applied.json",
+      "sha256": "473f539285c53f093eaed5ae146cd46c17e794a994da161f562a74f1a7faf211",
+      "bytes": 2611
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/test_prediction_identity.json",
+      "copy": "sources/weight/test_prediction_identity.json",
+      "sha256": "fe1aba0334eeed29050d8e1ee47169d7d4c1280209beb4490caec455037af04c",
+      "bytes": 452
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/test_manifest.csv",
+      "copy": "sources/weight/test_manifest.csv",
+      "sha256": "14c6dd89869efed5902e1b6874cfde215b2bdc31c30b7eca0d9ff93e3391eb01",
+      "bytes": 18148
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/submissions/exp3_v3_frcnn_exp3_weight_e10_s0.csv",
+      "copy": "sources/weight/submissions/exp3_v3_frcnn_exp3_weight_e10_s0.csv",
+      "sha256": "5b932fb5d56b1de84c2a821e748c8ecaf87e2d31ae600a996fd8840ae865cf38",
+      "bytes": 158250
+    },
+    {
+      "condition": "weight",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_weight_e10_s0/submissions/exp3_v3_frcnn_exp3_weight_e10_s0.manifest.json",
+      "copy": "sources/weight/submissions/exp3_v3_frcnn_exp3_weight_e10_s0.manifest.json",
+      "sha256": "47bea22553b1d2674c6e0797b5a1e2c9ef10422ee5c3997d853f3c43b8261584",
+      "bytes": 347
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/config.json",
+      "copy": "sources/both/config.json",
+      "sha256": "4bd5e898832a81517227bcb84347566b2785fc5fadb98fc09ad28ec870bbcd5e",
+      "bytes": 49598
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/result.json",
+      "copy": "sources/both/result.json",
+      "sha256": "7a50d077aaf6d21b8a0361813760d94c0b46e88aed7f3c3dac043652f0c07592",
+      "bytes": 535
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/metrics.csv",
+      "copy": "sources/both/metrics.csv",
+      "sha256": "37e7f0bafe7d4f55d959fda4f91541150e43c68cc9a811ef273a48333f0059b4",
+      "bytes": 4940
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/scores.json",
+      "copy": "sources/both/scores.json",
+      "sha256": "bbf0e1115376f972ac21e0636625945930febc56fe290dab1c2dd3e2d345e95e",
+      "bytes": 1745
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/classes.csv",
+      "copy": "sources/both/classes.csv",
+      "sha256": "7181dec890243416133cfc0ea76e8b876b830734ad916996723fbf6a4b60c3f7",
+      "bytes": 10277
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/class_map.csv",
+      "copy": "sources/both/class_map.csv",
+      "sha256": "500b64fad7fd51adf7c0e6c99ad9e3bb9f85fbec36a512bad5433eef54304d3d",
+      "bytes": 4453
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/dataset_info.json",
+      "copy": "sources/both/dataset_info.json",
+      "sha256": "f0b55b4a20e4412eca4e0174397e7ed5be2bcf0a3f6d4c71d5d1ade92e220f4f",
+      "bytes": 568
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/environment_history.json",
+      "copy": "sources/both/environment_history.json",
+      "sha256": "716140ebf15889cb176bdc018dbb19431bc6dcd0224605a0c9d78787fd21f701",
+      "bytes": 1189
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/data_fingerprint.json",
+      "copy": "sources/both/data_fingerprint.json",
+      "sha256": "8f4ae6539a258cc245353aef812609172abe825dfcdc236c33f81922d64f7787",
+      "bytes": 1281437
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/val_gt.json",
+      "copy": "sources/both/val_gt.json",
+      "sha256": "5838ad9e3f20b0b74360d466ea0f54788b4b79528fadd3052b4e6168d899d461",
+      "bytes": 580421
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/val_predictions.json",
+      "copy": "sources/both/val_predictions.json",
+      "sha256": "c941adb240f80f2902bbbc4fcd342e7a6f6c4681b0ed0fe7bf183903c58b0232",
+      "bytes": 1187545
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/val_prediction_identity.json",
+      "copy": "sources/both/val_prediction_identity.json",
+      "sha256": "1efc2f9a8195a5ddcdccd5f369a393d939828f3bcfe56077334d77a9a1495bf3",
+      "bytes": 453
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/val_manifest.csv",
+      "copy": "sources/both/val_manifest.csv",
+      "sha256": "1728ae942161957e3ea5346a20cd5491cfc7ff628c4b00474cbfee9c13404128",
+      "bytes": 71920
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/analysis_complete.json",
+      "copy": "sources/both/analysis_complete.json",
+      "sha256": "3c7bc78819868708b95c565258335cbfb02f56dfdac29b3d1fb38ebcc74c3053",
+      "bytes": 265
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/sampling.json",
+      "copy": "sources/both/sampling.json",
+      "sha256": "70c31a750461246e67273c31215dec1d4b4df9a963a98ee934fb466deebb5d9b",
+      "bytes": 673
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/class_ap.csv",
+      "copy": "sources/both/class_ap.csv",
+      "sha256": "b0bb4e529c1f79a877ab40bdf2de75306fe756d986c4539e34fa9ffdd546530e",
+      "bytes": 5035
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/class_frequency.csv",
+      "copy": "sources/both/class_frequency.csv",
+      "sha256": "3e0935267c3da98d8d64153340d60be35b82619bccf2a7f5bfee953e621cc60e",
+      "bytes": 10162
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/class_exposure.csv",
+      "copy": "sources/both/class_exposure.csv",
+      "sha256": "72b12a882c9a9772d119020d1d9e6e0334a2d6a272869f7fb4704d128e852e49",
+      "bytes": 17191
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/train_files.json",
+      "copy": "sources/both/train_files.json",
+      "sha256": "c27bf6282577d7517a12f08d82faca610f2b3f12e86bf99783ac76a68b38794e",
+      "bytes": 569063
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/imbalance.json",
+      "copy": "sources/both/imbalance.json",
+      "sha256": "a7c591e10b1d9d74da67f14ad93b7f97d45f7041c9c9339dd73b43eec54e1233",
+      "bytes": 123
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/baseline_snapshot.json",
+      "copy": "sources/both/baseline_snapshot.json",
+      "sha256": "76bd168cc92bfda3e0b9e9613c2e708c84f82ccabe84d6f95dfcb7a6c1235d91",
+      "bytes": 10717
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/condition_applied.json",
+      "copy": "sources/both/condition_applied.json",
+      "sha256": "ad26087930f8d6edb3bc2f41e16679546c7e1372f56327a5acabed7b1f3eca9c",
+      "bytes": 2619
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/test_prediction_identity.json",
+      "copy": "sources/both/test_prediction_identity.json",
+      "sha256": "17ce4b03882f59e904db2d966fae97f94252f1fea48c6737ec56bc727dd9ad81",
+      "bytes": 452
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/test_manifest.csv",
+      "copy": "sources/both/test_manifest.csv",
+      "sha256": "14c6dd89869efed5902e1b6874cfde215b2bdc31c30b7eca0d9ff93e3391eb01",
+      "bytes": 18148
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/submissions/exp3_v3_frcnn_exp3_both_e9_s0.manifest.json",
+      "copy": "sources/both/submissions/exp3_v3_frcnn_exp3_both_e9_s0.manifest.json",
+      "sha256": "7ebdf5c07b4e245c03bb30ab76c7f082a905c3cf3f4ea0dc62e731ce9eb5c1f9",
+      "bytes": 345
+    },
+    {
+      "condition": "both",
+      "source": "/Users/codeit/Library/CloudStorage/GoogleDrive-khsbear0115@gmail.com/My Drive/코드잇 ;)/Project1_pill-object-detection/pill data/cj_runs/exp3/v3_frcnn_exp3_both_e9_s0/submissions/exp3_v3_frcnn_exp3_both_e9_s0.csv",
+      "copy": "sources/both/submissions/exp3_v3_frcnn_exp3_both_e9_s0.csv",
+      "sha256": "5e7f792fae579452f0bffcfc4ab555917b4541b2e6f7e80445436f5d6ec0f8af",
+      "bytes": 159053
+    }
+  ],
+  "notes": [
+    "환경과 GPU 차이 때문에 baseline 대비 기법만의 인과 효과로 해석하지 않음",
+    "완료 run과 예측 캐시 서명/해시를 검증했으며 가중치 파일 자체는 로드하지 않음",
+    "실제 Public 점수는 사용자 제공 제출 완료 화면에서 확인; summary.kaggle는 기존 validation 47장 점수로 유지",
+    "모니터링 4종은 노트북의 MONITOR_CLASSES 직접 지정 목록이며 구체적 선정 이유는 확인되지 않음"
+  ],
+  "image_examples": [
+    {
+      "file_name": "K-016548-027926-027993-033208_0_2_0_2_70_000_200.png",
+      "source": "/Users/codeit/Desktop/codeit/Project1/pill-object-detection/data/processed/ai_hub/train_images/K-016548-027926-027993-033208_0_2_0_2_70_000_200.png",
+      "sha256": "0123b5a7fe832cbc3d2f97e7ed7eecea5414c78085183c739e4934f02df5216b",
+      "figure": "rfs_extra_prediction_example.png",
+      "kind": "additional_wrong_class_prediction",
+      "gt_category": 27926,
+      "pred_category": 30308,
+      "score": 0.32169675827026367,
+      "iou_to_gt": 0.8892475457735731
+    },
+    {
+      "file_name": "K-003743-012778-022362-037777_0_2_0_2_70_000_200.png",
+      "source": "/Users/codeit/Desktop/codeit/Project1/pill-object-detection/data/processed/ai_hub/train_images/K-003743-012778-022362-037777_0_2_0_2_70_000_200.png",
+      "sha256": "fbc97979c5545ff29a0a69a9703afd3a9612e87e78dcf80f434463ac4cc1e5a7",
+      "figure": "bbox_boundary_comparison_example.png",
+      "kind": "bbox_boundary_comparison",
+      "category_id": 12778,
+      "gt_bbox": [
+        569,
+        591,
+        292,
+        526
+      ],
+      "conditions": {
+        "baseline": {
+          "prediction": {
+            "file_name": "K-003743-012778-022362-037777_0_2_0_2_70_000_200.png",
+            "category_id": 12778,
+            "bbox": [
+              563.3134155273438,
+              591.5823974609375,
+              303.25830078125,
+              514.54296875
+            ],
+            "score": 0.9990441203117371
+          },
+          "iou": 0.9426649964518137
+        },
+        "rfs": {
+          "prediction": {
+            "file_name": "K-003743-012778-022362-037777_0_2_0_2_70_000_200.png",
+            "category_id": 12778,
+            "bbox": [
+              564.5060424804688,
+              591.405517578125,
+              299.6715087890625,
+              519.392578125
+            ],
+            "score": 0.999071478843689
+          },
+          "iou": 0.9624697147892698
+        },
+        "weight": {
+          "prediction": {
+            "file_name": "K-003743-012778-022362-037777_0_2_0_2_70_000_200.png",
+            "category_id": 12778,
+            "bbox": [
+              564.26611328125,
+              592.4532470703125,
+              304.5361328125,
+              514.195068359375
+            ],
+            "score": 0.9989235997200012
+          },
+          "iou": 0.938183077673198
+        },
+        "both": {
+          "prediction": {
+            "file_name": "K-003743-012778-022362-037777_0_2_0_2_70_000_200.png",
+            "category_id": 12778,
+            "bbox": [
+              566.3746337890625,
+              592.556396484375,
+              299.5009765625,
+              519.0322265625
+            ],
+            "score": 0.9993010759353638
+          },
+          "iou": 0.9623594053136373
+        }
+      },
+      "selection": "monitoring classes; baseline IoU < .95 and both >= .95; largest IoU increase"
+    }
+  ],
+  "figure_files": [
+    "ap_comparison.png",
+    "baseline_class_ap.png",
+    "baseline_error_confusion_score030.png",
+    "baseline_full_confusion_score030.png",
+    "baseline_learning_curves.png",
+    "bbox_boundary_comparison_example.png",
+    "bbox_iou_comparison.png",
+    "both_class_ap.png",
+    "both_error_confusion_score030.png",
+    "both_full_confusion_score030.png",
+    "both_learning_curves.png",
+    "monitor_classes.png",
+    "rfs_class_ap.png",
+    "rfs_error_confusion_score030.png",
+    "rfs_extra_prediction_example.png",
+    "rfs_full_confusion_score030.png",
+    "rfs_learning_curves.png",
+    "sampling_and_weights.png",
+    "weight_class_ap.png",
+    "weight_error_confusion_score030.png",
+    "weight_full_confusion_score030.png",
+    "weight_learning_curves.png",
+    "kaggle_public_comparison.png"
+  ],
+  "kaggle_submissions": {
+    "recorded_date": "2026-11-05",
+    "source_for_exp3": "사용자가 제공한 Kaggle 제출 완료 화면",
+    "source_for_baseline": "기존 사용자 제출 기록",
+    "scores": {
+      "baseline": 0.5975,
+      "rfs": 0.61409,
+      "weight": 0.60788,
+      "both": 0.61033
+    },
+    "submission_csv": {
+      "baseline": "",
+      "rfs": "exp3_v3_frcnn_exp3_rfs_e9_s0.csv",
+      "weight": "exp3_v3_frcnn_exp3_weight_e10_s0.csv",
+      "both": "exp3_v3_frcnn_exp3_both_e9_s0.csv"
+    }
+  },
+  "evaluation_scope": {
+    "total_validation_gt": 3790,
+    "competition_classes": 74,
+    "competition_gt": 3053,
+    "outside_classes": 22,
+    "outside_gt": 737,
+    "local_prediction_filter": "drop noncompetition predictions; drop any prediction overlapping noncompetition GT at IoU >= 0.5",
+    "official_kaggle_rule_verified": false
+  },
+  "monitor_selection": {
+    "source": "frcnn-exp3.ipynb / MONITOR_CLASSES",
+    "category_ids": [
+      2483,
+      19552,
+      12778,
+      18147
+    ],
+    "usage": "logging and comparison subset; full evaluation remains 74 classes",
+    "selection_rationale_verified": false
+  },
+  "report_updates": [
+    {
+      "date": "2026-11-05",
+      "changes": [
+        "평가 범위와 로컬 제외 처리 설명",
+        "full confusion Blues",
+        "2.1 full unfolded / error collapsed",
+        "2.3 unfolded",
+        "monitor selection provenance",
+        "actual Kaggle Public scores and bar chart"
+      ]
+    }
+  ]
+}
