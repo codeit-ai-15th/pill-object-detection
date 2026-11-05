@@ -1,12 +1,17 @@
 # 💊 Pill Object Detection
 
 ## 📑 Project Overview
-이 프로젝트는 경구약제 이미지 인식 기능을 이용해 사용자가 알약 사진을 올리면 그 알약이 무슨 알약인 지 검출해주는 서비스입니다. 
+이 프로젝트는 경구약제 이미지 인식 기능을 이용해 사용자가 알약 사진을 올리면 그 사진 안에 무슨 알약이 있는 지 보여주고, 알약의 효능 및 효과, 용법 및 용량, 그리고 복용 시 주의사항을 알려줍니다. 더 세부적인 정보를 알고싶은 사용자들을 위해 약학정보원으로 바로가는 링크를 제공합니다. 
 
-- 1차 마일스톤: 알약 이미지를 입력하면 약 이름을 검출하는 모델 개발
-- (선택)2차 마일스톤: 알약 정보를 입력하면 [식의약 데이터 포털 공공API](https://www.data.go.kr/data/15095677/openapi.do)를 통해 복용 가이드를 제공해주는 기능
+- 복용 정보는 [식의약 데이터 포털 공공API](https://www.data.go.kr/data/15095677/openapi.do)를 통해 제공합니다.
 
-> TODO 데모 영상
+> 📹 **데모 유튜브 영상**
+> 
+> [![유튜브 바로가기](https://www.youtube.com/watch?v=dUJKRc9mURE)](https://www.youtube.com/watch?v=dUJKRc9mURE)
+
+> 🖼️ **데모 미리보기**
+> 
+> <img width="1200" height="980" alt="Screenshot 2026-11-05 at 10 24 38" src="https://github.com/user-attachments/assets/4233d40f-4c78-40fb-af4e-1d52223d8a31" />
 
 ## 📊 DataSet Overview
 본 프로젝트는 [AI Hub에서 제공하는 공개 데이터셋](https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=576)을 활용했습니다. 
