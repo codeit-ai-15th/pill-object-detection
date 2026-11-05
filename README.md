@@ -42,11 +42,14 @@
 > <img width="3360" height="2028" alt="image" src="https://github.com/user-attachments/assets/7c8541c4-37f8-482d-95bc-3dcead92821f" />
 
 ## 📖 Results
-| 계열 | 최종 run | val mAP@[0.75:0.95] | Kaggle public | 파라미터 |
-| --- | --- | ---: | ---: | ---: |
-| YOLO26s | 2차 v3 e20 (`v3_yolo26s_e20_s0`) | 0.9918 | **0.6339** | 948만 |
-| RT-DETR-l | 2차 v4 e5 (`v4_rtdetr-l_e5`) | 0.9858 | 0.6156 | 3,223만 |
-| Faster R-CNN (R50-FPN) | 3차 v3 rfs e9 (`v3_frcnn_exp3_rfs_e9_s0`) | 0.9962 | 0.6141 | 약 4,176만 |
+| 계열 | 최종 run | val mAP@[0.75:0.95] | Kaggle public | 추론 시간 (ms/장) | 파라미터 |
+| --- | --- | ---: | ---: | ---: | ---: |
+| YOLO26s | 2차 v3 e20 (`v3_yolo26s_e20_s0`) | 0.9918 | **0.6339** | 16.0 ± 0.3 ms/장 (62 FPS)| 948만 |
+| RT-DETR-l | 2차 v4 e5 (`v4_rtdetr-l_e5`) | 0.9858 | 0.6156 | 76.0 ± 1.5 ms/장 (13 FPS) | 3,223만 |
+| Faster R-CNN (R50-FPN) | 3차 v3 rfs e9 (`v3_frcnn_exp3_rfs_e9_s0`) | 0.9962 | 0.6141 | 89.5 ± 0.3 ms/장 (11 FPS) | 약 4,176만 |
+
+- 최종 run은 모델마다 Kaggle public 점수가 가장 높은 제출을 기준으로 선정했다.
+- 추론 시간은 T4, 입력 640, 배치 1, 점수 하한 0.01, 5회 평균으로 측정함.
 
 ## 📂 Project Structure
 
