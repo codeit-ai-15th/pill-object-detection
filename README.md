@@ -42,7 +42,11 @@
 > <img width="3360" height="2028" alt="image" src="https://github.com/user-attachments/assets/7c8541c4-37f8-482d-95bc-3dcead92821f" />
 
 ## 📖 Results
-> TODO 모델별 실험 성과 비교 및 최종 모델 성능 표
+| 계열 | 최종 run | val mAP@[0.75:0.95] | Kaggle public | 추론 시간 (ms/장) | 파라미터 |
+| --- | --- | ---: | ---: | ---: | ---: |
+| YOLO26s | 2차 v3 e20 (`v3_yolo26s_e20_s0`) | 0.9918 | **0.6339** | `[TODO]` | 948만 |
+| RT-DETR-l | 2차 v4 e5 (`v4_rtdetr-l_e5`) | 0.9858 | 0.6156 | `[TODO]` | 3,223만 |
+| Faster R-CNN (R50-FPN) | 3차 v3 rfs e9 (`v3_frcnn_exp3_rfs_e9_s0`) | 0.9962 | 0.6141 | `[TODO]` | 약 4,176만 |
 
 ## 📂 Project Structure
 
