@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>부록: AI Hub와 Kaggle 사이에 같은 파일은 없습니다 · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="부록: AI Hub와 Kaggle 사이에 같은 파일은 없습니다">
+      <p class="sec-tag">부록</p>
+      <h2>부록: AI Hub와 Kaggle 사이에 같은 파일은 없습니다</h2>
+      <div class="body">
+      <figure class="fig">
+        <img src="figures/fig_5-2_RMS_neighbors.png" alt="RMS 거리가 가까운 사진 예시">
+      </figure>
+      <table class="tbl">
+        <tr><th>확인 항목</th><th>결과</th></tr>
+        <tr><td>Kaggle train과 같은 이름의 PNG / 겹치는 조합</td><td>0 / 232, 0 / 114</td></tr>
+        <tr><td>파일 내용(MD5)이 같은 사진: AI Hub vs Kaggle train, test, AI Hub</td><td>모두 0</td></tr>
+        <tr><td>축소 그림 RMS: train에서 가장 가까운 AI Hub 사진</td><td>최소 2.0, 중앙값 6.2</td></tr>
+        <tr><td>축소 그림 RMS: AI Hub 다른 조합끼리</td><td>최소 0.4 (같은 장면이 다른 조합 이름으로 들어감 → 제거)</td></tr>
+      </table>
+      </div>
+      <aside class="notes">근거: 보고서 5.2 중복 점검.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

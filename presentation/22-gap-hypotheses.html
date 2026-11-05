@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>점수 차이의 원인 가설 8개 중 7개를 기각했습니다. · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="점수 차이의 원인 가설 8개 중 7개를 기각했습니다.">
+      <p class="sec-tag">3차 EDA</p>
+      <h2>점수 차이의 원인 가설 8개 중 7개를 기각했습니다.</h2>
+      <div class="body">
+      <table class="tbl">
+        <tr><th>#</th><th>가설</th><th>확인 결과</th><th>판정</th></tr>
+        <tr><td>1</td><td>val·test 클래스 분포가 달라 val이 test를 대표하지 못한다</td><td>비율 상관 0.790. 3배 넘게 어긋난 10종도 AP@0.75~0.85는 1.000</td><td><span class="chip no">원인 아님</span></td></tr>
+        <tr><td>2</td><td>AI Hub <code>category_id</code> 매핑 오류</td><td>대회 클래스 72종 모두 번호 일치, 외형 일치</td><td><span class="chip no">기각</span></td></tr>
+        <tr><td>3</td><td>출처별 box 크기·여백이 다르다</td><td>74종 중 59종 차이 10% 미만, 크기 중앙값 비 0.991~0.998</td><td><span class="chip no">기각</span></td></tr>
+        <tr><td>4</td><td>train·val 누수</td><td>함께 있는 조합 0개</td><td><span class="chip no">기각</span></td></tr>
+        <tr><td>5</td><td>test 전용 18종 번호가 대회 정답과 다르다</td><td>18종만 제출 0.16171 ≠ 0 → 18종 평균 AP 0.665</td><td><span class="chip no">기각</span></td></tr>
+        <tr><td>6</td><td>Kaggle 채점 방식이 다르다</td><td>56종 + 18종 = 0.61515 ≈ 원본 0.61516, conf≥0.5만 내도 −0.0001</td><td><span class="chip no">기각</span></td></tr>
+        <tr><td>7</td><td>대회 정답 box가 전체적으로 크거나 작다</td><td>±2% 조작 제출: +2% −0.010, −2% −0.066, 둘 다 하락</td><td><span class="chip no">기각</span></td></tr>
+        <tr class="hl"><td>8</td><td>대회 test 정답에 라벨 오류가 많다</td><td>자체 파악 채점 AP@0.5 1.000, 놓친 알약 0. 대회 정답은 비공개</td><td><span class="chip hold">기각 못함</span></td></tr>
+      </table>
+      </div>
+      <aside class="notes">근거: 보고서 표 7-1. 03_val_test_gap_eda 노트북. 3차 EDA는 val이 못 보는 원인을 찾는 분석입니다. 가설 8은 가장 유력한 후보로 남습니다.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

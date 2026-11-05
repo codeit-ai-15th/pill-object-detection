@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>점수를 크게 움직인 것은 데이터뿐이었습니다. · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="점수를 크게 움직인 것은 데이터뿐이었습니다.">
+      <p class="sec-tag">결과와 최종 모델</p>
+      <h2>점수를 크게 움직인 것은 데이터뿐이었습니다.</h2>
+      <div class="body">
+      <div class="lead-c">
+        <p><b>라벨 정제 +0.018, 외부 데이터 +0.19~0.20.</b> 모델·증강·해상도·에폭·불균형 대응으로는 점수가 확실히 오르지 않았습니다.</p>
+      </div>
+      <table class="tbl">
+        <tr><th>#</th><th>변경 (Kaggle public)</th><th>YOLO26s</th><th>RT-DETR-l</th><th>Faster R-CNN</th></tr>
+        <tr><td>0</td><td>원본 라벨, Kaggle 232장, e100</td><td>0.392</td><td>—</td><td>—</td></tr>
+        <tr><td>1</td><td>+ 라벨 정제 21건 (seed 0 / 1 / 2)</td><td>0.410 / 0.410 / 0.390 <b>(+0.018)</b></td><td>0.4215 / 0.4176 / 0.4201</td><td>0.3763 / 0.3775 / 0.3948</td></tr>
+        <tr class="hl"><td>2</td><td>+ AI Hub 보충 (v3 e10)</td><td>0.6035 <b>(+0.19)</b></td><td>0.6066 <b>(+0.19)</b></td><td>0.5975 <b>(+0.20)</b></td></tr>
+        <tr><td>2′</td><td>2차 최고 제출</td><td>0.6339 (+0.03*)</td><td>0.6156 (+0.01)</td><td>0.6111 (+0.01)</td></tr>
+        <tr><td>2″</td><td>같은 설정 seed만 변경 (v3 e20)</td><td>0.6145 / 0.6243</td><td>—</td><td>—</td></tr>
+        <tr><td>3</td><td>+ 불균형 대응 rfs / cls_pw / 둘 다</td><td>0.5985 / 0.6126 / 0.6198</td><td>실행 안 함</td><td>0.6141 / 0.6079 / 0.6103 (보류)</td></tr>
+      </table>
+      <p class="foot">* 에폭과 함께 mosaic·GPU·workers가 바뀌어 에폭만의 효과로 볼 수 없습니다. 같은 설정의 흔들림은 0.020입니다.</p>
+      </div>
+      <aside class="notes">근거: 보고서 표 9-1. 기준은 test 842장, 각 1회 제출입니다.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

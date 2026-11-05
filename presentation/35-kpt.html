@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>회고: Keep · Problem · Try · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="회고: Keep · Problem · Try">
+      <p class="sec-tag">팀원 역할 및 회고</p>
+      <h2>회고: Keep · Problem · Try</h2>
+      <div class="body">
+      <p class="foot"><span class="todo">TODO: 회의록에서 뽑은 초안. 팀 회고 후 확정</span></p>
+      <div class="cards c3 kpt">
+        <div class="frame-blue bordered"><h3>Keep</h3><ul><li>베이스라인을 빨리 잡고 거기서 성장한 것을 보여 주자는 스토리라인을 처음에 합의하고 끝까지 지켰습니다.</li><li>원본 불변 + 정제 목록 CSV + 고정 분할 + 단일 채점 코드로 누구 환경에서든 같은 데이터·같은 점수가 나옵니다.</li><li>실험마다 가설 → 결과 → 회수. 실패한 실험도 남겼습니다.</li><li>점수가 안 움직일 때 모델이 아니라 평가 대상을 의심했습니다.</li></ul></div>
+        <div class="frame bordered"><h3>Problem</h3><ul><li>모델별 환경이 달라 모델 간 비교를 포기해야 했습니다.</li><li>2차 격자가 커서 시드를 늘리지 못했고 RT-DETR 학습에 25.8h가 들었습니다.</li><li>진단 제출이 늦었습니다(11/3). 제출 한도를 초반에 거의 쓰지 않았습니다.</li><li>실험 결과가 노트북·Drive·W&amp;B에 흩어져 보고서를 쓸 때 다시 모아야 했습니다.</li></ul></div>
+        <div class="frame-yellow bordered"><h3>Try</h3><ul><li>1차 직후 진단 제출 2건으로 손실 위치부터 가릅니다.</li><li>환경(GPU·AMP·workers)을 먼저 고정하고 시드 3개를 기본으로 합니다.</li><li><code>runs.csv</code> 한 파일에 모든 run을 모으는 규칙을 첫날 정합니다.</li><li>보조 지표(IoU 0.95 AP, 추론 시간)를 처음부터 기록합니다.</li></ul></div>
+      </div>
+      </div>
+      <aside class="notes">근거: 보고서 13.2. 아직 회의록에서 뽑은 초안입니다.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

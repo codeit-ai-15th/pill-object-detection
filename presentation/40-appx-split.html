@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>부록: 사진 단위로 나누면 val의 76%가 train과 같은 조합입니다 · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="부록: 사진 단위로 나누면 val의 76%가 train과 같은 조합입니다">
+      <p class="sec-tag">부록</p>
+      <h2>부록: 사진 단위로 나누면 val의 76%가 train과 같은 조합입니다</h2>
+      <div class="body">
+      <div class="two">
+      <div class="col w40">
+      <figure class="fig">
+        <img src="figures/fig_3-8_combo_example.png" alt="조합 세 각도 예시">
+      </figure>
+      </div>
+      <div class="col">
+      <table class="tbl">
+        <tr><th>분할 단위</th><th>같은 조합이 train에 있는 val 사진</th><th>val에만 있는 클래스</th><th>train에만 있는 클래스</th></tr>
+        <tr><td>사진 단위</td><td>평균 76.1% (63~87%)</td><td>평균 0.1</td><td>평균 11.5</td></tr>
+        <tr class="hl"><td>조합 단위</td><td>0%</td><td>평균 4.1</td><td>평균 24.8</td></tr>
+      </table>
+      <div class="lead-c">
+        <p>최종 분할은 조합 단위, seed 410입니다. train 185장 / val 47장, val 30종.</p>
+      </div>
+      </div>
+      </div>
+      </div>
+      <aside class="notes">근거: 보고서 3.5, 표 3-3. 시뮬레이션은 val 20%, seed 20회입니다.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>부록: 3차 실험 설계 · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="부록: 3차 실험 설계">
+      <p class="sec-tag">부록</p>
+      <h2>부록: 3차 실험 설계</h2>
+      <div class="body">
+      <table class="tbl">
+        <tr><th>방법</th><th>요점</th></tr>
+        <tr><td>오버샘플링 (RFS)</td><td>클래스가 든 사진 비율이 기준(중앙값)보다 작으면 √(기준 ÷ 비율)배 반복. seed 0으로 한 번 뽑아 모든 모델이 같은 목록을 씁니다</td></tr>
+        <tr><td>언더샘플링 (under-N)</td><td>객체가 적은 클래스부터 N개까지 채웁니다. 2차 v2가 N=200으로 이 규칙을 쓴 결과입니다</td></tr>
+        <tr><td>손실 가중치 (<code>cls_pw</code>)</td><td>(1 ÷ 객체 수)^0.5를 평균 1로 정규화합니다</td></tr>
+        <tr><td>총 학습량 맞춤</td><td>epoch = round(E × N ÷ 목록 길이)로 총 step을 baseline과 같게 합니다. 균형 효과와 학습량 효과가 섞이지 않게 하려는 것입니다</td></tr>
+      </table>
+      <table class="tbl">
+        <tr><th>모델</th><th>baseline</th><th>Kaggle</th><th>rfs</th><th>under200</th><th>cls_pw 0.5</th><th>둘 다</th><th>실행</th></tr>
+        <tr><td>YOLO26s</td><td>v3 e20 (A100)</td><td>0.6339</td><td>18</td><td>30</td><td>20</td><td>18</td><td>rfs, cls_pw, 둘 다</td></tr>
+        <tr><td>RT-DETR-l</td><td>v3 e10</td><td>0.6066</td><td>9</td><td>15</td><td>—</td><td>—</td><td>실행 안 함 (시간 부족)</td></tr>
+        <tr><td>Faster R-CNN</td><td>v3 e10</td><td>0.5975</td><td>9</td><td>15</td><td>10</td><td>9</td><td>rfs, cls_pw, 둘 다</td></tr>
+      </table>
+      <p class="foot">조건별 숫자는 총 step을 맞춘 epoch 수입니다. 사진 단위 샘플링은 조합 때문에 최대 ÷ 최소를 4:1 아래로 내릴 수 없어, 객체 단위인 손실 가중치와 함께 씁니다.</p>
+      </div>
+      <aside class="notes">근거: 보고서 8.1, 표 8-1. 방법은 v3로 고정했습니다. v3 기준 RFS 목록은 10,148장(+13%)입니다.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

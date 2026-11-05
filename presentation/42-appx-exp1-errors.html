@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>부록: 1차 오류는 희소 약과 닮은 짝에 몰립니다 · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="부록: 1차 오류는 희소 약과 닮은 짝에 몰립니다">
+      <p class="sec-tag">부록</p>
+      <h2>부록: 1차 오류는 희소 약과 닮은 짝에 몰립니다</h2>
+      <div class="body">
+      <figure class="fig">
+        <img src="figures/fig_4-3_exp1_confusion.png" alt="1차 실험 오류 중심 confusion matrix">
+      </figure>
+      <table class="tbl">
+        <tr><th>모델 (seed 0 / 1 / 2)</th><th>맞음</th><th>클래스 틀림</th><th>못 찾음</th><th>배경 오답</th><th>IoU&lt;0.95</th></tr>
+        <tr><td>YOLO26s</td><td>148 / 143 / 144</td><td>5 / 12 / 5</td><td>6 / 4 / 10</td><td>1 / 6 / 5</td><td>11 / 8 / 16</td></tr>
+        <tr><td>RT-DETR-l</td><td>140 / 142 / 136</td><td>19 / 17 / 23</td><td>0 / 0 / 0</td><td>45 / 38 / 62</td><td>9 / 10 / 5</td></tr>
+        <tr><td>Faster R-CNN</td><td>145 / 142 / 141</td><td>14 / 17 / 18</td><td>0 / 0 / 0</td><td>14 / — / —</td><td>30 / 30 / 32</td></tr>
+      </table>
+      </div>
+      <aside class="notes">근거: 보고서 표 4-4, 4.3.4. val 47장, 정답 159개, score ≥ 0.30, 매칭 IoU ≥ 0.75. RT-DETR는 NMS가 없어 배경 오답이 많습니다.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

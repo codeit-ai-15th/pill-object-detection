@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>분포·번호·box 크기·누수는 원인이 아닙니다. · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="분포·번호·box 크기·누수는 원인이 아닙니다.">
+      <p class="sec-tag">3차 EDA</p>
+      <h2>분포·번호·box 크기·누수는 원인이 아닙니다.</h2>
+      <div class="body">
+      <div class="stat-row">
+        <div class="stat"><b>AP 1.000</b><span>비율이 3배 넘게 어긋난 10종, IoU 0.75~0.85</span></div>
+        <div class="stat"><b>0 / 45,819</b><span>클래스 번호가 어긋난 JSON</span></div>
+        <div class="stat"><b>59 / 74종</b><span>출처별 box 짧은 변 차이 10% 미만</span></div>
+        <div class="stat"><b>0개</b><span>train·val에 함께 있는 조합</span></div>
+      </div>
+      <div class="two">
+      <div class="col ">
+      <figure class="fig">
+        <img src="figures/fig_7-2_mismatch_classes_iou_ap.png" alt="비율이 어긋난 10종의 IoU 기준별 val AP">
+        <figcaption>val·test 비율이 3배 넘게 어긋난 10종의 IoU 기준별 val AP</figcaption>
+      </figure>
+      </div>
+      <div class="col">
+      <figure class="fig">
+        <img src="figures/fig_7-3_box_short_side_by_source.png" alt="대회 클래스 74종의 출처별 box 짧은 변">
+        <figcaption>대회 클래스 74종의 출처별 box 짧은 변 (Kaggle, AI Hub, 자체 파악)</figcaption>
+      </figure>
+      </div>
+      </div>
+      </div>
+      <aside class="notes">근거: 보고서 7.2 H1~H4, 표 7-2, 표 7-3. 출처별 중앙값 차이는 알약이 놓인 방향의 차이입니다(부록 사진). 처음 보는 조합의 비율은 val이 test보다 오히려 높습니다(100% vs 88%).</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

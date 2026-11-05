@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>같은 데이터·같은 채점으로 비교하도록 파이프라인을 고정했습니다. · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="같은 데이터·같은 채점으로 비교하도록 파이프라인을 고정했습니다.">
+      <p class="sec-tag">프로젝트 목표</p>
+      <h2>같은 데이터·같은 채점으로 비교하도록 파이프라인을 고정했습니다.</h2>
+      <div class="body">
+      <div class="two">
+      <div class="col w30">
+      <ul>
+        <li><b>원본은 건드리지 않습니다.</b> 고친 내용은 CSV에 기록하고 스크립트가 사본을 만듭니다.</li>
+        <li><b>분할은 파일로 고정합니다.</b> train/val 목록을 git으로 관리합니다.</li>
+        <li><b>채점 코드는 하나만 씁니다.</b> 세 모델을 같은 함수로 채점합니다.</li>
+        <li><b>가설 → 결과 → 회수로 기록합니다.</b> 실패한 실험도 남깁니다.</li>
+      </ul>
+      <table class="tbl">
+        <tr><th>계열</th><th>모델</th></tr>
+        <tr><td>1-stage</td><td>YOLO26s</td></tr>
+        <tr><td>DETR</td><td>RT-DETR-l</td></tr>
+        <tr><td>2-stage</td><td>Faster R-CNN (R50-FPN)</td></tr>
+      </table>
+      </div>
+      <div class="col">
+      <figure class="fig">
+        <img src="figures/fig_2-1_experiment_pipeline.png" alt="실험 파이프라인 다이어그램">
+      </figure>
+      </div>
+      </div>
+      </div>
+      <aside class="notes">근거: 보고서 2.1, 2.2. 목차에 없지만 결과를 읽으려면 필요해서 넣은 장입니다.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

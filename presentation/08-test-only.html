@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>test에만 나오는 18종 때문에 점수 상한이 0.76입니다. · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="test에만 나오는 18종 때문에 점수 상한이 0.76입니다.">
+      <p class="sec-tag">1차 EDA</p>
+      <h2>test에만 나오는 18종 때문에 점수 상한이 0.76입니다.</h2>
+      <div class="body">
+      <div class="two">
+      <div class="col w55">
+      <figure class="fig">
+        <img src="figures/fig_3-10_test_only_gallery.png" alt="test에만 나오는 알약 18종">
+      </figure>
+      </div>
+      <div class="col">
+      <div class="lead-c">
+        <p>train 56종을 줄 세워 test 사진과 일일이 대조했습니다.</p>
+        <p>56종만 배운 모델은 18종을 맞힐 수 없고, 점수는 클래스별 AP 평균이라 <b>상한이 56/74 ≈ 0.76</b>입니다.</p>
+      </div>
+      <div class="stat-row col">
+        <div class="stat"><b>18종</b><span>train에 없는 test 전용 알약</span></div>
+        <div class="stat"><b>335장 (39.8%)</b><span>18종이 나오는 test 사진 (842장 중)</span></div>
+        <div class="stat"><b>≈ 0.76</b><span>18종이 0점일 때 점수 상한</span></div>
+      </div>
+      </div>
+      </div>
+      </div>
+      <aside class="notes">근거: 보고서 3.6. 대회 측이 test에는 train에 없는 클래스가 있다고 밝혔습니다.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

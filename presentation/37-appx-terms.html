@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>부록: 용어 · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="부록: 용어">
+      <p class="sec-tag">부록</p>
+      <h2>부록: 용어</h2>
+      <div class="body">
+      <table class="tbl sm">
+        <tr><th>표현</th><th>뜻</th></tr>
+        <tr><td>val (검증 세트)</td><td>학습에 쓰지 않고 점수를 재는 사진. 1차는 Kaggle 47장, 2차는 Kaggle 47장 + AI Hub 953장 = 1,000장</td></tr>
+        <tr><td>test (테스트 세트)</td><td>Kaggle이 정답을 숨겨 둔 사진 842장. 제출하면 이 사진으로 채점됩니다</td></tr>
+        <tr><td>mAP@[0.75:0.95]</td><td>IoU 기준 0.75, 0.80, 0.85, 0.90, 0.95 각각에서 클래스별 AP를 구해 모두 평균한 값</td></tr>
+        <tr><td>AP / IoU</td><td>AP: 정밀도-재현율 곡선 아래 넓이. IoU: 예측 box와 정답 box가 겹친 넓이 ÷ 합친 넓이</td></tr>
+        <tr><td>Kaggle / test 전용 / 대회 클래스</td><td>Kaggle 학습 데이터의 56종 / test에만 나오는 18종 / 채점 대상 74종</td></tr>
+        <tr><td>방법 v1~v4</td><td>2차 실험에서 학습 이미지를 고르는 네 가지 방법</td></tr>
+        <tr><td>조합</td><td>한 사진에 함께 놓인 알약의 묶음. 같은 조합을 세 각도(70°, 75°, 90°)로 찍습니다</td></tr>
+        <tr><td>K-코드</td><td>알약 식별 번호(<code>K-003351</code> 등). 숫자 부분이 <code>category_id</code></td></tr>
+        <tr><td>자체 파악</td><td>test 842장의 알약 3,229개를 우리가 직접 정리한 목록. 클래스는 사람이 확인, box는 1차 모델 예측. 공식 정답이 아닙니다</td></tr>
+        <tr><td>대리 채점</td><td>제출 파일을 Kaggle 대신 자체 파악으로 채점하는 것</td></tr>
+        <tr><td>진단 제출</td><td>점수를 올리려는 것이 아니라 원인을 가르려고 일부러 바꿔서 낸 제출</td></tr>
+      </table>
+      </div>
+      <aside class="notes">근거: 보고서 0.5.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

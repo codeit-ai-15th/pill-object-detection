@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>사진을 올리면 약 정보까지 보여 주는 데모를 배포했습니다. · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="사진을 올리면 약 정보까지 보여 주는 데모를 배포했습니다.">
+      <p class="sec-tag">결과와 최종 모델</p>
+      <h2>사진을 올리면 약 정보까지 보여 주는 데모를 배포했습니다.</h2>
+      <div class="body">
+      <div class="two">
+      <div class="col w55">
+      <div class="placeholder"><p><span class="todo">TODO: 데모 화면 캡처 (입력 → 검출 결과 → 허가정보 카드)</span></p></div>
+      </div>
+      <div class="col">
+      <div class="num-list sm">
+        <div class="num-card"><div class="n">01</div><div><h3>검출 결과</h3><p>알약마다 bbox·제품명·confidence를 그립니다. confidence 슬라이더를 제공합니다.</p></div></div>
+        <div class="num-card"><div class="n">02</div><div><h3>약 정보</h3><p>식약처 허가정보(효능효과·용법용량·주의사항)와 약학정보원 검색 바로가기를 보여 줍니다. 118종 중 111종을 캐시로 채웠습니다.</p></div></div>
+        <div class="num-card"><div class="n">03</div><div><h3>모델 비교</h3><p>YOLO / RT-DETR / Faster R-CNN을 바꿔 같은 사진의 결과를 비교합니다.</p></div></div>
+      </div>
+      <p class="foot"><a class="url" href="https://huggingface.co/spaces/relukang/pill-object-detection" target="_blank" rel="noopener"><b>huggingface.co/spaces/relukang/pill-object-detection</b></a></p>
+      </div>
+      </div>
+      </div>
+      <aside class="notes">근거: 보고서 10장. Gradio + ZeroGPU, 백엔드·DB 없음. 118종 closed-set이라 학습하지 않은 약은 가장 비슷한 약으로 답합니다. 목차에 없지만 프로젝트 2차 목표라 넣은 장입니다.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

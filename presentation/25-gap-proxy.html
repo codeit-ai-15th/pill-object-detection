@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>자체 파악 기준으로 모델은 test에서 놓친 알약이 없습니다. · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="자체 파악 기준으로 모델은 test에서 놓친 알약이 없습니다.">
+      <p class="sec-tag">3차 EDA</p>
+      <h2>자체 파악 기준으로 모델은 test에서 놓친 알약이 없습니다.</h2>
+      <div class="body">
+      <div class="lead-c">
+        <p>대회 정답은 공개되지 않아, <b>test 알약 3,229개를 직접 정리한 자체 파악</b>으로 제출 파일을 채점했습니다.</p>
+        <p>자체 파악의 box는 1차 RT-DETR 예측이므로 높은 IoU는 보지 않고 <b>IoU 0.5 기준</b>으로만 판단합니다. 클래스는 사람이 확인했습니다.</p>
+      </div>
+      <div class="stat-row">
+        <div class="stat"><b>1.000</b><span>AP@0.5 (56종, 18종 모두)</span></div>
+        <div class="stat"><b>0개</b><span>놓친 알약</span></div>
+        <div class="stat"><b>99.9~100%</b><span>클래스 일치</span></div>
+        <div class="stat"><b>0.98</b><span>자체 파악 box와 IoU 중앙값</span></div>
+      </div>
+      <table class="tbl">
+        <tr><th>제출</th><th>Kaggle public</th><th>예측 수</th><th>AP@0.5</th><th>클래스 일치 (Kaggle / test 전용)</th><th>놓친 알약</th><th>IoU 중앙값</th></tr>
+        <tr><td>v2 RT-DETR-l e10</td><td>0.61516</td><td>90,354</td><td>1.000</td><td>100.0% / 100.0%</td><td>0</td><td>0.979</td></tr>
+        <tr><td>v4 RT-DETR-l e5</td><td>0.61558</td><td>173,409</td><td>1.000</td><td>99.9% / 100.0%</td><td>0</td><td>0.978</td></tr>
+      </table>
+      <div class="frame-yellow bordered line"><p>K-003483은 test에 369개로 가장 많고 학습 데이터에는 27개뿐인데, <b>369개를 모두 맞혔습니다.</b></p></div>
+      </div>
+      <aside class="notes">근거: 보고서 표 7-5, 7.2 H8. 자체 파악은 공식 정답이 아니므로 이 결과로 대회 정답을 직접 확인한 것은 아닙니다.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

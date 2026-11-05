@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>부록: 3차 클래스별 AP 변화는 seed만 바꾼 변화와 같은 범위입니다 · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="부록: 3차 클래스별 AP 변화는 seed만 바꾼 변화와 같은 범위입니다">
+      <p class="sec-tag">부록</p>
+      <h2>부록: 3차 클래스별 AP 변화는 seed만 바꾼 변화와 같은 범위입니다</h2>
+      <div class="body">
+      <div class="two">
+      <div class="col w55">
+      <figure class="fig">
+        <img src="figures/fig_8-3_exp3_class_ap_delta.png" alt="3차 클래스별 AP 변화">
+      </figure>
+      </div>
+      <div class="col">
+      <table class="tbl sm">
+        <tr><th>모델 · 조건</th><th>뮤테란 2483</th><th>다보타민큐 12778</th><th>리리카 18147</th><th>트루비타 19552</th></tr>
+        <tr><td>YOLO baseline</td><td>0.971 / 0.855</td><td>0.976 / 0.881</td><td>0.974 / 0.871</td><td>0.959 / 0.793</td></tr>
+        <tr><td>YOLO rfs</td><td>0.993 / 0.963</td><td>0.980 / 0.902</td><td>0.965 / 0.823</td><td>0.953 / 0.766</td></tr>
+        <tr><td>YOLO cls_pw 0.5</td><td>0.988 / 0.938</td><td>0.979 / 0.897</td><td>0.964 / 0.821</td><td>0.951 / 0.753</td></tr>
+        <tr><td>YOLO 둘 다</td><td>0.985 / 0.925</td><td>0.969 / 0.846</td><td>0.964 / 0.818</td><td>0.960 / 0.799</td></tr>
+        <tr><td>F-RCNN baseline</td><td>0.993 / 0.963</td><td>0.971 / 0.855</td><td>1.000 / 1.000</td><td>0.971 / 0.856</td></tr>
+        <tr><td>F-RCNN rfs</td><td>0.992 / 0.960</td><td>0.994 / 0.968</td><td>1.000 / 1.000</td><td>0.984 / 0.921</td></tr>
+        <tr><td>F-RCNN cls_pw 0.5</td><td>0.993 / 0.967</td><td>0.976 / 0.879</td><td>0.979 / 0.894</td><td>0.979 / 0.893</td></tr>
+        <tr><td>F-RCNN 둘 다</td><td>1.000 / 1.000</td><td>0.983 / 0.917</td><td>1.000 / 1.000</td><td>0.981 / 0.906</td></tr>
+      </table>
+      <p class="foot">AP@[0.75:0.95] / AP@0.95. 모니터 4종은 train 189~417개로 희소하지 않은데도 AP@0.95가 낮습니다.</p>
+      </div>
+      </div>
+      </div>
+      <aside class="notes">근거: 보고서 그림 8-4 (파일명 fig_8-3), 표 8-3, 8.3.4.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

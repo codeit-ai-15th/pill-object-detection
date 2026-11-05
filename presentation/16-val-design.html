@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>2차 val은 test를 닮게 설계해 1,000장으로 고정했습니다. · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="2차 val은 test를 닮게 설계해 1,000장으로 고정했습니다.">
+      <p class="sec-tag">2차 EDA</p>
+      <h2>2차 val은 test를 닮게 설계해 1,000장으로 고정했습니다.</h2>
+      <div class="body">
+      <div class="lead-c">
+        <p>1차 val 47장은 30종뿐이라 test를 대표하지 못합니다. <b>test 알약 3,229개를 직접 정리(자체 파악)</b>해 그 비율대로 val을 뽑았습니다.</p>
+      </div>
+      <div class="stat-row">
+        <div class="stat"><b>1,000장</b><span>Kaggle 47 + AI Hub 953</span></div>
+        <div class="stat"><b>74종 전부</b><span>클래스당 18~114개</span></div>
+        <div class="stat"><b>0.790</b><span>val 비율과 test 비율의 상관계수</span></div>
+        <div class="stat"><b>0개</b><span>train과 겹치는 조합</span></div>
+      </div>
+      <figure class="fig">
+        <img src="figures/fig_5-9_val_test_ratio_bar_plot.png" alt="클래스별 val 비율과 test 비율 막대그래프">
+      </figure>
+      </div>
+      <aside class="notes">근거: 보고서 5.6. 자체 파악은 공식 정답이 아닙니다. 클래스는 사람이 확인했고 box는 1차 RT-DETR 예측입니다. 목록은 images.csv로 git에 고정해 네 방법이 같은 val을 씁니다.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

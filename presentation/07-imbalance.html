@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>클래스 불균형이 52배이고, 30%는 객체가 3개뿐입니다. · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="클래스 불균형이 52배이고, 30%는 객체가 3개뿐입니다.">
+      <p class="sec-tag">1차 EDA</p>
+      <h2>클래스 불균형이 52배이고, 30%는 객체가 3개뿐입니다.</h2>
+      <div class="body">
+      <div class="stat-row">
+        <div class="stat"><b>3 / 9 / 157</b><span>클래스별 bbox 수 최소 / 중앙값 / 최대</span></div>
+        <div class="stat"><b>52.3배</b><span>최대 ÷ 최소</span></div>
+        <div class="stat"><b>17종 (30%)</b><span>bbox가 3개뿐인 클래스</span></div>
+        <div class="stat"><b>20.4%</b><span>K-003351 한 종의 bbox 비중</span></div>
+      </div>
+      <figure class="fig">
+        <img src="figures/fig_3-4_class_freq_barplot.png" alt="클래스별 bbox 수 막대그래프">
+      </figure>
+      </div>
+      <aside class="notes">근거: 보고서 3.3. 1차에서는 가중치·샘플링 없이 그대로 학습한 뒤 결과를 봅니다.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>부록: AI Hub 라벨은 그대로 쓰면 에러 없이 점수만 0이 됩니다 · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="부록: AI Hub 라벨은 그대로 쓰면 에러 없이 점수만 0이 됩니다">
+      <p class="sec-tag">부록</p>
+      <h2>부록: AI Hub 라벨은 그대로 쓰면 에러 없이 점수만 0이 됩니다</h2>
+      <div class="body">
+      <div class="lead-c">
+        <p>AI Hub 원본은 번호가 모두 1이고, 알약 번호 <code>dl_idx</code>는 K-코드보다 1 작습니다. <b><code>drug_N</code>에서 K-코드를 읽어</b> <code>category_id</code>를 만들었습니다.</p>
+      </div>
+      <div class="ba">
+        <div class="frame bordered"><h3>Before: AI Hub 원본</h3><ul><li><code>category_id</code> = 1 (45,909개 모두)</li><li><code>image id</code>, <code>annotation id</code> = 1</li><li><code>categories.name</code> = Drug</li><li><code>dl_idx</code> = K-코드 − 1 (45,459 / 45,909개)</li></ul></div>
+        <svg viewBox="0 0 60 60" aria-hidden="true"><path d="M8 8l18 22-18 22M30 8l18 22-18 22" fill="none" stroke="#F9A61C" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"/></svg>
+        <div class="frame-blue bordered"><h3>After: 변환 후</h3><ul><li><code>category_id</code> = K-코드</li><li>Kaggle 대회 형식과 일치 45,909 / 45,909개</li><li><code>iscrowd</code> 키가 없는 JSON은 0으로 추가</li></ul></div>
+      </div>
+      </div>
+      <aside class="notes">근거: 보고서 5.2. 나머지 450개는 K-053384의 JSON으로 dl_idx가 모두 130376입니다.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>

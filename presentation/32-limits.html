@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>모델 간 비교는 할 수 없고, 정답 쪽 결론은 추정입니다. · 경구약제 이미지 객체 검출</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck" aria-roledescription="presentation">
+  <div class="stage">
+    <div class="counter"><span class="cur">1</span><span class="sep"> / </span><span class="total">0</span></div>
+
+    <section class="slide" aria-label="모델 간 비교는 할 수 없고, 정답 쪽 결론은 추정입니다.">
+      <p class="sec-tag">한계와 개선 방안</p>
+      <h2>모델 간 비교는 할 수 없고, 정답 쪽 결론은 추정입니다.</h2>
+      <div class="body">
+      <table class="tbl">
+        <tr><th>한계</th><th>내용</th><th>영향</th></tr>
+        <tr class="hl"><td>모델 간 환경 불일치</td><td>GPU, AMP, workers, 에폭이 모델마다 다름</td><td><b>모델 간 성능 비교는 할 수 없습니다.</b> 처음부터 목적은 데이터의 쓸모 비교입니다</td></tr>
+        <tr class="hl"><td>test 정답 접근 불가</td><td>점수 차이의 원인을 대리 채점과 진단 제출로 간접 추정</td><td><b>“test 정답 쪽일 가능성이 크다”는 결론은 확정이 아닙니다</b></td></tr>
+        <tr><td>2차 시드 1회</td><td>v3 e20만 3차에서 seed 3개로 편차 0.020을 잼</td><td>방법 간 0.003~0.02 차이는 “차이 없음”으로 썼습니다</td></tr>
+        <tr><td>val 포화</td><td>2차 val 0.98~0.997</td><td>run 선택과 3차 판정을 val로 할 수 없어 Kaggle 제출(하루 10회)에 의존했습니다</td></tr>
+        <tr><td>3차 실험 축소</td><td>YOLO·F-RCNN 3조건, RT-DETR·언더샘플링 미실행</td><td>불균형 대응 설계의 검증이 제한적입니다. F-RCNN은 판정 보류입니다</td></tr>
+        <tr><td>라이선스</td><td>AI Hub 데이터는 연구·교육 목적, Ultralytics는 AGPL-3.0</td><td>상용 서비스에는 별도 확인이 필요합니다</td></tr>
+      </table>
+      </div>
+      <aside class="notes">근거: 보고서 11.1. 그 밖에 public/private 차이, YOLO e20 혼입 변수, 라벨 정제의 주관성이 있습니다.</aside>
+    </section>
+
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+    <span class="progress__bar"></span>
+  </div>
+  <a class="home" href="index.html" title="목차로">▦</a>
+  <div class="hint">← →/Space 이동 · N 노트 · Esc 목차</div>
+  <div class="notes-overlay"><h4>SPEAKER NOTES</h4><div class="notes-body"></div></div>
+</main>
+
+<script src="slides.js"></script>
+<script src="deck.js"></script>
+</body>
+</html>
