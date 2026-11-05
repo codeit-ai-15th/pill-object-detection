@@ -7,11 +7,11 @@
 
 > 🔗 **서비스 바로가기**
 >
-> ![Hugging Face Space: Pill Detection](https://huggingface.co/spaces/relukang/pill-object-detection)
+> [Hugging Face Space: Pill Detection](https://huggingface.co/spaces/relukang/pill-object-detection)
 
 > 📹 **서비스 소개 유튜브 영상**
 >
-> [![YouTube Video](https://shields.io)](https://www.youtube.com/watch?v=dUJKRc9mURE)
+> [YouTube Video](https://www.youtube.com/watch?v=dUJKRc9mURE)
 
 > 🖼️ **서비스 미리보기**
 > 
