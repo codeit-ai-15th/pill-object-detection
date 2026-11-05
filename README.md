@@ -1,17 +1,48 @@
 # 💊 Pill Object Detection
 
 ## 📑 Project Overview
-이 프로젝트는 경구약제 이미지 인식 기능을 이용해 사용자가 알약 사진을 올리면 그 알약이 무슨 알약인 지 검출해주는 서비스입니다. 
+이 프로젝트는 경구약제 이미지 인식 기능을 이용해 사용자가 알약 사진을 올리면 그 사진 안에 무슨 알약이 있는 지 보여주고, 알약의 효능 및 효과, 용법 및 용량, 그리고 복용 시 주의사항을 알려줍니다. 더 세부적인 정보를 알고싶은 사용자들을 위해 약학정보원으로 바로가는 링크를 제공합니다. 
 
-- 1차 마일스톤: 알약 이미지를 입력하면 약 이름을 검출하는 모델 개발
-- (선택)2차 마일스톤: 알약 정보를 입력하면 [식의약 데이터 포털 공공API](https://www.data.go.kr/data/15095677/openapi.do)를 통해 복용 가이드를 제공해주는 기능
+- 복용 정보는 [식의약 데이터 포털 공공API](https://www.data.go.kr/data/15095677/openapi.do)를 통해 제공합니다.
 
-> TODO 데모 영상
+> 🔗 **서비스 바로가기**
+>
+> ![Hugging Face Space: Pill Detection](https://huggingface.co/spaces/relukang/pill-object-detection)
+
+> 📹 **서비스 소개 유튜브 영상**
+>
+> [![YouTube Video](https://shields.io)](https://www.youtube.com/watch?v=dUJKRc9mURE)
+
+> 🖼️ **서비스 미리보기**
+> 
+> <img width="900" height="700" alt="Screenshot 2026-11-05 at 10 24 38" src="https://github.com/user-attachments/assets/4233d40f-4c78-40fb-af4e-1d52223d8a31" />
 
 ## 📊 DataSet Overview
-본 프로젝트는 [AI Hub에서 제공하는 공개 데이터셋](https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=576)을 활용했습니다. 
+본 프로젝트는 [Kaggle 대회](https://www.kaggle.com/competitions/ai15-level1-project/data)와 [AI Hub에서 제공하는 공개 데이터셋](https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=576)에서 제공하는 데이터를 혼합해서 활용했습니다. 
+- 제공된 데이터에서 EDA를 통해 라벨 오류를 제거하고, 형식을 통일해 데이터 퀄리티를 확보했습니다. 
 
-> TODO EDA 후 데이터 개요 시각화 자료 첨부
+> **활용한 데이터 규모**
+>
+> | 구분 | Kaggle 대회 데이터 | AI Hub 데이터 | 총합 | 클래스 수 |
+> | --- | ---: | ---: | ---: | ---: |
+> | train | 185장 / 612개 | 11,021장 / 42,188개 | 11,206장 / 42,800개 | 118 |
+> | val | 47장 / 159개 | 953장 / 3,631개 | 1,000장 / 3,790개 | 96** |
+> | test | 842장 / 3,229개* | - | 842장 / 3,229개* | 74* |
+> * test 정답은 공개되지 않아, 객체 수는 팀이 자체 파악한 추정치입니다.
+> * *\* 채점 대상인 대회 클래스 74개와 채점하지 않는 AI Hub 전용 클래스 22개를 합친 수입니다.
+
+> **클래스 별 객체 수 분포**
+> <img width="1200" height="400" alt="image" src="https://github.com/user-attachments/assets/214d5e88-943a-46a0-9138-be911eacfcc5" />
+
+## 🧪 Experiment Pipeline
+원본 데이터는 건드리지 않고, 정제 목록을 csv로 만들어 버전관리하고, train/val 분할은 csv로 고정해 버전관리하고, 채점 코드는 하나로 고정했습니다. 
+
+> **실험 파이프라인 다이어그램**
+>
+> <img width="3360" height="2028" alt="image" src="https://github.com/user-attachments/assets/7c8541c4-37f8-482d-95bc-3dcead92821f" />
+
+## 📖 Results
+> TODO 모델별 실험 성과 비교 및 최종 모델 성능 표
 
 ## 📂 Project Structure
 
@@ -268,9 +299,3 @@ uv run scripts/build_dataset.py --variant v2 --out data/processed/exp2/v2
 - 약학정보원은 세부 페이지 주소를 우리 데이터로 알 수 없어 제품명 검색 링크만 제공합니다.
 - 허가정보 캐시는 118개 클래스 중 111개가 채워져 있습니다. 나머지 7개(뉴로메드정, 타이레놀이알서방정(수출용), 리렉스펜정, 가바토파정, 마도파정, 바이오탑디캡슐, 바이오탑하이캡슐)는 허가 취소·수출용 등으로 식약처 허가정보 API에 없어 카드에 그 안내와 검색 링크만 나옵니다.
 - 사용 가능한 가중치 형식과 클래스 번호 규칙은 [demo/predict.py](demo/predict.py) 모듈 docstring에 있습니다.
-
-## 🧠 Model Architecture 
-> TODO 최종 선정 모델 아키텍처 다이어그램
-
-## 📖 Results
-> 모델별 실험 성과 비교 및 최종 모델 성능 표
