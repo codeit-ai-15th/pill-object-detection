@@ -123,7 +123,8 @@
 ### 2.1 전체 흐름
 
 > **[그림 2-1] 실험 파이프라인 다이어그램**
-> raw 원본(불변) → 정제 목록 CSV(`data/label_fix/label_fixes.csv`) → 정제 사본(`data/processed`) → 고정 분할 목록(`data/datasets/images.csv`, `classes.csv`) → 방법(v1~v4)별 학습 폴더(YOLO·COCO 형식) → 모델 3계열 학습(Colab·로컬) → 공용 채점(`evaluate.py`) → W&B 기록 → Kaggle 제출 CSV. (FigJam 또는 직접 그림)
+
+![실험 파이프라인 다이어그램](./figures/fig_2-1_experiment_pipeline.png)
 
 팀 내에서 확정한 원칙은 네 가지다.
 
@@ -1241,7 +1242,7 @@ uv run demo/app.py                           # .env의 PILL_DEMO_* 가중치 3�
 | 번호 | 내용 | 출처 | 상태 |
 | --- | --- | --- | --- |
 | 그림 0-1 (= 9-1) | 단계별 val·Kaggle 한 그래프 | FigJam | 만들기 |
-| 그림 2-1 | 파이프라인 다이어그램 | FigJam/직접 | 만들기 |
+| 그림 2-1 | 파이프라인 다이어그램 | 직접 (SVG) | `report/figures` |
 | 그림 3-1 | train과 test 밝기 분포 비교 | 00 2-4 | `report/figures` |
 | 그림 3-2 | 학습·test 사진 예시, 각도 3개 | 00 2-1, 6-2 | FigJam EDA 보드 |
 | 그림 3-3 | Kaggle 라벨 오류 예시 | 00 3-1, 3-4 | FigJam EDA 보드 |
