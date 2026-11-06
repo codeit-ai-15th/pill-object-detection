@@ -7,15 +7,19 @@
 
 > 🔗 **서비스 바로가기**
 >
-> [Hugging Face Space: Pill Detection](https://huggingface.co/spaces/relukang/pill-object-detection)
+> [Hugging Face Space: Pill Detection 바로가기](https://huggingface.co/spaces/relukang/pill-object-detection)
 
 > 📹 **서비스 소개 유튜브 영상**
 >
-> [YouTube Video](https://www.youtube.com/watch?v=dUJKRc9mURE)
+> [YouTube 바로가기](https://www.youtube.com/watch?v=dUJKRc9mURE)
 
 > 🖼️ **서비스 미리보기**
 > 
 > <img width="900" height="700" alt="Screenshot 2026-11-05 at 10 24 38" src="https://github.com/user-attachments/assets/4233d40f-4c78-40fb-af4e-1d52223d8a31" />
+
+> 🎤 **발표자료 바로가기**
+>
+> [Google Drive 바로가기](https://drive.google.com/file/d/1PlH50c45ItooByb0JRnuINE506RuS4J3/view?usp=sharing)
 
 ## 📊 DataSet Overview
 본 프로젝트는 [Kaggle 대회](https://www.kaggle.com/competitions/ai15-level1-project/data)와 [AI Hub에서 제공하는 공개 데이터셋](https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=576)에서 제공하는 데이터를 혼합해서 활용했습니다. 
