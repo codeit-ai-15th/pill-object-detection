@@ -21,6 +21,11 @@
 >
 > [Google Drive 바로가기](https://drive.google.com/file/d/1PlH50c45ItooByb0JRnuINE506RuS4J3/view?usp=sharing)
 
+> 👫 **팀 노션 바로가기**
+>
+> [Notion Team Page](https://app.notion.com/p/Project-1-3ff97c8cd42c804b9e95e74851c347f8?source=copy_link)
+
+
 ## 📊 DataSet Overview
 본 프로젝트는 [Kaggle 대회](https://www.kaggle.com/competitions/ai15-level1-project/data)와 [AI Hub에서 제공하는 공개 데이터셋](https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=576)에서 제공하는 데이터를 혼합해서 활용했습니다. 
 - 제공된 데이터에서 EDA를 통해 라벨 오류를 제거하고, 형식을 통일해 데이터 퀄리티를 확보했습니다. 
