@@ -105,6 +105,7 @@ pill-object-detection/
 ├── tests/                     # 공용 코드 테스트 (uv run pytest)
 ├── runs/                      # 학습 결과
 ├── submissions/               # 제출 CSV
+├── report/                    # 최종 보고서 (final_report.md, 그림은 figures/)
 ├── hooks/                     # pre-commit hook 스크립트
 ├── EXPERIMENTS.md             # 2차 실험 가이드: 학습 폴더, 학습, val 채점, 제출
 └── CONTRIBUTING.md            # git·PR·커밋 협업 규칙
