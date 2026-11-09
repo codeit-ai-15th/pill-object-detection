@@ -1,9 +1,8 @@
-# 경구약제 이미지 객체 검출: 최종 보고서 (초안)
+# 경구약제 이미지 객체 검출: 최종 보고서
 
-> **상태**: 초안 v0.1 (2026-11-04). 코드잇 AI 15기 초급 프로젝트 1, 팀 2 (codeit-prj1-team2).
+> **상태**: 최종본 v1.0 (2026-11-09). 코드잇 AI 15기 초급 프로젝트 1, 팀 2 (codeit-prj1-team2).
 > **읽는 법**
-> - `[그림 N-M]`, `[표 N-M]`은 그림·표가 들어갈 자리입니다. 그래프는 FigJam의 장표를 붙여 넣습니다. 괄호 안에 어떤 자료를 쓰면 되는지 적어 두었습니다.
-> - `[TODO: …]`는 아직 값이 없거나 확인이 필요한 곳입니다. 전체 목록은 [부록 F](#부록-f-작성-전-채울-빈칸)에 있습니다.
+> - `[그림 N-M]`, `[표 N-M]`은 그림·표 번호입니다. 그림·표마다 출처는 [부록 E](#부록-e-그림표-목록)에 있습니다.
 > - 4·6·8·9장의 수치는 W&B 기록(`codeit-prj1-team2/pill-object-detection`)과 Kaggle 제출 기록에서 가져왔고, 그림은 W&B history·`best.pt`·Drive의 val 예측을 로컬에서 다시 채점해 만들었습니다(부록 E). Faster R-CNN 1·2·3차 수치는 main에 머지된 정리 문서(`notebooks/modeling/exp{1,2,3}/frcnn-exp*.md`, PR #53)와 대조해 맞췄습니다.
 > - 수치 뒤 괄호의 `00 4-2` 같은 표기는 근거 노트북과 절 번호입니다. 00 = `notebooks/eda/00_kaggle_eda.ipynb`, 01 = `01_aihub_eda.ipynb`, 02 = `02_test_class_freq_eda.ipynb`, 03 = `03_val_test_gap_eda.ipynb`, Y1 = `notebooks/modeling/exp1/yolo26-exp1.md`, Y2 = `notebooks/modeling/exp2/yolo26-exp2.md`.
 > - 가설 번호는 발표자료와 같은 체계다: 1차 H1~H4, 2차 H5~H7. 7장(val·Kaggle 점수 차이의 원인)은 별도로 H1~H8을 쓴다. 번호 없이 "추가 확인"으로 적은 것은 가설표에는 없었지만 같이 확인한 항목이다.
@@ -58,16 +57,20 @@
 - 최종 run은 모델마다 Kaggle public 점수가 가장 높은 제출을 기준으로 선정했다.
 - 추론 시간은 T4, 입력 640, 배치 1, 점수 하한 0.01, 5회 평균으로 측정함.
 
-> **[표 0-2] Kaggle 리더보드 (2026-11-05 09:08 KST, public)**
+> **[표 0-2] Kaggle 최종 리더보드 (private)**
 
-| 순위 | 팀 | public | private | 비고 |
-| ---: | --- | ---: | --- | --- |
-| 1 | **우리 팀 (team2)** | **0.63390** | | YOLO26s `v3_yolo26s_e20_s0` |
-| 2 | 다른 팀 | 0.63060 | | |
-| 3 | 다른 팀 | 0.61804 | | | 
+| private 순위 | public 순위 | 팀 | private | 비고 |
+| ---: | ---: | --- | ---: | --- |
+| 1 | 4 | 다른 팀 | 0.60154 | |
+| 2 | 1 | **우리 팀 (team2)** | **0.59225** | public 최고 0.63390 (YOLO26s `v3_yolo26s_e20_s0`) |
+| 3 | 5 | 다른 팀 | 0.59087 | |
+| 4 | 2 | 다른 팀 | 0.59022 | |
+| 5 | 3 | 다른 팀 | 0.58989 | |
+| 6 | 6 | 다른 팀 | 0.06677 | |
 
-- 우리 팀의 v3_yolo26s_e20_s0 public 점수가 0.63390로 1등이기는 하지만, 우리가 실험한 세 계열 모델의 최고 제출 점수(0.6339 / 0.6156 / 0.6141)과 2위 팀의 차이는 매우 근소하다. 1위는 순위일 뿐 모델 간 우열의 근거는 아니라고 판단했다.
-- 최종 순위는 private으로 정해진다. `[TODO: 최종 public/private 순위]`
+- 우리 팀의 v3_yolo26s_e20_s0 public 점수가 0.63390로 1등이기는 했지만, 우리가 실험한 세 계열 모델의 최고 제출 점수(0.6339 / 0.6156 / 0.6141)과 public 2위 팀(2026-11-05 09:08 기준 0.63060)의 차이는 매우 근소하다. 1위는 순위일 뿐 모델 간 우열의 근거는 아니라고 판단했다.
+- 최종 순위는 private으로 정해진다. 우리 팀은 public 1위에서 private 2위가 되었다. private 1위와의 차이는 0.0093이고, 2~5위는 0.0024 안에 모여 있다.
+- private 0.59225는 `v3_yolo26s_e20_s2` 제출(public 0.62429)의 점수다. public 최고였던 `v3_yolo26s_e20_s0`의 private은 0.58168이다.
 
 ### 0.4 링크
 
@@ -161,7 +164,7 @@
 | 2-stage | Faster R-CNN ResNet50-FPN | RPN + RoI head | 약 4,176만 / 134.38 GFLOPs (torchvision 문서값) | torchvision | 이채정, 강래우 |
 
 - **YOLO26s를 사용한 이유**: Selçuk Univ.(2026) 알약 검출 비교에서 YOLOv8s와 YOLO26s의 mAP50-95가 0.954로 같고, YOLO26s는 NMS를 없애 후처리가 0.19ms로 가장 짧다. 우리는 데모 서비스도 프로젝트 목적에 두고 있었기 때문에 추론시간을 고려해 YOLO26s를 실험 후보에 넣었다.
-- **Faster R-CNN을 사용한 이유**: "같은 YOLO 세대끼리 비교하기보다는 서로 다른 계열의 모델을 비교해보자"는 논의 끝에, 구조가 전혀 다른 2-stage Detector 대표로 Faster R-CNN을 넣었다. 알약 검출 비교 논문(Tan et al., 2021 프리프린트, [부록 G](#부록-g-참고문헌) 2번)에서 Faster R-CNN이 mAP 87.69%로 가장 높았지만, YOLO v3(mAP 80.17%)가 FPS 기준 8배 이상 빨랐다. 정확도-속도 트레이드오프를 직접 확인하려는 목적이 있었다.
+- **Faster R-CNN을 사용한 이유**: "같은 YOLO 세대끼리 비교하기보다는 서로 다른 계열의 모델을 비교해보자"는 논의 끝에, 구조가 전혀 다른 2-stage Detector 대표로 Faster R-CNN을 넣었다. 알약 검출 비교 논문(Tan et al., 2021 프리프린트, [부록 F](#부록-f-참고문헌) 2번)에서 Faster R-CNN이 mAP 87.69%로 가장 높았지만, YOLO v3(mAP 80.17%)가 FPS 기준 8배 이상 빨랐다. 정확도-속도 트레이드오프를 직접 확인하려는 목적이 있었다.
 - **RT-DETR을 사용한 이유**: 팀원이 실험을 진행하고 있는 YOLO26(1단계 CNN), Faster R-CNN(2단계 CNN)과 계열이 다른 Transformer 계열 중에서 RT-DETR을 선정했다. RT-DETR은 정확도 중심이던 DETR 계열을 실시간 영역으로 옮긴 모델(CVPR 2024)이고, 후속 실시간 DETR인 RT-DETRv2가 기준으로 삼은 모델이기 때문에 Transformer 계열의 대표로 골랐다. COCO 사전학습 가중치로 적은 데이터를 미세조정할 수 있고, YOLO26과 같은 Ultralytics 파이프라인을 그대로 쓸 수 있다는 점이 결정적이었다.
 - **모두 COCO 사전학습 가중치에서 전체 미세조정(full fine-tuning)으로 학습했다**. 
 
@@ -1529,8 +1532,6 @@ uv run demo/app.py                           # .env의 PILL_DEMO_* 가중치 3�
 
 ### 13.2 회고 (KPT)
 
-`[TODO: 팀 회고 후 채움. 아래는 회의록에서 뽑은 초안]`
-
 - **Keep**
   - "베이스라인을 빨리 잡고 거기서 성장한 것을 보여 주자"는 스토리라인을 처음(10/22)에 합의하고 끝까지 지켰다.
   - 원본 불변 + 정제 목록 CSV + 고정 분할 + 단일 채점 코드. 누구 환경에서든 같은 데이터·같은 점수.
@@ -1814,7 +1815,7 @@ uv run demo/app.py                           # .env의 PILL_DEMO_* 가중치 3�
 - 세 모델이 같은 GPU에서 돈 적이 없고, Faster R-CNN은 2차와 3차 사이에 torch 버전까지 바뀌었다. 이것이 11장 "모델 간 환경 불일치" 한계의 근거다.
 - 로컬 재현 환경(`uv.lock`): ultralytics 8.4.183, torch 2.14.1, torchvision 0.29.1, Python 3.12. 보고서 그림의 재채점은 macOS MPS에서 했다.
 
-### 부록 E. 그림·표 목록 (FigJam 장표 매핑용)
+### 부록 E. 그림·표 목록
 
 | 번호 | 내용 | 출처 | 상태 |
 | --- | --- | --- | --- |
@@ -1875,24 +1876,7 @@ uv run demo/app.py                           # .env의 PILL_DEMO_* 가중치 3�
 
 - 4·6·8·9장 그림은 모두 같은 스크립트로 만들었다: W&B history CSV(손실·mAP), W&B 모델 artifact `best.pt`를 내려받아 로컬(MPS, conf 0.001, imgsz 640)에서 val을 추론한 예측, Faster R-CNN은 Drive의 `val_predictions.json`과 W&B `analysis/class_iou_ap` 테이블. 재채점한 val 점수는 W&B 기록과 0.0012 안에서 같았다(kaggle 47장은 최대 0.0066 차이). confusion·오류 표는 모두 score ≥ 0.30, score 우선 일대일 매칭(IoU ≥ 0.75) 기준이다.
 
-### 부록 F. 작성 전 채울 빈칸
-
-- [x] 추론 시간 3계열 (T4, 640, 배치 1, 5회 평균) → 표 0-1, 9-2
-- [x] 그림 4-6 test 과잉 예측 예시 (1차 best.pt test 재추론)
-- [x] 그림 8-1b~d 모델 선정 그림 (Colab 실행 결과 7장)
-- [ ] 최종 public/private 순위
-- [ ] Faster R-CNN 3차 판정: 환경을 맞춘 baseline 재실행 또는 seed 추가 뒤 확정 (지금은 보류)
-- [x] 실험 환경 표 → 부록 D (각자 CSV 대신 W&B config·정리 md에서 모음)
-- [ ] KPT 회고 (팀 회고 뒤)
-- [x] 최종 가중치 위치(Drive + W&B artifact), W&B report 링크(0.4절)
-- [x] 재현 명령이 README·EXPERIMENTS.md·scripts/와 맞는지 확인 (2026-11-06)
-- [x] Faster R-CNN 1·2차 run 수치, 3차 run 표 → 표 4-2, 6-4, 8-2
-- [x] RT-DETR-l 2차 본문 확정 (PR #51 머지)
-- [x] 1차·2차·3차 학습 곡선, confusion, 클래스별 AP, 흔들리는 클래스 그림 → 4·6·8장
-- [x] 혼동 행렬 기준 통일 (score ≥ 0.30, score 우선 일대일 매칭 IoU ≥ 0.75)
-- [x] 제출 이력 → 표 A-4
-
-### 부록 G. 참고문헌
+### 부록 F. 참고문헌
 
 **모델 선정**
 1. Tan, L., Huangfu, T., Wu, L. & Chen, W. "Comparison of RetinaNet, SSD, and YOLO v3 for real-time pill identification." *BMC Medical Informatics and Decision Making* 21, 324 (2021). https://doi.org/10.1186/s12911-021-01691-8 (심사본. RetinaNet mAP 82.89%, YOLO v3 80.69%, FPS YOLO v3 약 51 / SSD 약 32 / RetinaNet 약 17)
