@@ -11,21 +11,22 @@ AI 코딩 에이전트(Claude Code, Codex 등)가 이 레포에서 작업할 때
 | 알고 싶은 것 | 원본 |
 | --- | --- |
 | 폴더별 용도 | [README.md](README.md) Project Structure |
-| 환경 설정, uv 사용법, uv.lock 충돌 해결 | [README.md](README.md) Dependencies |
+| 환경 설정, uv 사용법 | [README.md](README.md) Dependencies |
+| uv.lock 충돌 해결, pre-commit hook, 노트북 출력 제거 필터 | [SETUP.md](SETUP.md) 의존성 관리 |
 | 대회 규칙: 사용 금지 데이터, 제출 CSV 형식, 평가 지표 | [RULE.md](RULE.md) |
 | 데이터 파일 구성, annotation JSON 필드, 대회 측 가공 내역 | [DATA.md](DATA.md) |
 | git 명령 순서 | [CONTRIBUTING.md](CONTRIBUTING.md#git-cheat-sheet) |
 | 브랜치 이름, 커밋 메시지, PR과 이슈 보드 | [CONTRIBUTING.md](CONTRIBUTING.md#협업-방식) |
 | PR 본문 양식 | [.github/pull_request_template.md](.github/pull_request_template.md) |
 | bbox 형식 세 가지와 변환 함수 | [src/pill_detection/utils.py](src/pill_detection/utils.py) 모듈 docstring |
-| 학습 데이터 준비: AI Hub 받기, 정제 목록 CSV 형식, 실행 방법 | [README.md](README.md) 학습 데이터 준비, [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring |
+| 학습 데이터 준비: AI Hub 받기, 정제 목록 CSV 형식, 실행 방법 | [SETUP.md](SETUP.md) 학습 데이터 준비, [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring |
 | AI Hub 데이터를 왜 어떻게 쓰기로 했나(EDA), 정제 목록 aihub 줄을 만든 과정 | [notebooks/eda/01_aihub_eda.ipynb](notebooks/eda/01_aihub_eda.ipynb) 7절 결정 표, 정제 과정은 [notebooks/eda/label_fix/01_aihub_label_fix.ipynb](notebooks/eda/label_fix/01_aihub_label_fix.ipynb) |
-| Kaggle 사본만 다시 만들기(AI Hub 없이) | [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring, [README.md](README.md) Scripts |
+| Kaggle 사본만 다시 만들기(AI Hub 없이) | [src/pill_detection/data.py](src/pill_detection/data.py) 모듈 docstring, [SETUP.md](SETUP.md) Scripts |
 | 2차 실험 진행: 학습 폴더, 학습(Colab 포함), val 채점, 제출 | [EXPERIMENTS.md](EXPERIMENTS.md), Colab 코드는 [notebooks/modeling/exp2/exp2_colab_smoke_test.ipynb](notebooks/modeling/exp2/exp2_colab_smoke_test.ipynb) |
 | 2차 실험 목록 CSV의 열, 방법 v1~v4, 학습 폴더 구성 | [data/datasets/README.md](data/datasets/README.md), [src/pill_detection/datasets.py](src/pill_detection/datasets.py) 모듈 docstring |
 | val 채점 규칙(점수 3개, 무시하는 예측)과 제출 CSV 변환 | [src/pill_detection/evaluate.py](src/pill_detection/evaluate.py) 모듈 docstring |
 | 3차 실험 클래스 불균형 대응: 샘플링 목록, 클래스 가중치, 모델별 연결, 비교 기준, 불균형 지표 | [src/pill_detection/balance.py](src/pill_detection/balance.py) 모듈 docstring, 모델 선정은 [notebooks/modeling/exp3/exp3_model_selection.ipynb](notebooks/modeling/exp3/exp3_model_selection.ipynb), Colab 코드는 [exp3_ultralytics_smoke_test.ipynb](notebooks/modeling/exp3/exp3_ultralytics_smoke_test.ipynb)와 [exp3_frcnn_smoke_test.ipynb](notebooks/modeling/exp3/exp3_frcnn_smoke_test.ipynb) |
-| 데모 웹페이지: 실행, 가중치 환경 변수, 허가정보 캐시 만들기, HF Space 배포 | [README.md](README.md) 데모, [demo/app.py](demo/app.py)·[demo/build_drug_info.py](demo/build_drug_info.py)·[demo/deploy_space.py](demo/deploy_space.py) 모듈 docstring |
+| 데모 웹페이지: 실행, 가중치 환경 변수, 허가정보 캐시 만들기, HF Space 배포 | [SETUP.md](SETUP.md) 데모, [demo/app.py](demo/app.py)·[demo/build_drug_info.py](demo/build_drug_info.py)·[demo/deploy_space.py](demo/deploy_space.py) 모듈 docstring |
 | 테스트: 기준값과 노트북 결론 | [tests/helpers.py](tests/helpers.py) 모듈 docstring |
 | 환경 변수 이름 | [.env.example](.env.example) |
 | git에서 제외하는 파일 | [.gitignore](.gitignore) |
@@ -34,7 +35,7 @@ AI 코딩 에이전트(Claude Code, Codex 등)가 이 레포에서 작업할 때
 ## 반드시 지킬 것
 이유와 절차는 링크한 문서에 있습니다.
 - main 브랜치에서 작업하지 않습니다. 작업 브랜치를 만들고 PR로 병합합니다. → [CONTRIBUTING.md](CONTRIBUTING.md#general-rule)
-- 패키지는 `uv add`로만 추가하고 `pip install`은 쓰지 않습니다. `pyproject.toml`과 `uv.lock`은 함께 커밋하고 `uv.lock`은 직접 고치지 않습니다. → [README.md](README.md) Dependencies
+- 패키지는 `uv add`로만 추가하고 `pip install`은 쓰지 않습니다. `pyproject.toml`과 `uv.lock`은 함께 커밋하고 `uv.lock`은 직접 고치지 않습니다. → [SETUP.md](SETUP.md) 의존성 관리
 - `git commit --no-verify`로 hook을 우회하지 않습니다. hook이 실패하면 출력된 해결 명령을 따릅니다.
 - `data/raw/`의 원본 데이터는 수정하지 않습니다. → [README.md](README.md) Project Structure
 - `data/datasets/`의 목록 CSV는 2차 val을 고정합니다. 손으로 고치거나 `make_dataset_lists.py`를 `--check` 없이 실행해 바꾸지 않습니다. → [EXPERIMENTS.md](EXPERIMENTS.md#하지-말-것)
@@ -49,7 +50,7 @@ AI 코딩 에이전트(Claude Code, Codex 등)가 이 레포에서 작업할 때
 uv sync                              # pull 뒤나 의존성이 바뀐 뒤 환경 맞추기
 uv run python <스크립트>               # 가상환경을 켜지 않고 실행
 uv add <패키지>                        # 의존성 추가. 개발용은 uv add --dev <패키지>
-uv run scripts/<이름>.py --help      # 레포 최상위에서 스크립트 실행. 사용법은 README Scripts
+uv run scripts/<이름>.py --help      # 레포 최상위에서 스크립트 실행. 사용법은 SETUP.md Scripts
 uv run pytest                        # 공용 코드를 고친 뒤 테스트. 실제 데이터가 없는 테스트는 건너뜀
 uv run pre-commit run --all-files    # 커밋 전에 hook 미리 돌려 보기
 ```

@@ -29,7 +29,7 @@ def skip_without(*folders):
     """폴더가 하나라도 없으면 테스트를 건너뛴다. 건너뛴 이유에 받는 방법을 적는다."""
     missing = [Path(f).relative_to(PROJECT_ROOT).as_posix() for f in folders if not Path(f).is_dir()]
     if missing:
-        pytest.skip(f"데이터 폴더가 없어 건너뜀: {', '.join(missing)} (README의 학습 데이터 준비를 보고 받으세요)")
+        pytest.skip(f"데이터 폴더가 없어 건너뜀: {', '.join(missing)} (SETUP.md의 학습 데이터 준비를 보고 받으세요)")
 
 
 @pytest.fixture(scope="session")

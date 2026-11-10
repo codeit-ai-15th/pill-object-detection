@@ -16,7 +16,7 @@
     중간에 멈추면 같은 명령을 다시 실행한다. 끝난 단계는 건너뛴다.
 
 준비
-- Kaggle 원본은 README의 데이터 받기를 따라 data/raw/에 둔다.
+- Kaggle 원본은 SETUP.md의 학습 데이터 준비를 따라 data/raw/에 둔다.
 - AI Hub 576 데이터셋 이용 승인을 받고, 발급받은 API 키를 .env의 AIHUB_APIKEY에 넣는다. (.env.example 참고)
 - 디스크: AI Hub 원본 약 28GB + 받는 동안 zip 하나(약 3GB)의 2배 + 여유 2GB. 사본 PNG는 하드링크라 더 들지 않는다.
 
@@ -102,12 +102,12 @@ def main(argv=None):
     """
     argparse.ArgumentParser(
         description="학습 데이터(Kaggle + AI Hub)를 준비한다. AI Hub zip을 받고 풀고, 정제 목록대로 고친 사본과 변경 기록을 만든다. "
-                    "인자는 없다. 자세한 설명은 이 파일 맨 위와 README의 학습 데이터 준비를 본다.",
+                    "인자는 없다. 자세한 설명은 이 파일 맨 위와 SETUP.md의 학습 데이터 준비를 본다.",
     ).parse_args(argv)
     missing = [p.relative_to(PROJECT_ROOT).as_posix() for p in (KAGGLE_ANN_DIR, KAGGLE_IMG_DIR) if not p.is_dir()]
     if missing:
         print(f"[오류] Kaggle 원본 폴더가 없습니다: {', '.join(missing)}\n"
-              "[해결] README의 데이터 받기를 따라 대회 데이터를 data/raw/에 풀고 다시 실행하세요.")
+              "[해결] SETUP.md의 학습 데이터 준비를 따라 대회 데이터를 data/raw/에 풀고 다시 실행하세요.")
         return 1
 
     todo = zips_to_fetch(AIHUB_ZIPS)

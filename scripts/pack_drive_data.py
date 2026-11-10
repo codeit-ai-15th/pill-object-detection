@@ -35,7 +35,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-# zip 이름 → [(폴더(레포 최상위 기준), 확장자, 기대 파일 수)]. 기대값은 README 학습 데이터 준비의 결과와 같다
+# zip 이름 → [(폴더(레포 최상위 기준), 확장자, 기대 파일 수)]. 기대값은 SETUP.md 학습 데이터 준비의 결과와 같다
 PACKS = {
     "kaggle": [("data/raw/train_images", ".png", 232), ("data/processed/train_annotations", ".json", 771)],
     "aihub_annotations": [("data/processed/ai_hub/train_annotations", ".json", 45819)],
@@ -161,7 +161,7 @@ def main(argv=None, root=PROJECT_ROOT, packs=PACKS):
     members, problems = collect(root, names, packs)
     if problems:
         print("[오류] 학습 데이터가 기대한 것과 다릅니다.\n  " + "\n  ".join(problems) + "\n"
-              "[해결] uv run scripts/prepare_train_data.py를 다시 실행하고, 요약이 README 학습 데이터 준비와 같은지 확인하세요.")
+              "[해결] uv run scripts/prepare_train_data.py를 다시 실행하고, 요약이 SETUP.md 학습 데이터 준비와 같은지 확인하세요.")
         return 1
 
     out.mkdir(parents=True, exist_ok=True)
