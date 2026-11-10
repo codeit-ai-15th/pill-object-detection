@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" width="200" height="240">
+  <title>알약 캐릭터</title>
+  <defs>
+    <clipPath id="body-blue">
+      <rect x="58" y="28" width="84" height="180" rx="42"/>
+    </clipPath>
+  </defs>
+  <ellipse cx="100" cy="227" rx="54" ry="7" fill="#000" opacity="0.08"/>
+  <!-- 팔: 왼팔은 흔들고 오른팔은 내림 -->
+  <path d="M60 146 Q42 144 36 124" fill="none" stroke="#3A2E39" stroke-width="12" stroke-linecap="round"/>
+  <path d="M60 146 Q42 144 36 124" fill="none" stroke="#62B6F7" stroke-width="5" stroke-linecap="round"/>
+  <path d="M140 150 Q156 158 158 176" fill="none" stroke="#3A2E39" stroke-width="12" stroke-linecap="round"/>
+  <path d="M140 150 Q156 158 158 176" fill="none" stroke="#62B6F7" stroke-width="5" stroke-linecap="round"/>
+  <!-- 발 -->
+  <ellipse cx="82" cy="213" rx="14" ry="9" fill="#3E93D6" stroke="#3A2E39" stroke-width="5"/>
+  <ellipse cx="118" cy="213" rx="14" ry="9" fill="#3E93D6" stroke="#3A2E39" stroke-width="5"/>
+  <!-- 몸통: 위는 색, 아래는 흰색 캡슐 -->
+  <g clip-path="url(#body-blue)">
+    <rect x="58" y="28" width="84" height="180" fill="#FFF9F2"/>
+    <rect x="58" y="28" width="84" height="90" fill="#62B6F7"/>
+    <rect x="58" y="108" width="84" height="10" fill="#3E93D6" opacity="0.35"/>
+  </g>
+  <line x1="58" y1="118" x2="142" y2="118" stroke="#3A2E39" stroke-width="4"/>
+  <rect x="58" y="28" width="84" height="180" rx="42" fill="none" stroke="#3A2E39" stroke-width="6"/>
+  <!-- 반짝임 -->
+  <path d="M74 66 Q75 48 90 41" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" opacity="0.9"/>
+  <circle cx="73" cy="80" r="3.5" fill="#FFFFFF" opacity="0.9"/>
+  <!-- 얼굴 -->
+  <ellipse cx="85" cy="147" rx="7.5" ry="9.5" fill="#3A2E39"/>
+  <ellipse cx="115" cy="147" rx="7.5" ry="9.5" fill="#3A2E39"/>
+  <circle cx="87.8" cy="143.2" r="3" fill="#FFFFFF"/>
+  <circle cx="117.8" cy="143.2" r="3" fill="#FFFFFF"/>
+  <ellipse cx="72" cy="163" rx="7.5" ry="4.5" fill="#FF8FA3" opacity="0.65"/>
+  <ellipse cx="128" cy="163" rx="7.5" ry="4.5" fill="#FF8FA3" opacity="0.65"/>
+  <path d="M93 162 Q100 170 107 162" fill="none" stroke="#3A2E39" stroke-width="4" stroke-linecap="round"/>
+</svg>

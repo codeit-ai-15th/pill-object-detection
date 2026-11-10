@@ -2,7 +2,7 @@
 
 pill_detection.data.make_fixed_annotations()를 부르고 결과를 요약해 출력하기만 한다.
 각 인자의 뜻과 규칙은 그 함수의 docstring을 본다. (src/pill_detection/data.py)
-실행 방법과 사용 예시는 README.md의 Scripts 섹션을 본다.
+실행 방법과 사용 예시는 SETUP.md의 Scripts 섹션을 본다.
 """
 
 import argparse

@@ -1491,7 +1491,7 @@ val 점수도 Kaggle 점수도 세 모델이 비슷하다(11/3 회의: "그러�
 
 ## 12. 재현 방법
 
-자세한 절차는 레포의 [README.md](../README.md)(설치, 데이터 준비, 데모)와 [EXPERIMENTS.md](../EXPERIMENTS.md)(2차 실험 가이드: 로컬·Colab)에 있다. 요약:
+자세한 절차는 레포의 [README.md](../README.md)(설치), [SETUP.md](../SETUP.md)(데이터 준비, 데모)와 [EXPERIMENTS.md](../EXPERIMENTS.md)(2차 실험 가이드: 로컬·Colab)에 있다. 요약:
 
 ```bash
 # 1. 환경 (Python 3.12, uv)
