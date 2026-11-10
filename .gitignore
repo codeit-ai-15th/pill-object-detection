@@ -33,3 +33,6 @@ submissions/
 
 # API 키 같은 비밀 값 (W&B 키, 2차 마일스톤 공공데이터 키)
 .env
+
+# 최종 보고서 PDF: 용량이 커서(약 76MB) 커밋하지 않는다. report/final_report.md에서 뽑는다.
+report/final_report.pdf
