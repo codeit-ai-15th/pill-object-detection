@@ -11,7 +11,8 @@ AI 코딩 에이전트(Claude Code, Codex 등)가 이 레포에서 작업할 때
 | 알고 싶은 것 | 원본 |
 | --- | --- |
 | 폴더별 용도 | [README.md](README.md) Project Structure |
-| 환경 설정, uv 사용법, uv.lock 충돌 해결 | [README.md](README.md) Dependencies |
+| 환경 설정, uv 사용법 | [README.md](README.md) Dependencies |
+| uv.lock 충돌 해결, pre-commit hook, 노트북 출력 제거 필터 | [SETUP.md](SETUP.md) 의존성 관리 |
 | 대회 규칙: 사용 금지 데이터, 제출 CSV 형식, 평가 지표 | [RULE.md](RULE.md) |
 | 데이터 파일 구성, annotation JSON 필드, 대회 측 가공 내역 | [DATA.md](DATA.md) |
 | git 명령 순서 | [CONTRIBUTING.md](CONTRIBUTING.md#git-cheat-sheet) |
@@ -34,7 +35,7 @@ AI 코딩 에이전트(Claude Code, Codex 등)가 이 레포에서 작업할 때
 ## 반드시 지킬 것
 이유와 절차는 링크한 문서에 있습니다.
 - main 브랜치에서 작업하지 않습니다. 작업 브랜치를 만들고 PR로 병합합니다. → [CONTRIBUTING.md](CONTRIBUTING.md#general-rule)
-- 패키지는 `uv add`로만 추가하고 `pip install`은 쓰지 않습니다. `pyproject.toml`과 `uv.lock`은 함께 커밋하고 `uv.lock`은 직접 고치지 않습니다. → [README.md](README.md) Dependencies
+- 패키지는 `uv add`로만 추가하고 `pip install`은 쓰지 않습니다. `pyproject.toml`과 `uv.lock`은 함께 커밋하고 `uv.lock`은 직접 고치지 않습니다. → [SETUP.md](SETUP.md) 의존성 관리
 - `git commit --no-verify`로 hook을 우회하지 않습니다. hook이 실패하면 출력된 해결 명령을 따릅니다.
 - `data/raw/`의 원본 데이터는 수정하지 않습니다. → [README.md](README.md) Project Structure
 - `data/datasets/`의 목록 CSV는 2차 val을 고정합니다. 손으로 고치거나 `make_dataset_lists.py`를 `--check` 없이 실행해 바꾸지 않습니다. → [EXPERIMENTS.md](EXPERIMENTS.md#하지-말-것)

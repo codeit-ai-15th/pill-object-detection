@@ -177,7 +177,7 @@ pill-object-detection/
 ├── report/                    # 최종 보고서 (final_report.md, 그림은 figures/)
 ├── hooks/                     # pre-commit hook 스크립트
 ├── .github/                   # PR 템플릿, 이슈 상태 자동화(workflows/), README 이미지(assets/)
-├── SETUP.md                   # 학습 데이터 준비, 스크립트 사용법, 데모 실행·배포
+├── SETUP.md                   # 의존성 관리 규칙, 학습 데이터 준비, 스크립트 사용법, 데모 실행·배포
 ├── EXPERIMENTS.md             # 2차 실험 가이드: 학습 폴더, 학습, val 채점, 제출
 └── CONTRIBUTING.md            # git·PR·커밋 협업 규칙
 ```
@@ -214,7 +214,7 @@ pill-object-detection/
     ```
     | **NOTE**: `pip install`로 설치하지 않습니다. `uv.lock`에 기록되지 않아 다른 팀원 간 환경에 drift 발생함. 
 
-> 환경을 만든 뒤 학습 데이터 준비, 스크립트 사용법, 데모 실행·배포는 [SETUP.md](SETUP.md)를 따릅니다.
+> 환경을 만든 뒤 의존성 관리 규칙(uv.lock 충돌 해결, pre-commit hook), 학습 데이터 준비, 스크립트 사용법, 데모 실행·배포는 [SETUP.md](SETUP.md)를 따릅니다.
 
 ## 📎 Deliverables
 

@@ -2,9 +2,28 @@
 
 [README.md](README.md)의 Dependencies로 환경을 만든 뒤, 학습 데이터 준비부터 데모 실행까지 이 문서를 따릅니다.
 
+- [의존성 관리](#-의존성-관리): `uv.lock` 충돌 해결, pre-commit hook, 노트북 출력 제거 필터 규칙입니다.
 - [학습 데이터 준비](#-학습-데이터-준비): Kaggle 원본과 AI Hub 데이터를 받고 정제 사본을 만듭니다.
 - [Scripts](#️-scripts): `scripts/`의 스크립트 사용법입니다.
 - [데모](#-데모): 데모 웹페이지 실행과 Hugging Face Space 배포 방법입니다.
+
+## 📌 의존성 관리
+README의 Dependencies로 환경을 만든 뒤, 패키지를 추가하거나 커밋할 때 지킬 규칙입니다.
+
+1. `pyproject.toml`과 `uv.lock`은 항상 같이 커밋합니다.
+2. main을 pull한 뒤에는 uv sync를 실행합니다. 다른 팀원이 추가한 패키지가 반영됩니다.
+3. uv.lock에서 머지 충돌이 나면 직접 고치지 마세요. pyproject.toml에 충돌이 있으면 먼저 해결하고, 작업 브랜치에 그대로 있는 상태에서 아래 순서로 lock 파일을 다시 만듭니다. 충돌 표시가 남은 uv.lock으로는 `uv lock`이 실패하므로 main 버전으로 먼저 덮어씁니다.
+    ```bash
+    git restore --source=main --staged --worktree uv.lock   # 브랜치 이동 없이 main의 uv.lock만 가져옴
+    uv lock                                                 # 합쳐진 pyproject.toml 기준으로 다시 생성
+    git add pyproject.toml uv.lock
+    git commit --no-edit                                    # 작업 브랜치에 머지 커밋 생성
+    ```
+4. `pyproject.toml`이나 `uv.lock`을 커밋하면 pre-commit hook이 `uv lock --check`로 두 파일이 일치하는지 검사합니다. 실패하면 터미널에 원인과 해결 명령이 출력되니 그대로 따라 하면 됩니다. `--no-verify`로 우회하지 마세요.
+5. pre-commit hook을 추가할 때는 스크립트를 `hooks/`에 만들고 `.pre-commit-config.yaml`에 등록합니다.
+6. 노트북을 처음 커밋하면 pre-commit hook이 이 저장소에 출력 제거 필터(nbstripout)를 설정합니다. 따로 할 일은 없습니다.
+    - 노트북을 `git add`하거나 `git status`를 실행할 때 `external filter` 오류가 나면 `uv sync`를 실행합니다. `.venv`를 지우고 다시 만들지 않은 경우에 납니다.
+    - Colab의 "GitHub에 사본 저장"으로 커밋하지 않습니다. 필터를 거치지 않아 출력이 그대로 올라갑니다.
 
 ## 📦 학습 데이터 준비
 학습 데이터는 Kaggle 원본(`data/raw/`)과 [AI Hub 경구약제 이미지 데이터(데이터셋 번호: 576)](https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=576)을 함께 씁니다. 대회 규칙상 `TL_2_조합.zip`, `TS_2_조합.zip`은 쓰지 않습니다. ([RULE.md](RULE.md))
